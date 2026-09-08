@@ -49,10 +49,7 @@ cd ../database
 node seedData.js
 ```
 
-Seed creates:
-- Admin: `admin` / `admin123`
-- Students: `alice@exam.com`, `bob@exam.com`, `carol@exam.com` (password: `student123`)
-- 16 tagged questions + 1 sample exam assigned to all students
+Seed creates initial administrative and student test accounts along with sample questions and exams.
 
 ### 4. Python ML Service
 
@@ -77,19 +74,9 @@ npm run dev           # starts on http://localhost:3000
 
 ---
 
-## Environment Variables
+## Configuration
 
-### `backend/.env`
-
-| Variable         | Default                                       | Description              |
-|------------------|-----------------------------------------------|--------------------------|
-| `PORT`           | `5000`                                        | Backend port             |
-| `MONGO_URI`      | `mongodb://localhost:27017/adaptive_exam`     | MongoDB connection string |
-| `JWT_SECRET`     | *(change this)*                               | JWT signing secret       |
-| `ML_SERVICE_URL` | `http://localhost:8000`                       | ML microservice URL       |
-| `RISK_THRESHOLD` | `0.6`                                         | Risk score cutoff [0–1]  |
-| `ADMIN_USERNAME` | `admin`                                       | Default admin username   |
-| `ADMIN_PASSWORD` | `admin123`                                    | Default admin password   |
+Refer to `backend/.env.example` to set up your local environment configuration. Keep your `.env` private and never commit it to source control.
 
 ---
 
