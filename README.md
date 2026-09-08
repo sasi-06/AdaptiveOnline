@@ -80,47 +80,6 @@ Refer to `backend/.env.example` to set up your local environment configuration. 
 
 ---
 
-## API Overview
-
-| Method | Endpoint                             | Auth   | Description                         |
-|--------|--------------------------------------|--------|-------------------------------------|
-| POST   | `/api/auth/admin/login`              | –      | Admin login                         |
-| POST   | `/api/auth/student/login`            | –      | Student login                       |
-| GET    | `/api/students`                      | Admin  | List all students                   |
-| POST   | `/api/students`                      | Admin  | Create student                      |
-| GET    | `/api/exams`                         | Auth   | List all exams                      |
-| POST   | `/api/exams`                         | Admin  | Create exam                         |
-| PUT    | `/api/exams/assign`                  | Admin  | Assign exam to students             |
-| GET    | `/api/exams/student/:id`             | Auth   | Get student's assigned exams        |
-| GET    | `/api/questions`                     | Auth   | List questions (with filters)       |
-| POST   | `/api/questions/bulk`                | Admin  | Bulk upload questions               |
-| POST   | `/api/behavior`                      | Auth   | Log behavior + get risk + adaptive Q|
-| GET    | `/api/behavior/all`                  | Admin  | All behavior logs                   |
-| POST   | `/api/results`                       | Auth   | Submit exam + get result            |
-| GET    | `/api/results/all`                   | Admin  | All exam results                    |
-
----
-
-## ML Service Endpoints
-
-| Method | Endpoint    | Description                          |
-|--------|-------------|--------------------------------------|
-| POST   | `/analyze`  | Analyze behavior, return risk score  |
-| POST   | `/retrain`  | Retrain Isolation Forest model       |
-| GET    | `/health`   | Service health check                 |
-
-**Request body for `/analyze`:**
-```json
-{
-  "eye_deviation": 12.5,
-  "head_movement": 8.3,
-  "mouse_idle_time": 45.0,
-  "response_time": 22.0
-}
-```
-
----
-
 ## Running All Services Together
 
 Open 3 separate terminals:
