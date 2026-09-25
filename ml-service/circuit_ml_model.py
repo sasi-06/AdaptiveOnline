@@ -5,7 +5,7 @@ Trains an ensemble circuit evaluation model:
 
   Score Regressor:
     - MLP (512→256→128→64→32, ReLU, Adam)
-    - GradientBoostingRegressor (ensemble member)
+    - HistGradientBoostingRegressor (ensemble member)
     → Final score = weighted average of both
 
   Verdict Classifier:
@@ -13,8 +13,8 @@ Trains an ensemble circuit evaluation model:
     - RandomForestClassifier (ensemble member)
     → Final verdict = majority vote
 
-Features: 35 (expanded from 25)
-Training data: ~50,000 samples (14 circuit configs)
+Features: 60 (expanded from 35)
+Training data: ~71,000 samples (20 circuit configs × 3,000)
 
 Run:  python circuit_ml_model.py
 Saves: circuit_score_model.pkl
@@ -37,8 +37,9 @@ from sklearn.metrics import (
     accuracy_score, classification_report
 )
 
+# ── 60-Feature Column List (must match circuit_dataset_generator.py) ──────────
 FEATURE_COLS = [
-    # Structural
+    # ── GROUP A: Structural (original 35) ──────────────────────────────────────
     "n_components", "n_connections", "n_unique_nodes",
     "has_ground", "has_op_amp",
     # Component counts
@@ -50,12 +51,12 @@ FEATURE_COLS = [
     "v_in",
     # Topology quality
     "op_feedback_wired", "n_floating_comps",
-    # Question type one-hot
+    # Question type one-hot (original 8)
     "qtype_gain", "qtype_divider", "qtype_rlc", "qtype_led",
     "qtype_bjt", "qtype_rc_filter", "qtype_rectifier", "qtype_power_supply",
     # Value error
     "val_error_frac",
-    # Extended features
+    # Extended original
     "has_short_circuit",
     "circuit_completeness",
     "val_error_sigmoid",
@@ -66,6 +67,36 @@ FEATURE_COLS = [
     "r_count_ratio",
     "has_measurement_device",
     "design_complexity_score",
+    # ── GROUP B: New question type one-hot (6 new circuit types) ───────────────
+    "qtype_wheatstone",
+    "qtype_full_rectifier",
+    "qtype_zener",
+    "qtype_common_base",
+    "qtype_schmitt",
+    "qtype_oscillator",
+    # ── GROUP C: Net-Level Analysis (Union-Find) ───────────────────────────────
+    "n_true_nets",
+    "max_net_size",
+    "isolated_net_count",
+    "n_series_pairs",
+    "dc_path_complete",
+    # ── GROUP D: Component Value Physics ──────────────────────────────────────
+    "lc_product",
+    "rc_time_constant",
+    "r_value_std",
+    "cap_max_uf",
+    "ind_max_mh",
+    # ── GROUP E: Pin-Level Health ──────────────────────────────────────────────
+    "bjt_all_pins_wired",
+    "op_vcc_vee_wired",
+    "max_fan_out",
+    "avg_connections_per_comp",
+    # ── GROUP F: Exam Behavior Signals ─────────────────────────────────────────
+    "time_spent_sec",
+    "n_component_deletes",
+    "n_wire_deletes",
+    # ── GROUP G: Question Context ──────────────────────────────────────────────
+    "question_difficulty",
 ]
 
 DATA_PATH = Path(__file__).parent / "circuit_training_data.csv"

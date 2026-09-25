@@ -14,9 +14,97 @@
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { exportCircuitReportPDF, exportSchematicPNG } from '../../utils/exportCircuitReport';
+import ShapBreakdown from './ShapBreakdown';
+
+function ModelConsensusCard({ votes, disagreement, confidence, isDark }) {
+    if (!votes) return null;
+    const bgCard = isDark ? '#161b22' : '#ffffff';
+    const border = isDark ? '#30363d' : '#e2e8f0';
+    const textCol = isDark ? '#f0f6fc' : '#1e293b';
+
+    return (
+        <div style={{
+            background: bgCard,
+            border: `1px solid ${border}`,
+            borderRadius: 12,
+            padding: 14,
+            marginBottom: 14
+        }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: textCol, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    🤖 3-Model Ensemble Consensus
+                </span>
+                {disagreement ? (
+                    <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#fef2f2', color: '#dc2626', fontWeight: 700 }}>
+                        ⚠️ Disagreement (Instructor Review)
+                    </span>
+                ) : (
+                    <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', fontWeight: 700 }}>
+                        ✅ Consensus Reached
+                    </span>
+                )}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
+                <div style={{ background: isDark ? '#21262d' : '#f8fafc', padding: 8, borderRadius: 8 }}>
+                    <div style={{ fontSize: 10, color: isDark ? '#8b949e' : '#64748b' }}>Flat Neural Net</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: textCol, marginTop: 2 }}>{votes.flat_ensemble?.replace('_', ' ') || 'N/A'}</div>
+                </div>
+                <div style={{ background: isDark ? '#21262d' : '#f8fafc', padding: 8, borderRadius: 8 }}>
+                    <div style={{ fontSize: 10, color: isDark ? '#8b949e' : '#64748b' }}>Graph GCN</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: textCol, marginTop: 2 }}>{votes.gnn?.replace('_', ' ') || 'Active'}</div>
+                </div>
+                <div style={{ background: isDark ? '#21262d' : '#f8fafc', padding: 8, borderRadius: 8 }}>
+                    <div style={{ fontSize: 10, color: isDark ? '#8b949e' : '#64748b' }}>Physics Rules</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: textCol, marginTop: 2 }}>{votes.rule_engine?.replace('_', ' ') || 'N/A'}</div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function VivaQuestionsCard({ questions, isDark }) {
+    if (!questions || questions.length === 0) return null;
+    const bgCard = isDark ? '#161b22' : '#ffffff';
+    const border = isDark ? '#30363d' : '#e2e8f0';
+    const textCol = isDark ? '#f0f6fc' : '#1e293b';
+
+    return (
+        <div style={{
+            background: bgCard,
+            border: `1px solid ${border}`,
+            borderRadius: 12,
+            padding: 14,
+            marginBottom: 14
+        }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: textCol, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                🎙️ Tailored Circuit Viva Questions
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {questions.map((q, i) => (
+                    <div key={i} style={{
+                        background: isDark ? 'rgba(108, 99, 255, 0.06)' : '#f8faff',
+                        borderLeft: '3px solid #6c63ff',
+                        padding: '10px 12px',
+                        borderRadius: '0 8px 8px 0'
+                    }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: textCol, lineHeight: 1.5 }}>
+                            Q{i+1}: {q.questionText}
+                        </div>
+                        {q.contextCodeSnippet && (
+                            <div style={{ fontSize: 10, color: isDark ? '#a78bfa' : '#6c63ff', fontFamily: 'monospace', marginTop: 4 }}>
+                                Target Context: {q.contextCodeSnippet}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
 
 // ── Score ring (animated SVG circle) ─────────────────────────────────────────
 function ScoreRing({ score, size = 120 }) {
+
     const [displayed, setDisplayed] = useState(0);
     const radius = (size - 16) / 2;
     const circ   = 2 * Math.PI * radius;
@@ -750,6 +838,26 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
 
             {/* AI Reasoning Breakdown ───────────────────────────────────────── */}
             <AIReasoningSection evaluation={evaluation} isDark={isDark} />
+
+            {/* 🤖 3-Model Ensemble Consensus ────────────────────────────────── */}
+            {evaluation.model_votes && (
+                <ModelConsensusCard
+                    votes={evaluation.model_votes}
+                    disagreement={evaluation.disagreement_flag}
+                    confidence={evaluation.ml_confidence}
+                    isDark={isDark}
+                />
+            )}
+
+            {/* 🔍 SHAP Explainable AI Feature Attribution ──────────────────── */}
+            {evaluation.shap_explanation && (
+                <ShapBreakdown shapData={evaluation.shap_explanation} isDark={isDark} />
+            )}
+
+            {/* 🎙️ Tailored Viva Questions ───────────────────────────────────── */}
+            {evaluation.viva_questions && evaluation.viva_questions.length > 0 && (
+                <VivaQuestionsCard questions={evaluation.viva_questions} isDark={isDark} />
+            )}
 
             {/* 🏆 Design Grade ─────────────────────────────────────────────── */}
             {evaluation.design_analysis && (

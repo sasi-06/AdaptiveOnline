@@ -27,12 +27,18 @@ const IssueSchema = new mongoose.Schema({
 }, { _id: false });
 
 const EvaluationSchema = new mongoose.Schema({
-    score:                { type: Number, min: 0, max: 100 },
-    verdict:              { type: String, enum: ['correct', 'partially_correct', 'incorrect'] },
-    summary:              { type: String },
-    issues_found:         [IssueSchema],
-    feedback_for_student: { type: String },
-    concepts_to_review:   [String],
+    score:                      { type: Number, min: 0, max: 100 },
+    verdict:                    { type: String, enum: ['correct', 'partially_correct', 'incorrect'] },
+    summary:                    { type: String },
+    issues_found:               [IssueSchema],
+    feedback_for_student:       { type: String },
+    concepts_to_review:         [String],
+    ml_confidence:              { type: Number },
+    shap_explanation:           { type: mongoose.Schema.Types.Mixed },
+    viva_questions:             { type: [mongoose.Schema.Types.Mixed] },
+    model_votes:                { type: mongoose.Schema.Types.Mixed },
+    disagreement_flag:          { type: Boolean, default: false },
+    instructor_review_required: { type: Boolean, default: false },
     sim_result: {
         engine:         { type: String },
         measured_gain:  { type: Number },
@@ -40,7 +46,7 @@ const EvaluationSchema = new mongoose.Schema({
         status:         { type: String }
     },
     evaluated_at: { type: Date }
-}, { _id: false });
+}, { _id: false, strict: false });
 
 const CircuitSubmissionSchema = new mongoose.Schema({
     submission_id:  { type: String, unique: true, sparse: true },

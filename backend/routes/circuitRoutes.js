@@ -262,8 +262,14 @@ router.post('/submissions/:id/submit', protect, async (req, res) => {
                 : c.properties
         }));
 
-        // Run self-contained evaluation agent
-        const evaluation = await evaluate(question, plainComponents, submission.connections);
+        // Run self-contained evaluation agent (3-model ensemble + logging)
+        const evaluation = await evaluate(
+            question,
+            plainComponents,
+            submission.connections,
+            submission.student_id,
+            req.body && req.body.behavior ? req.body.behavior : {}
+        );
 
         // Persist result
         submission.status       = 'evaluated';

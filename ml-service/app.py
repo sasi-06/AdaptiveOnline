@@ -240,13 +240,15 @@ def analyze(features: BehaviorFeatures):
     )
 
 
+from typing import Optional
+
 class RetrainInput(BaseModel):
     samples: list[dict] = []
     include_synthetic: bool = True
     synthetic_boost: int = 500
 
 @app.post("/retrain", summary="Retrain model with real human-labeled data")
-def retrain(payload: RetrainInput = None):
+def retrain(payload: Optional[RetrainInput] = None):
     try:
         if payload is None:
             payload = RetrainInput()
@@ -255,21 +257,15 @@ def retrain(payload: RetrainInput = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/model-stats", summary="Get ML Model Statistics")
-@app.get("/circuit-model-stats", summary="Get Circuit ML Model Statistics")
+@app.get("/model-stats", summary="Get Behavior ML Model Statistics")
 def model_stats():
     import random
     return {
         "accuracy": 98.4,
         "f1_score": 97.2,
         "total_sessions_analyzed": 142 + random.randint(0, 10),
-        "circuit_model": {
-            "ensemble": "MLP (512->256->128) + HistGradientBoosting",
-            "accuracy": 98.6,
-            "f1_score": 97.9,
-            "training_samples": 50000
-        }
     }
+
 
 @app.get("/health", summary="Detailed health check")
 def detailed_health():
@@ -329,10 +325,11 @@ class ConnectionEndpoint(_BM):
     pin:     str
 
 class ConnectionPayload(_BM):
-    from_:   ConnectionEndpoint = None
-    to:      ConnectionEndpoint = None
+    from_:   _Opt[ConnectionEndpoint] = None
+    to:      _Opt[ConnectionEndpoint] = None
 
     model_config = {"populate_by_name": True}
+
 
 class ExpectedBehavior(_BM):
     type:              str            # gain_check | voltage_divider | rlc_analysis | led_circuit
@@ -344,33 +341,40 @@ class CircuitEvalRequest(_BM):
     connections:   _List[dict]
     question_type: str
     expected:      _Opt[dict] = None
-    measured:      _Opt[float] = None   # pre-computed simulation result
+    measured:      _Opt[float] = None   # pre-computed simulation result from JS engine
+    behavior:      _Opt[dict] = None    # student behavior signals (time_spent, deletes, etc.)
 
 class CircuitEvalResponse(_BM):
-    score:                int
-    verdict:              str
-    summary:              str
-    issues_found:         _List[dict]
-    feedback_for_student: str
-    concepts_to_review:   _List[str]
-    ml_confidence:        float
-    design_analysis:      _Opt[dict] = None   # rich admin design report
-    model_info:           dict
+    score:                      int
+    verdict:                    str
+    summary:                    str
+    issues_found:               _List[dict]
+    feedback_for_student:       str
+    concepts_to_review:         _List[str]
+    ml_confidence:              float
+    design_analysis:            _Opt[dict] = None   # rich admin design report
+    shap_explanation:           _Opt[dict] = None   # SHAP top positive/negative features
+    viva_questions:             _Opt[_List[dict]] = None  # local viva questions
+    model_votes:                _Opt[dict] = None   # flat, GNN, rule engine votes
+    disagreement_flag:          _Opt[bool] = False  # True if models disagree
+    instructor_review_required: _Opt[bool] = False  # review flag
+    model_info:                 _Opt[dict] = None   # architecture & feature info
 
     model_config = {"protected_namespaces": ()}
 
 @app.post(
     "/evaluate-circuit",
     response_model=CircuitEvalResponse,
-    summary="Evaluate a student's circuit using the trained MLP neural network"
+    summary="Evaluate a student's circuit using the trained 3-model ensemble"
 )
 def evaluate_circuit_endpoint(body: CircuitEvalRequest):
     """
-    Neural-network circuit evaluator.
+    3-Model Ensemble circuit evaluator.
 
     Accepts the student's circuit (components + connections) and question
-    metadata, runs feature extraction + trained MLP inference, and returns
-    a structured evaluation matching the master prompt schema (Section 6).
+    metadata, runs 60-feature extraction + flat ensemble (MLP+HistGBR) + GNN
+    + deterministic rule engine, returns SHAP feature importance, viva
+    questions, and multi-model consensus. No external API calls.
     """
     try:
         from circuit_evaluator_ml import evaluate_circuit
@@ -380,26 +384,35 @@ def evaluate_circuit_endpoint(body: CircuitEvalRequest):
             question_type = body.question_type,
             expected      = body.expected,
             measured      = body.measured,
+            behavior      = body.behavior or {},
         )
+        # Ensure required fields have safe defaults
+        result.setdefault("score", 0)
+        result.setdefault("verdict", "incorrect")
+        result.setdefault("summary", "Evaluation completed.")
+        result.setdefault("issues_found", [])
+        result.setdefault("feedback_for_student", "")
+        result.setdefault("concepts_to_review", [])
+        result.setdefault("ml_confidence", 0.5)
         return CircuitEvalResponse(**result)
     except FileNotFoundError as e:
         raise HTTPException(
             status_code=503,
-            detail=str(e) + " — POST /train-circuit-model first."
+            detail=str(e) + " — POST /train-circuit-model first to train the model."
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        raise HTTPException(status_code=500, detail=f"{str(e)}\n{traceback.format_exc()[-1000:]}")
 
 
 @app.post(
     "/train-circuit-model",
-    summary="Generate synthetic data and train the circuit evaluation MLP"
+    summary="Generate synthetic data and train the circuit evaluation models"
 )
 def train_circuit_model():
     """
-    Generates 12,000+ synthetic circuit training samples and trains a
-    two-headed MLP (score regressor + verdict classifier). Saves model .pkl files.
-    Takes ~30-60 seconds on CPU.
+    Generates 60,000+ synthetic circuit training samples and trains the
+    60-feature ensemble (MLP + HistGBR). Saves model .pkl files.
     """
     try:
         import subprocess, sys
@@ -418,6 +431,37 @@ def train_circuit_model():
         return {
             "status": "Model trained successfully",
             "output": result.stdout[-2000:]   # last 2000 chars of training output
+        }
+    except subprocess.CalledProcessError as e:
+        raise HTTPException(status_code=500, detail=e.stderr[-2000:])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post(
+    "/retrain-circuit-agent",
+    summary="Self-improvement loop: retrain flat ensemble and optionally GNN"
+)
+def retrain_circuit_agent():
+    """
+    Called by backend cron or admin to execute the local self-improvement loop.
+    Re-runs dataset generator and retrains circuit models.
+    """
+    try:
+        import subprocess, sys
+        p1 = subprocess.run(
+            [sys.executable, "circuit_dataset_generator.py"],
+            check=True, capture_output=True, text=True,
+            cwd=str(Path(__file__).parent)
+        )
+        p2 = subprocess.run(
+            [sys.executable, "circuit_ml_model.py"],
+            check=True, capture_output=True, text=True,
+            cwd=str(Path(__file__).parent)
+        )
+        return {
+            "status": "Circuit agent self-retraining completed successfully",
+            "flat_model_output": p2.stdout[-1500:]
         }
     except subprocess.CalledProcessError as e:
         raise HTTPException(status_code=500, detail=e.stderr[-2000:])

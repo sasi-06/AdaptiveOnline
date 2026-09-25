@@ -5,3 +5,9 @@ numpy
 pandas
 joblib
 pydantic==2.6.1
+# ── New: Local AI Agent dependencies ──────────────────────────────────────────
+shap                      # Feature importance (SHAP TreeExplainer — fully local)
+networkx                  # Graph analysis utilities
+# Install PyTorch CPU-only (no CUDA required) before torch-geometric:
+# pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu
+# pip install torch_geometric

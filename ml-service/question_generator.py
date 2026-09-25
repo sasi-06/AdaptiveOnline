@@ -192,7 +192,7 @@ def generate_questions_ast(question_desc: str, code: str, language: str) -> list
             
     return questions[:2]
 
-def generate_conceptual_questions(question_desc: str, code: str, language: str) -> list:
+def generate_conceptual_questions(question_desc: str, code: str, language: str, department: str = "General", domain_type: str = "software", **kwargs) -> list:
     """Entry point: try LLM first if API key is set, otherwise fallback to AST parser."""
     api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("OPENAI_API_KEY")
     
@@ -217,3 +217,4 @@ def generate_conceptual_questions(question_desc: str, code: str, language: str) 
             return questions
             
     return generate_questions_ast(question_desc, code, language)
+
