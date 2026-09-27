@@ -2,11 +2,15 @@ const InterviewDefinition = require('../models/InterviewDefinition');
 
 exports.createInterview = async (req, res) => {
     try {
-        const { title, roles, difficulty, duration, numQuestions } = req.body;
+        const { title, roles, difficulty, type, date, time, meetLink, duration, numQuestions } = req.body;
         const newInterview = await InterviewDefinition.create({
             title,
             roles,
             difficulty,
+            type,
+            date,
+            time,
+            meetLink,
             duration,
             numQuestions,
             recruiter: req.admin.id,

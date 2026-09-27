@@ -1,5 +1,6 @@
 const InterviewSession = require('../models/InterviewSession');
 const InterviewDefinition = require('../models/InterviewDefinition');
+const axios = require('axios');
 
 // Initialize Session
 exports.initSession = async (req, res) => {
@@ -80,55 +81,101 @@ exports.generateQuestion = async (req, res) => {
         if (!session) return res.status(404).json({ message: 'Session not found' });
 
         const previousQuestionsCount = session.qa_pairs.length;
-        
-        // Mock AI question and expected answer generation based on role and resume
-        const mockBank = [
-            {
-                q: `Based on your resume, you have experience with React. Can you explain the Virtual DOM?`,
-                a: `The Virtual DOM is a lightweight in-memory representation of the real DOM. React uses it to batch updates and calculate the minimum number of changes required, making rendering much faster than manipulating the real DOM directly.`
-            },
-            {
-                q: `How do you handle state management in large Node.js or React applications?`,
-                a: `For React, I typically use Redux or React Context API depending on the complexity. Redux is great for large-scale apps with complex state logic, while Context is sufficient for prop drilling issues. In Node, state is often managed via databases or in-memory stores like Redis.`
-            },
-            {
-                q: `I see you built an E-commerce Platform. How did you ensure database transactions were secure?`,
-                a: `I ensured transaction security by using ACID-compliant databases or implementing two-phase commits. I also parameterized all queries to prevent SQL injection and ensured sensitive data was encrypted at rest and in transit.`
-            },
-            {
-                q: `What is the most challenging bug you've faced with MongoDB, and how did you resolve it?`,
-                a: `A common challenge is slow queries due to missing indexes or large unoptimized aggregations. I resolved this by analyzing the query execution plan using explain(), adding appropriate compound indexes, and paginating the results.`
-            },
-            {
-                q: `Can you describe a time when you had to optimize the performance of a web application?`,
-                a: `I optimized performance by implementing lazy loading for images and components, minifying and bundling assets, and utilizing CDN caching. On the backend, I added Redis caching for frequently accessed database queries.`
-            },
-            {
-                q: `Can you explain the difference between REST and GraphQL?`,
-                a: `REST uses multiple endpoints to fetch fixed data structures, leading to potential over-fetching or under-fetching. GraphQL uses a single endpoint and allows clients to request exactly the data they need, making it more flexible.`
-            },
-            {
-                q: `How do you ensure your code is maintainable and testable?`,
-                a: `I follow SOLID principles, write modular and decoupled code, and use Dependency Injection where appropriate. I also write unit tests using frameworks like Jest and ensure good code coverage.`
-            },
-            {
-                q: `Explain how Event Loop works in JavaScript.`,
-                a: `The Event Loop constantly checks if the call stack is empty. If it is, it takes the first callback from the task queue (or microtask queue for Promises) and pushes it to the call stack to be executed, enabling non-blocking asynchronous behavior.`
-            }
-        ];
+        const role = session.selectedRole || 'Software Engineer';
+        const resumeText = session.resumeText || 'No resume text provided.';
 
-        // Ensure uniqueness by checking what has already been asked
-        const askedQuestions = session.qa_pairs.map(qa => qa.question);
-        const availableQuestions = mockBank.filter(mq => !askedQuestions.includes(mq.q));
-        
-        let selectedPair;
-        if (availableQuestions.length > 0) {
-            selectedPair = availableQuestions[0]; // Or pick randomly: availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
+        // Build Conversation History
+        let historyPrompt = "";
+        if (previousQuestionsCount > 0) {
+            historyPrompt = "Here is the conversation history so far:\n";
+            session.qa_pairs.forEach((qa, idx) => {
+                historyPrompt += `Q${idx + 1}: ${qa.question}\n`;
+                historyPrompt += `Candidate's Answer: ${qa.answer || 'No answer provided yet.'}\n\n`;
+            });
+            historyPrompt += `Based on the candidate's last answer, your next question MUST be a direct follow-up or deeply related to their previous answer. Delve deeper into their explanation. If their answer was brief, ask for specific technical details or examples from their resume.`;
         } else {
-            selectedPair = {
-                q: `Could you explain more about your experience in ${session.selectedRole}?`,
-                a: `The candidate should provide a detailed overview of their professional experience, responsibilities, and achievements relevant to the role.`
+            historyPrompt = `This is the very first question of the interview. Start by welcoming the candidate briefly, then ask a foundational technical question strictly based on their resume.`;
+        }
+
+        const prompt = `
+You are an expert technical interviewer conducting a technical interview for the role of ${role}.
+Your articulation and tone are extremely important. Be professional, engaging, and clear.
+
+Candidate's Resume:
+"""
+${resumeText}
+"""
+
+${historyPrompt}
+
+CRITICAL RULES:
+1. Every question MUST be unique and different from previous questions. Do not repeat anything.
+2. The question MUST be strictly based on the skills, projects, or experience mentioned in the candidate's resume.
+3. Ask ONLY ONE question. Do not output multiple questions or a list.
+4. Do not provide the expected answer in your actual question, keep the tone conversational.
+5. If you are asking a follow-up, seamlessly connect it to the candidate's last answer.
+
+Output format: Return ONLY a valid JSON object with the following structure:
+{
+    "question": "Your highly articulated interview question here",
+    "expected_answer": "A brief, ideal expected answer for this question (for evaluation purposes)"
+}
+`;
+
+        let selectedPair = null;
+        
+        try {
+            const apiKey = process.env.GEMINI_API_KEY;
+            if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }]
             };
+
+            const response = await axios.post(url, payload, { timeout: 15000 });
+            const text = response.data.candidates[0].content.parts[0].text.trim();
+            
+            // Clean up markdown json block if present
+            let jsonText = text;
+            if (jsonText.includes('\`\`\`json')) {
+                jsonText = jsonText.split('\`\`\`json')[1].split('\`\`\`')[0].trim();
+            } else if (jsonText.includes('\`\`\`')) {
+                jsonText = jsonText.split('\`\`\`')[1].split('\`\`\`')[0].trim();
+            }
+            
+            const parsed = JSON.parse(jsonText);
+            selectedPair = {
+                q: parsed.question,
+                a: parsed.expected_answer
+            };
+        } catch (apiError) {
+            console.error("LLM API Error, falling back to mock bank:", apiError.message);
+            // Mock AI question and expected answer generation based on role and resume
+            const mockBank = [
+                { q: `Based on your resume, you have experience with React. Can you explain the Virtual DOM?`, a: `The Virtual DOM is a lightweight in-memory representation of the real DOM. React uses it to batch updates and calculate the minimum number of changes required, making rendering much faster than manipulating the real DOM directly.` },
+                { q: `How do you handle state management in large Node.js or React applications?`, a: `For React, I typically use Redux or React Context API depending on the complexity. Redux is great for large-scale apps with complex state logic, while Context is sufficient for prop drilling issues. In Node, state is often managed via databases or in-memory stores like Redis.` },
+                { q: `I see you built an E-commerce Platform. How did you ensure database transactions were secure?`, a: `I ensured transaction security by using ACID-compliant databases or implementing two-phase commits. I also parameterized all queries to prevent SQL injection and ensured sensitive data was encrypted at rest and in transit.` },
+                { q: `What is the most challenging bug you've faced with MongoDB, and how did you resolve it?`, a: `A common challenge is slow queries due to missing indexes or large unoptimized aggregations. I resolved this by analyzing the query execution plan using explain(), adding appropriate compound indexes, and paginating the results.` },
+                { q: `Can you describe a time when you had to optimize the performance of a web application?`, a: `I optimized performance by implementing lazy loading for images and components, minifying and bundling assets, and utilizing CDN caching. On the backend, I added Redis caching for frequently accessed database queries.` },
+                { q: `Can you explain the difference between REST and GraphQL?`, a: `REST uses multiple endpoints to fetch fixed data structures, leading to potential over-fetching or under-fetching. GraphQL uses a single endpoint and allows clients to request exactly the data they need, making it more flexible.` },
+                { q: `How do you ensure your code is maintainable and testable?`, a: `I follow SOLID principles, write modular and decoupled code, and use Dependency Injection where appropriate. I also write unit tests using frameworks like Jest and ensure good code coverage.` },
+                { q: `Explain how Event Loop works in JavaScript.`, a: `The Event Loop constantly checks if the call stack is empty. If it is, it takes the first callback from the task queue (or microtask queue for Promises) and pushes it to the call stack to be executed, enabling non-blocking asynchronous behavior.` }
+            ];
+
+            // Ensure uniqueness by checking what has already been asked
+            const askedQuestions = session.qa_pairs.map(qa => qa.question);
+            const availableQuestions = mockBank.filter(mq => !askedQuestions.includes(mq.q));
+            
+            if (availableQuestions.length > 0) {
+                // If it's a follow-up (not the first question), pick the second one or a random one to simulate logic
+                selectedPair = availableQuestions[0]; 
+            } else {
+                selectedPair = {
+                    q: `Could you explain more about your experience in ${session.selectedRole}?`,
+                    a: `The candidate should provide a detailed overview of their professional experience, responsibilities, and achievements relevant to the role.`
+                };
+            }
         }
 
         // We push the question and expectedAnswer, but answer is empty until submitAnswer

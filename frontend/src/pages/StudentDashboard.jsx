@@ -132,6 +132,18 @@ export default function StudentDashboard() {
         return false;
     };
 
+    const isInterviewCompleted = (interview) => {
+        if (interview.completed) return true;
+        if (interview.type === 'Manual' && interview.date && interview.time) {
+            const interviewDateTime = new Date(`${interview.date}T${interview.time}`);
+            const expirationTime = new Date(interviewDateTime.getTime() + 30 * 60000); // +30 minutes
+            if (new Date() > expirationTime) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     useEffect(() => {
         if (!studentId) { setLoading(false); setError('Student ID not found. Please log in again.'); return; }
         loadAll();
@@ -510,23 +522,30 @@ export default function StudentDashboard() {
                                     </div>
                                 )}
 
-                                {interviews.filter(i => !i.completed).length > 0 && (
+                                {interviews.filter(i => !isInterviewCompleted(i)).length > 0 && (
                                     <div className="sd-card">
                                         <div className="sd-card-title">🎙️ Pending Technical Interviews</div>
                                         <div className="sd-exam-list">
-                                            {interviews.filter(i => !i.completed).map(interview => (
+                                            {interviews.filter(i => !isInterviewCompleted(i)).map(interview => (
                                                 <div key={interview._id} className="sd-exam-card">
                                                     <div style={{ flex: 1 }}>
                                                         <div className="sd-exam-title">{interview.title}</div>
                                                         <div className="sd-exam-meta">
-                                                            <span className="sd-meta-chip">{interview.duration} min</span>
-                                                            <span className="sd-meta-chip">{interview.numQuestions} questions</span>
+                                                            <span className="sd-meta-chip">Type: {interview.type || 'Auto'}</span>
+                                                            {interview.date && <span className="sd-meta-chip">📅 {interview.date} {interview.time}</span>}
+                                                            {interview.type !== 'Manual' && <span className="sd-meta-chip">{interview.numQuestions} questions</span>}
                                                             <span className="sd-meta-chip">Roles: {Array.isArray(interview.roles) ? interview.roles.join(', ') : interview.roles}</span>
                                                         </div>
                                                     </div>
-                                                    <button className="sd-btn-start" onClick={() => navigate(`/student/interview/${interview._id}`, { state: { roles: interview.roles } })}>
-                                                        Start Interview →
-                                                    </button>
+                                                    {interview.type === 'Manual' ? (
+                                                        <a href={interview.meetLink} target="_blank" rel="noreferrer" className="sd-btn-start" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                                                            Join GMeet 📹
+                                                        </a>
+                                                    ) : (
+                                                        <button className="sd-btn-start" onClick={() => navigate(`/student/interview/${interview._id}`, { state: { roles: interview.roles } })}>
+                                                            Start Interview →
+                                                        </button>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>
@@ -655,22 +674,28 @@ export default function StudentDashboard() {
                                 ) : (
                                     <div className="sd-exam-list">
                                         {interviews.map(interview => {
-                                            const done = interview.completed;
+                                            const done = isInterviewCompleted(interview);
                                             return (
                                                 <div key={interview._id} className={`sd-exam-card ${done ? 'done' : ''}`}>
                                                     <div style={{ flex: 1 }}>
                                                         <div className="sd-exam-title">{interview.title}</div>
                                                         <div className="sd-exam-meta">
-                                                            <span className="sd-meta-chip">{interview.duration} min</span>
-                                                            <span className="sd-meta-chip">{interview.numQuestions} questions</span>
+                                                            <span className="sd-meta-chip">Type: {interview.type || 'Auto'}</span>
+                                                            {interview.date && <span className="sd-meta-chip">📅 {interview.date} {interview.time}</span>}
+                                                            {interview.type !== 'Manual' && <span className="sd-meta-chip">{interview.numQuestions} questions</span>}
                                                             <span className="sd-meta-chip">Roles: {Array.isArray(interview.roles) ? interview.roles.join(', ') : interview.roles}</span>
                                                             {done && <span className="sd-badge sd-badge-ok">✓ Completed</span>}
                                                         </div>
                                                     </div>
-                                                    {done
-                                                        ? <button className="sd-done-btn" disabled>Completed ✓</button>
-                                                        : <button className="sd-btn-start" onClick={() => navigate(`/student/interview/${interview._id}`, { state: { roles: interview.roles } })}>Start Interview →</button>
-                                                    }
+                                                    {interview.type === 'Manual' ? (
+                                                        done
+                                                            ? <button className="sd-done-btn" disabled>Completed ✓</button>
+                                                            : <a href={interview.meetLink} target="_blank" rel="noreferrer" className="sd-btn-start" style={{ textDecoration: 'none', display: 'inline-block' }}>Join GMeet 📹</a>
+                                                    ) : (
+                                                        done 
+                                                            ? <button className="sd-done-btn" disabled>Completed ✓</button>
+                                                            : <button className="sd-btn-start" onClick={() => navigate(`/student/interview/${interview._id}`, { state: { roles: interview.roles } })}>Start Interview →</button>
+                                                    )}
                                                 </div>
                                             );
                                         })}
