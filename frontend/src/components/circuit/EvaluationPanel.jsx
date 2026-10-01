@@ -611,6 +611,36 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
         ml_confidence
     } = evaluation;
 
+    const rawIssues = Array.isArray(issues_found) ? issues_found.filter(Boolean) : [];
+    const normalizedIssues = rawIssues.map(issue => {
+        if (!issue) return null;
+        if (typeof issue === 'string') {
+            return {
+                type: 'issue',
+                component_involved: null,
+                explanation: issue
+            };
+        }
+        const compInvolved = issue.component_involved || issue.component_ref || null;
+        let issueType = issue.type;
+        if (!issueType && issue.fault_code) {
+            const fc = String(issue.fault_code).toUpperCase();
+            if (fc.includes('GROUND')) issueType = 'missing_ground';
+            else if (fc.includes('SHORT')) issueType = 'short_circuit';
+            else if (fc.includes('FLOATING')) issueType = 'floating_pin';
+            else if (fc.includes('PARAM') || fc.includes('VALUE')) issueType = 'component_value';
+            else if (fc.includes('POLARITY')) issueType = 'polarity_error';
+            else if (fc.includes('PALETTE') || fc.includes('TYPE')) issueType = 'component_type_mismatch';
+            else if (fc.includes('THERMAL') || fc.includes('SAFETY')) issueType = 'safety_warning';
+            else issueType = 'topology';
+        }
+        return {
+            type: issueType || 'issue',
+            component_involved: compInvolved,
+            explanation: issue.explanation || issue.issue_description || issue.suggested_fix || issue.message || ''
+        };
+    }).filter(Boolean);
+
     const vMeta = VERDICT_META[verdict] || VERDICT_META.incorrect;
     const isDark = t?.isDark ?? false;
 
@@ -761,14 +791,16 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
             )}
 
             {/* Issues ───────────────────────────────────────────────────────── */}
-            {issues_found.length > 0 && (
+            {normalizedIssues.length > 0 && (
                 <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: textCol, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                        ⚠️ Issues Found
+                        ⚠️ Issues Found ({normalizedIssues.length})
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {issues_found.map((issue, i) => {
-                            const meta = ISSUE_META[issue.type] || { icon: '•', color: '#94a3b8' };
+                        {normalizedIssues.map((issue, i) => {
+                            if (!issue) return null;
+                            const meta = (issue.type && ISSUE_META[issue.type]) || { icon: '•', color: '#94a3b8' };
+                            const typeDisplay = typeof issue.type === 'string' ? issue.type.replace(/_/g, ' ') : 'issue';
                             return (
                                 <div key={i} style={{
                                     background: cardBg, border,
@@ -780,20 +812,42 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                                         <span style={{ fontSize: 14 }}>{meta.icon}</span>
                                         <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: meta.color }}>
-                                            {issue.type.replace(/_/g, ' ')}
+                                            {typeDisplay}
                                         </span>
                                         {issue.component_involved && (
                                             <span style={{
-                                                background: isDark ? 'rgba(108,99,255,0.2)' : '#ede9fe',
-                                                border: isDark ? '1px solid rgba(108,99,255,0.3)' : '1px solid #c4b5fd',
+                                                background: isDark ? 'rgba(239,68,68,0.2)' : '#fee2e2',
+                                                border: isDark ? '1px solid rgba(239,68,68,0.4)' : '1px solid #fca5a5',
                                                 borderRadius: 4, padding: '1px 6px',
-                                                fontSize: 10, color: isDark ? '#a78bfa' : '#6d28d9', fontFamily: 'monospace'
+                                                fontSize: 10, color: isDark ? '#f87171' : '#dc2626', fontFamily: 'monospace',
+                                                fontWeight: 700
                                             }}>
-                                                {issue.component_involved}
+                                                📍 {issue.component_involved}
                                             </span>
                                         )}
                                     </div>
                                     <p style={{ color: mutedCol, fontSize: 11, lineHeight: 1.5, margin: 0 }}>{issue.explanation}</p>
+                                    {issue.component_involved && onHighlightComp && (
+                                        <div style={{ marginTop: 8 }}>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onHighlightComp?.(issue.component_involved);
+                                                }}
+                                                style={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                                                    background: isDark ? 'rgba(239,68,68,0.15)' : '#fef2f2',
+                                                    border: `1px solid ${meta.color}66`,
+                                                    borderRadius: 6, padding: '3px 8px',
+                                                    fontSize: 10, color: meta.color, fontFamily: 'Outfit, sans-serif',
+                                                    fontWeight: 700, cursor: 'pointer'
+                                                }}
+                                            >
+                                                🎯 Locate on circuit: <code>{issue.component_involved}</code>
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}

@@ -1192,7 +1192,7 @@ function SpecVerificationTab({ submission, t }) {
     const isPass = errorFrac !== null ? errorFrac <= tolPercent : evalData.verdict === 'correct';
     const components = submission?.components || [];
     const hasGnd = components.some(c => c.type === 'ground');
-    const issues = evalData.issues_found || [];
+    const issues = (evalData.issues_found || []).filter(Boolean);
     const isDark = t?.isDark ?? false;
 
     return (
@@ -1238,14 +1238,14 @@ function SpecVerificationTab({ submission, t }) {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: t?.surface || '#ffffff', borderRadius: 6, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
                         <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}>💥 Short Circuit Prevention</span>
-                        <span style={{ fontWeight: 700, color: issues.some(i => i.type === 'short_circuit') ? (isDark ? '#f87171' : '#dc2626') : (isDark ? '#4ade80' : '#15803d') }}>
-                            {issues.some(i => i.type === 'short_circuit') ? '🔴 Short Circuit Detected' : '🟢 0 Shorts'}
+                        <span style={{ fontWeight: 700, color: issues.some(i => i?.type === 'short_circuit') ? (isDark ? '#f87171' : '#dc2626') : (isDark ? '#4ade80' : '#15803d') }}>
+                            {issues.some(i => i?.type === 'short_circuit') ? '🔴 Short Circuit Detected' : '🟢 0 Shorts'}
                         </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: t?.surface || '#ffffff', borderRadius: 6, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
                         <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}>📍 Floating Pin Audit</span>
-                        <span style={{ fontWeight: 700, color: issues.some(i => i.type === 'floating_pin') ? (isDark ? '#fbbf24' : '#d97706') : (isDark ? '#4ade80' : '#15803d') }}>
-                            {issues.some(i => i.type === 'floating_pin') ? '⚠️ Floating Pins Found' : '🟢 Fully Wired'}
+                        <span style={{ fontWeight: 700, color: issues.some(i => i?.type === 'floating_pin') ? (isDark ? '#fbbf24' : '#d97706') : (isDark ? '#4ade80' : '#15803d') }}>
+                            {issues.some(i => i?.type === 'floating_pin') ? '⚠️ Floating Pins Found' : '🟢 Fully Wired'}
                         </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: t?.surface || '#ffffff', borderRadius: 6, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
