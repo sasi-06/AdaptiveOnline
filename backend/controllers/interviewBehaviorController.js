@@ -26,13 +26,14 @@ function computeRisk(payload, previousTabSwitches = 0) {
         score += 35;
         events.push('identity_mismatch');
     }
-    if (payload.speech_detected) {
+    // In an oral interview, speech during answering is expected!
+    // Only penalize multiple voices (someone coaching candidate) or unexpected external chatter
+    if (payload.multiple_voices) {
+        score += 30;
+        events.push('multiple_voices');
+    } else if (payload.unexpected_speech) {
         score += 15;
         events.push('speech_detected');
-    }
-    if (payload.multiple_voices) {
-        score += 25;
-        events.push('multiple_voices');
     }
     if ((payload.eyeDeviation || 0) > 30) {
         score += 10;

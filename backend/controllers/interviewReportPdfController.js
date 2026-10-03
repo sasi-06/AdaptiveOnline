@@ -46,6 +46,19 @@ exports.generateInterviewReportPdf = async (req, res) => {
         doc.text(`Date: ${new Date(session.updatedAt).toLocaleString()}`);
         doc.moveDown(1);
 
+        // ── Resume Insights (Extracted Data) ──
+        if (session.extractedData) {
+            doc.fontSize(12).fillColor('#4338ca').text('Resume Insights', { underline: true });
+            doc.moveDown(0.4);
+            doc.fontSize(10).fillColor('#334155');
+            doc.text(`Experience Level: ${session.extractedData.experience || 'Not specified'}`);
+            doc.moveDown(0.2);
+            doc.text(`Key Skills: ${(session.extractedData.skills || []).join(', ') || 'None extracted'}`);
+            doc.moveDown(0.2);
+            doc.text(`Detected Projects: ${(session.extractedData.projects || []).join(', ') || 'None extracted'}`);
+            doc.moveDown(1);
+        }
+
         // ── Score & recommendation ──
         const scoreColor = session.finalScore >= 80 ? '#10b981' : session.finalScore >= 60 ? '#f59e0b' : '#ef4444';
         doc.fontSize(16).fillColor(scoreColor).text(`Final Score: ${session.finalScore || 0}/100`);
@@ -55,12 +68,12 @@ exports.generateInterviewReportPdf = async (req, res) => {
         // ── Strengths / Weaknesses ──
         doc.fontSize(12).fillColor('#10b981').text('Strengths', { underline: true });
         doc.fontSize(10).fillColor('#334155');
-        (session.report?.strengths || ['None noted']).forEach((s) => doc.text(`• ${s}`));
+        (session.report?.strengths || ['None noted']).forEach((s) => doc.text(`• ${String(s)}`));
         doc.moveDown(0.6);
 
         doc.fontSize(12).fillColor('#ef4444').text('Weaknesses', { underline: true });
         doc.fontSize(10).fillColor('#334155');
-        (session.report?.weaknesses || ['None noted']).forEach((w) => doc.text(`• ${w}`));
+        (session.report?.weaknesses || ['None noted']).forEach((w) => doc.text(`• ${String(w)}`));
         doc.moveDown(1);
 
         // ── Q&A Matrix ──
@@ -70,40 +83,104 @@ exports.generateInterviewReportPdf = async (req, res) => {
         doc.moveDown(0.5);
 
         (session.qa_pairs || []).forEach((qa, idx) => {
-            if (doc.y > 700) doc.addPage(); // simple page-break guard
+            if (doc.y > 680) doc.addPage(); // Adjusted page-break guard
 
-            doc.fontSize(11).fillColor('#4338ca').text(`Q${idx + 1}: ${qa.question}`);
-            doc.fontSize(9).fillColor('#64748b').text(`Relevance Score: ${qa.score || 0}/100`);
+            doc.fontSize(11).fillColor('#4338ca').text(`Q${idx + 1}: ${String(qa.question || 'No question recorded')}`);
+            
+            doc.fontSize(9).fillColor('#64748b').text(`Relevance Score: ${qa.score || 0}/100`, { continued: true });
+            doc.text(`  |  Time Taken: ${qa.timeTaken || 0}s`);
+            
             doc.moveDown(0.3);
-            doc.fontSize(10).fillColor('#059669').text('Expected Answer (AI):', { continued: false });
-            doc.fontSize(9).fillColor('#334155').text(qa.expectedAnswer || 'No expected answer generated.');
+            doc.fontSize(10).fillColor('#059669').text('Expected Answer (AI):');
+            doc.fontSize(9).fillColor('#334155').text(String(qa.expectedAnswer || 'No expected answer generated.'));
+            
             doc.moveDown(0.3);
             doc.fontSize(10).fillColor('#0f172a').text("Candidate's Transcript:");
-            doc.fontSize(9).fillColor('#334155').text(qa.answer || 'No answer provided.');
+            doc.fontSize(9).fillColor('#334155').text(String(qa.answer || 'No answer provided.'));
+            
             if (qa.feedback) {
                 doc.moveDown(0.2);
-                doc.fontSize(9).fillColor('#64748b').text(`Feedback: ${qa.feedback}`);
+                doc.fontSize(9).fillColor('#64748b').text(`Feedback: ${String(qa.feedback)}`);
             }
             doc.moveDown(0.8);
         });
 
-        // ── Proctoring summary ──
+        // ── Behavior Timeline / Proctoring Flags ──
         if (session.cheatingClips && session.cheatingClips.length > 0) {
-            if (doc.y > 650) doc.addPage();
-            doc.moveDown(0.4);
-            doc.fontSize(14).fillColor('#ef4444').text('Proctoring Flags', { underline: true });
-            doc.moveDown(0.4);
+            if (doc.y > 600) doc.addPage();
+            doc.moveDown(1);
+            doc.fontSize(14).fillColor('#ef4444').text('Behavior Timeline (Proctoring Flags)', { underline: true });
+            doc.moveDown(0.8);
+            
             session.cheatingClips.forEach((c) => {
-                doc.fontSize(9).fillColor('#334155').text(
-                    `• ${c.reason} — ${new Date(c.timestamp).toLocaleString()}`
-                );
+                if (doc.y > 650) doc.addPage();
+                
+                const dotX = 55;
+                const textX = 75;
+                
+                // Draw Timeline Dot
+                doc.circle(dotX, doc.y + 4, 3).lineWidth(2).strokeColor('#ef4444').stroke();
+                
+                doc.fontSize(10).fillColor('#10b981').text(new Date(c.timestamp).toLocaleTimeString(), textX, doc.y);
+                doc.moveDown(0.2);
+                doc.fontSize(11).fillColor('#0f172a').text(`Violation: ${String(c.reason || 'Anomaly Detected')}`, textX, doc.y);
+                doc.moveDown(0.4);
+                
+                if (c.videoUrl) {
+                    try {
+                        let imagePathOrBuffer = null;
+                        if (c.videoUrl.startsWith('data:image')) {
+                            const base64Data = c.videoUrl.replace(/^data:image\/\w+;base64,/, '');
+                            imagePathOrBuffer = Buffer.from(base64Data, 'base64');
+                        } else if (c.videoUrl.startsWith('/uploads')) {
+                            const fs = require('fs');
+                            const path = require('path');
+                            const localPath = path.join(__dirname, '..', c.videoUrl);
+                            if (fs.existsSync(localPath)) {
+                                imagePathOrBuffer = localPath;
+                            }
+                        }
+                        
+                        if (imagePathOrBuffer) {
+                            doc.fontSize(9).fillColor('#64748b').text('Visual Proof Snapshot:', textX, doc.y);
+                            doc.moveDown(0.4);
+                            
+                            // Load buffer to check signature
+                            let bufferToCheck = imagePathOrBuffer;
+                            if (typeof imagePathOrBuffer === 'string') {
+                                bufferToCheck = require('fs').readFileSync(imagePathOrBuffer);
+                            }
+                            
+                            // Check if JPEG (FF D8 FF) or PNG (89 50 4E 47)
+                            const isJpeg = bufferToCheck.length >= 3 && bufferToCheck[0] === 0xFF && bufferToCheck[1] === 0xD8 && bufferToCheck[2] === 0xFF;
+                            const isPng = bufferToCheck.length >= 4 && bufferToCheck[0] === 0x89 && bufferToCheck[1] === 0x50 && bufferToCheck[2] === 0x4E && bufferToCheck[3] === 0x47;
+                            
+                            if (isJpeg || isPng) {
+                                // Check space for image (approx 180pt height)
+                                if (doc.y + 180 > 750) {
+                                    doc.addPage();
+                                }
+                                
+                                // Let pdfkit flow the image naturally so it updates doc.y
+                                doc.x = textX;
+                                doc.image(bufferToCheck, { width: 250 });
+                                doc.x = 50; // reset
+                            } else {
+                                doc.fontSize(9).fillColor('#ef4444').text('[Image format not supported in PDF]', textX, doc.y);
+                            }
+                        }
+                    } catch (imgErr) {
+                        console.warn('PDF Image embed error:', imgErr.message);
+                    }
+                }
+                
+                doc.moveDown(1.5);
             });
         }
 
         doc.end();
     } catch (err) {
         console.error('generateInterviewReportPdf error:', err);
-        // Note: if headers are already sent (mid-stream), this won't reach the client cleanly.
         if (!res.headersSent) {
             res.status(500).json({ message: 'Failed to generate PDF report' });
         }
