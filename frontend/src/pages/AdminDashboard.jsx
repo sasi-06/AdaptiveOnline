@@ -19,9 +19,11 @@ import BehaviorTimeline from '../components/BehaviorTimeline';
 import CodingRoundManager from '../components/CodingRoundManager';
 import AdminInterviewResults from '../components/AdminInterviewResults';
 import AdminPlagiarismDetector from '../components/AdminPlagiarismDetector';
+import AutoCADRoundAdmin from '../components/AutoCADRoundAdmin';
+import AdminCadResults from '../components/AdminCadResults';
 import { getBehaviorLogs } from '../services/api';
 
-const SECTIONS = ['Overview', 'Students', 'Exams (MCQ Module)', 'Coding Round', 'Plagiarism Detector', 'Simulation Round', 'Technical Interview', 'MCQ Results', 'Coding Results', 'Interview Reports', 'Security Alerts', 'Behavior', 'Live Monitor'];
+const SECTIONS = ['Overview', 'Students', 'Exams (MCQ Module)', 'Coding Round', 'Plagiarism Detector', 'Simulation Round', 'Technical Interview', 'AutoCAD Assessments', 'AutoCAD Results', 'MCQ Results', 'Coding Results', 'Interview Reports', 'Security Alerts', 'Behavior', 'Live Monitor'];
 const SECTION_ICONS = { Overview: '', Students: '', 'Exams (MCQ Module)': '', 'Coding Round': '', 'Simulation Round': '', 'Technical Interview': '', 'MCQ Results': '', 'Coding Results': '', 'Interview Reports': '', 'Security Alerts': '', Behavior: '', 'Live Monitor': '' };
 const EMPTY_STUDENT = {
     name: '',
@@ -58,6 +60,7 @@ export default function AdminDashboard() {
     const adminName = localStorage.getItem('name') || 'Admin';
 
     const [section,   setSection]   = useState('Overview');
+    const [civilExpanded, setCivilExpanded] = useState(true);
     const fileInputRef   = useRef(null);
     const studentFormRef = useRef(null);
 
@@ -327,6 +330,9 @@ export default function AdminDashboard() {
         .ad-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px; border: none; background: transparent; color: ${t.textMuted}; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.18s; text-align: left; width: 100%; margin-bottom: 2px; }
         .ad-nav-item:hover { background: ${t.surfaceAlt}; color: ${t.text}; }
         .ad-nav-item.active { background: ${t.tabActiveBg}; color: ${t.accent}; font-weight: 600; }
+        .ad-nav-subitem { display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 26px; border-radius: 8px; border: none; background: transparent; color: ${t.textMuted}; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s; text-align: left; width: 100%; margin-bottom: 2px; }
+        .ad-nav-subitem:hover { background: ${t.surfaceAlt}; color: ${t.text}; }
+        .ad-nav-subitem.active { background: ${t.tabActiveBg}; color: ${t.accent}; font-weight: 600; }
         .ad-nav-spacer { flex: 1; }
         .ad-logout { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px; border: none; background: transparent; color: ${t.textMuted}; font-family: 'Outfit', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.18s; width: 100%; }
         .ad-logout:hover { background: ${t.errorBg}; color: ${t.errorText}; }
@@ -550,6 +556,16 @@ export default function AdminDashboard() {
                         {success && <div className="ad-flash success">✓ {success}</div>}
                         {error   && <div className="ad-flash error">⚠ {error}</div>}
                         {loading && <div className="ad-loading"><span className="ad-spinner" /> Loading…</div>}
+
+                        {/* ══ AUTOCAD ASSESSMENTS (CIVIL ENGINEERING) ══ */}
+                        {section === 'AutoCAD Assessments' && (
+                            <AutoCADRoundAdmin theme={t} students={students} flash={flash} openTimeline={openTimeline} />
+                        )}
+
+                        {/* ══ AUTOCAD RESULTS ══ */}
+                        {section === 'AutoCAD Results' && (
+                            <AdminCadResults theme={t} students={students} flash={flash} openTimeline={openTimeline} />
+                        )}
 
                         {/* ══ LIVE MONITOR ══ */}
                         {section === 'Live Monitor' && <AdminLiveProctor />}

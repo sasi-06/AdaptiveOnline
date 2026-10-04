@@ -116,11 +116,11 @@ useEffect(() => {
                 cam.phoneDetected ||
                 cam.identityMismatch ||
                 cam.faceNotDetected ||
-                aud.speechDetected;
+                aud.multipleVoicesDetected;
 
             let snapshot;
             if (hasAnomaly && cameraRef.current) {
-                snapshot = cameraRef.current.takeSnapshot();
+                snapshot = cameraRef.current.takeSnapshot(false);
             }
 
             const browserMetrics = behaviorTrackerRef.current?.getMetrics() || {};

@@ -131,3 +131,27 @@ export const submitCircuitForEval      = (subId)      => axios.post(`${BASE}/cir
 export const getCircuitSubmissionsByStudent = (sid)   => axios.get (`${BASE}/circuit/submissions/student/${sid}`,       authHeaders());
 export const getCircuitSubmissionsByExam    = (eid)   => axios.get (`${BASE}/circuit/submissions/exam/${eid}`,          authHeaders());
 export const getAllCircuitSubmissions       = ()      => axios.get (`${BASE}/circuit/submissions/all`,                 authHeaders());
+
+// ── AUTOCAD / CIVIL ENGINEERING ASSESSMENTS ──────────────────────────────
+export const getCadAssessments          = ()           => axios.get (`${BASE}/cad/assessments`,                         authHeaders());
+export const getCadAssessmentById       = (id)         => axios.get (`${BASE}/cad/assessments/${id}`,                   authHeaders());
+export const createCadAssessment        = (data)       => axios.post(`${BASE}/cad/assessments`,           data,         authHeaders());
+export const updateCadAssessment        = (id, data)   => axios.put (`${BASE}/cad/assessments/${id}`,     data,         authHeaders());
+export const deleteCadAssessment        = (id)         => axios.delete(`${BASE}/cad/assessments/${id}`,                 authHeaders());
+export const assignCadAssessment        = (data)       => axios.put (`${BASE}/cad/assessments/assign`,    data,         authHeaders());
+export const getStudentCadAssessments   = (studentId)  => axios.get (`${BASE}/cad/assessments/student/${studentId}`,  authHeaders());
+
+// ── CAD QUESTIONS & PHOTO UPLOAD ──────────────────────────────────────────
+export const getCadQuestions   = (assessmentId) => axios.get(`${BASE}/cad/assessments/${assessmentId}/questions`, authHeaders());
+export const createCadQuestion = (assessmentId, formData) => axios.post(`${BASE}/cad/assessments/${assessmentId}/questions`, formData, { headers: { ...authHeaders().headers, 'Content-Type': 'multipart/form-data' } });
+export const updateCadQuestion = (questionId, formData) => axios.put(`${BASE}/cad/questions/${questionId}`, formData, { headers: { ...authHeaders().headers, 'Content-Type': 'multipart/form-data' } });
+export const deleteCadQuestion = (questionId) => axios.delete(`${BASE}/cad/questions/${questionId}`, authHeaders());
+
+// ── CAD SUBMISSIONS & DRAFTS ──────────────────────────────────────────────
+export const saveCadDraft = (data) => axios.post(`${BASE}/cad/assessments/submissions/draft`, data, authHeaders());
+export const getCadDraft = (studentId, assessmentId, questionId) => axios.get(`${BASE}/cad/assessments/submissions/draft/${studentId}/${assessmentId}/${questionId}`, authHeaders());
+export const getStudentCadSubmissions = (studentId, assessmentId) => axios.get(`${BASE}/cad/assessments/submissions/student/${studentId}/assessment/${assessmentId}`, authHeaders());
+export const submitCadAssessment = (data) => axios.post(`${BASE}/cad/assessments/submissions/submit`, data, authHeaders());
+export const getCadSubmissionsForAdmin = (assessmentId) => axios.get(`${BASE}/cad/assessments/${assessmentId}/all-submissions`, authHeaders());
+
+

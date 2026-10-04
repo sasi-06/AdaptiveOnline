@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 
-export default function AudioMonitor({ onMetrics }) {
+export default function AudioMonitor({ onMetrics, compact = false, darkTheme = false, style }) {
     const { theme: t } = useTheme();
     const [status, setStatus] = useState('initializing');
     const [error, setError] = useState('');
@@ -31,12 +31,10 @@ export default function AudioMonitor({ onMetrics }) {
                 analyser.fftSize = 1024;
                 analyserRef.current = analyser;
 
-                // 200Hz High-Pass Filter to remove fan hum/low noise
                 const hpFilter = audioCtx.createBiquadFilter();
                 hpFilter.type = 'highpass';
                 hpFilter.frequency.setValueAtTime(200, audioCtx.currentTime);
 
-                // 4000Hz Low-Pass Filter to remove high-frequency hiss
                 const lpFilter = audioCtx.createBiquadFilter();
                 lpFilter.type = 'lowpass';
                 lpFilter.frequency.setValueAtTime(4000, audioCtx.currentTime);
@@ -49,13 +47,11 @@ export default function AudioMonitor({ onMetrics }) {
 
                 const freqData = new Uint8Array(analyser.frequencyBinCount);
                 let speechStreak = 0;
-                let noiseBaseline = 40; // Initial noise floor approximation
+                let noiseBaseline = 40;
 
                 intervalRef.current = setInterval(() => {
                     analyser.getByteFrequencyData(freqData);
                     
-                    // 1. Calculate Average Energy in Speech Range (300Hz - 3000Hz)
-                    // Sample rate is typically 44.1k or 48k. 
                     const binSize = audioCtx.sampleRate / analyser.fftSize;
                     const speechStartIndex = Math.floor(300 / binSize);
                     const speechEndIndex = Math.floor(3000 / binSize);
@@ -72,18 +68,10 @@ export default function AudioMonitor({ onMetrics }) {
                         }
                     }
                     const avgSpeechEnergy = speechEnergy / (speechEndIndex - speechStartIndex);
-
-                    // 2. Spectral Flatness Heuristic (Ratio of peak to average)
-                    // Speech has concentrated energy (Low flatness). Fan noise is broadband (High flatness).
                     const peakRatio = maxVal / (avgSpeechEnergy || 1);
 
-                    // 3. Classification Logic (Smart VAD)
-                    // - Must be above baseline energy (Loudness check)
-                    // - Must have peakRatio > 2.0 (Structural check — speech is harmonic, noise is flat)
-                    // - Human speech usually has fundamental between 85-255Hz, harmonics in 300-3000Hz.
                     const isPotentiallySpeech = avgSpeechEnergy > (noiseBaseline + 15) && peakRatio > 2.2;
                     
-                    // Smoothing Noise Floor (Slowly adapt to room ambiance)
                     if (!isPotentiallySpeech && avgSpeechEnergy > 0) {
                         noiseBaseline = (noiseBaseline * 0.95) + (avgSpeechEnergy * 0.05);
                     }
@@ -94,11 +82,8 @@ export default function AudioMonitor({ onMetrics }) {
                         speechStreak = Math.max(0, speechStreak - 1);
                     }
 
-                    // Report Metrics
-                    // speechDetected = confirmed speech (>1.5s sustained or high intensity spikes)
-                    // isMultipleVoices = heuristics on pitch variance (Simplified)
-                    const speechDetected = speechStreak >= 4; // Approx 1.2s at 300ms polling
-                    const multipleVoicesPossible = speechDetected && peakRatio > 4.5; // Very distinct multiple peaks
+                    const speechDetected = speechStreak >= 4;
+                    const multipleVoicesPossible = speechDetected && peakRatio > 4.5;
 
                     onMetrics?.({
                         speechDetected,
@@ -111,7 +96,7 @@ export default function AudioMonitor({ onMetrics }) {
 
             } catch (err) {
                 console.error("Audio Load Error:", err);
-                if (!isCancelled) setError("Microphone access denied. Voice monitoring disabled.");
+                if (!isCancelled) setError("Microphone access denied.");
                 setStatus('error');
             }
         };
@@ -126,29 +111,40 @@ export default function AudioMonitor({ onMetrics }) {
         };
     }, []);
 
-    const css = `
-        .am-box {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 16px; border-radius: 12px;
-            background: ${t.surfaceAlt}; border: 1px solid ${t.border};
-            margin-top: 12px; transition: all 0.3s;
-        }
-        .am-icon { font-size: 18px; }
-        .am-text { font-size: 12.5px; font-weight: 500; color: ${t.text}; }
-        .am-status { font-size: 11px; font-weight: 600; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; }
-        .am-status.monitoring { background: rgba(16,185,129,0.15); color: #10b981; }
-        .am-status.error { background: rgba(239,68,68,0.15); color: #ef4444; }
-        .am-status.initializing { background: rgba(0,0,0,0.1); color: ${t.textMuted}; }
-    `;
+    const isDark = darkTheme || compact;
+    const bg = isDark ? '#1e1e24' : (t?.surfaceAlt || '#f8fafc');
+    const borderColor = isDark ? '#333340' : (t?.border || '#e2e8f0');
+    const textColor = isDark ? '#e2e8f0' : (t?.text || '#0f172a');
 
     return (
-        <>
-            <style>{css}</style>
-            <div className="am-box">
-                <div className="am-icon">{error ? '🔇' : '🎙️'}</div>
-                <div className="am-text">{error || 'Voice Detection Module'}</div>
-                <div className={`am-status ${status}`}>{status}</div>
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: compact ? 6 : 10,
+            padding: compact ? '6px 10px' : '10px 16px',
+            borderRadius: 8,
+            background: bg,
+            border: `1px solid ${borderColor}`,
+            transition: 'all 0.3s',
+            boxSizing: 'border-box',
+            width: '100%',
+            ...style
+        }}>
+            <div style={{ fontSize: compact ? 14 : 18 }}>{error ? '🔇' : '🎙️'}</div>
+            <div style={{ fontSize: compact ? 11 : 12.5, fontWeight: 600, color: textColor, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {error || 'Voice Monitor'}
             </div>
-        </>
+            <div style={{
+                fontSize: 10,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                padding: '2px 6px',
+                borderRadius: 4,
+                background: status === 'monitoring' ? 'rgba(16,185,129,0.2)' : status === 'error' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.1)',
+                color: status === 'monitoring' ? '#10b981' : status === 'error' ? '#ef4444' : '#94a3b8'
+            }}>
+                {status}
+            </div>
+        </div>
     );
 }

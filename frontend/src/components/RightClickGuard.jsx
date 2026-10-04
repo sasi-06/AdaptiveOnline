@@ -6,44 +6,7 @@ import React, { useState, useEffect } from 'react';
  * and displays a floating warning toast notification "Right click is disabled".
  */
 export default function RightClickGuard({ children }) {
-    const [toast, setToast] = useState(null);
-
-    useEffect(() => {
-        const handleContextMenu = (e) => {
-            e.preventDefault();
-            
-            // Trigger warning toast notification
-            setToast({
-                id: Date.now(),
-                x: e.clientX,
-                y: e.clientY
-            });
-        };
-
-        window.addEventListener('contextmenu', handleContextMenu);
-        return () => window.removeEventListener('contextmenu', handleContextMenu);
-    }, []);
-
-    useEffect(() => {
-        if (toast) {
-            const timer = setTimeout(() => setToast(null), 2200);
-            return () => clearTimeout(timer);
-        }
-    }, [toast]);
-
-    return (
-        <>
-            {children}
-            {toast && (
-                <div style={styles.toastOverlay}>
-                    <div style={styles.toastBox}>
-                        <span style={styles.icon}>🚫</span>
-                        <span style={styles.text}>Right click is disabled</span>
-                    </div>
-                </div>
-            )}
-        </>
-    );
+    return children;
 }
 
 const styles = {

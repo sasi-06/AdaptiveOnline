@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const BehaviorLog = require('../models/BehaviorLog');
 const riskEngine = require('../services/riskEngine');
 const adaptiveQuestionEngine = require('../services/adaptiveQuestionEngine');
@@ -31,13 +32,13 @@ exports.logBehavior = async (req, res) => {
         const events = [];
         if (faceNotDetected) events.push('face_missing');
         if (headMovement > 15) events.push('head_turn');
-        if (eyeDeviation > 30) events.push('gaze_away');
+        if (eyeDeviation > 20) events.push('gaze_away');
         if (multipleFacesDetected) events.push('multiple_faces');
         if (phoneDetected) events.push('phone_detected');
         if (identity_mismatch) events.push('identity_mismatch');
         if (speech_detected) events.push('speech_detected');
         if (multiple_voices) events.push('multiple_voices');
-        if (fullscreenExits > 0) events.push('fullscreen_exit');
+        if (fullscreenExits > 0 || tabSwitches > 0) events.push('fullscreen_exit');
 
         // Save behavior log
         const log = await BehaviorLog.create({
@@ -153,9 +154,31 @@ exports.getNextAdaptiveQuestion = async (req, res) => {
 exports.getBehaviorLogs = async (req, res) => {
     try {
         const { studentId, examId } = req.params;
-        const logs = await BehaviorLog.find({ student_id: studentId, exam_id: examId })
+        const sStr = String(studentId);
+        const eStr = String(examId);
+
+        const stId = mongoose.Types.ObjectId.isValid(studentId) ? new mongoose.Types.ObjectId(studentId) : null;
+        const exId = mongoose.Types.ObjectId.isValid(examId) ? new mongoose.Types.ObjectId(examId) : null;
+
+        const studentQuery = stId ? [sStr, stId] : [sStr];
+        const examQuery = exId ? [eStr, exId] : [eStr];
+
+        let logs = await BehaviorLog.find({
+            student_id: { $in: studentQuery },
+            exam_id: { $in: examQuery }
+        })
+        .populate('question_id', 'question_text')
+        .sort({ timestamp: 1 });
+
+        // Fallback: If no logs found for specific exam_id, fetch recent logs for student
+        if (logs.length === 0) {
+            logs = await BehaviorLog.find({
+                student_id: { $in: studentQuery }
+            })
             .populate('question_id', 'question_text')
             .sort({ timestamp: 1 });
+        }
+
         res.json(logs);
     } catch (err) {
         res.status(500).json({ message: err.message });

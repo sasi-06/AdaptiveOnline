@@ -10,8 +10,8 @@ import ExamConfig from './pages/ExamConfig';
 import CodingAssessment from './pages/CodingAssessment';
 import InterviewPage from './pages/InterviewPage';
 import CircuitExamPage from './pages/CircuitExamPage';
+import CadExamPage from './pages/CadExamPage';
 import RightClickGuard from './components/RightClickGuard';
-
 
 // ─────────────────────────────────────────────
 // Blocks access to login page if already logged in
@@ -89,8 +89,14 @@ export default function App() {
                         <CircuitExamPage />
                     </PrivateRoute>
                 } />
+                <Route path="/student/cad/:assessmentId" element={
+                    <PrivateRoute role="student">
+                        <CadExamPage />
+                    </PrivateRoute>
+                } />
 
                 {/* ── Admin routes (admin role only) ── */}
+
                 <Route path="/admin" element={
                     <PrivateRoute role="admin">
                         <AdminDashboard />

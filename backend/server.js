@@ -57,6 +57,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/reports', express.static(path.join(__dirname, 'reports')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -82,6 +83,12 @@ app.use('/api/interviews/behavior', require('./routes/interviewBehaviorRoutes'))
 app.use('/api/interviews', require('./routes/interviewReportPdfRoutes'));
 // Circuit Design & AI Evaluation Routes
 app.use('/api/circuit', require('./routes/circuitRoutes'));
+
+// Civil Engineering & CAD Assessment Routes
+const cadRoutes = require('./routes/cadAssessmentRoutes');
+app.use('/api/cad/assessments', cadRoutes);
+app.use('/api/cad', cadRoutes);
+
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'OK', time: new Date() }));

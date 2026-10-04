@@ -151,20 +151,22 @@ export default function ExamPage() {
             faceNotDetected, multipleFacesDetected, 
             phoneDetected, identityMismatch 
         };
-        if (isIdentityRegistered && !submitted) {
-            if (identityMismatch) {
+        if (!submitted) {
+            if (identityMismatch && isIdentityRegistered) {
                 setIsMismatching(true);
                 setAlert('🚨 Warning: Unauthorised person detected! User changed.');
                 handleIdentityViolation();
             } else if (multipleFacesDetected) {
-                setAlert(prev => prev === '🚨 Warning: Another face is detected! Please ensure only you are visible.' ? prev : '🚨 Warning: Another face is detected! Please ensure only you are visible.');
+                setAlert('🚨 Warning: Another face is detected! Please ensure only you are visible.');
             } else if (phoneDetected) {
-                setAlert(prev => prev === '🚨 Warning: Cell phone detected! Use of mobile phones is strictly prohibited.' ? prev : '🚨 Warning: Cell phone detected! Use of mobile phones is strictly prohibited.');
+                setAlert('🚨 Warning: Cell phone detected! Use of mobile phones is strictly prohibited.');
             } else if (faceNotDetected) {
-                setAlert(prev => prev === '🚨 Warning: Face not detected! Please face the camera.' ? prev : '🚨 Warning: Face not detected! Please face the camera.');
+                setAlert('🚨 Warning: Face not detected! Please face the camera.');
+            } else if (headMovement > 15 || eyeDeviation > 20) {
+                setAlert('⚠️ Warning: Excessive head movement / eye deviation detected!');
             } else {
                 setAlert(prev => {
-                    if (prev.includes('Another face is detected') || prev.includes('Cell phone detected') || prev.includes('Face not detected') || prev.includes('Unauthorised person detected')) {
+                    if (prev.includes('Another face is detected') || prev.includes('Cell phone detected') || prev.includes('Face not detected') || prev.includes('Unauthorised person detected') || prev.includes('Excessive head movement')) {
                         return '';
                     }
                     return prev;
@@ -317,10 +319,11 @@ export default function ExamPage() {
                                    cameraMetrics.current.phoneDetected || 
                                    cameraMetrics.current.identityMismatch || 
                                    cameraMetrics.current.faceNotDetected ||
-                                   audioMetrics.current.speechDetected;
+                                   audioMetrics.current.multipleVoicesDetected ||
+                                   riskScore >= 60;
                 
                 if (hasAnomaly && monitorRef.current) {
-                    const snap = monitorRef.current.takeSnapshot();
+                    const snap = monitorRef.current.takeSnapshot(false);
                     if (snap) {
                         snapshot = snap;
                     }

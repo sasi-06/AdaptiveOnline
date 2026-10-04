@@ -26,6 +26,7 @@ const CameraMonitor = forwardRef(({ onMetrics, reference }, ref) => {
     });
 
     const latestAnomalySnapshotRef = useRef(null);
+    const lastSnapshotTimeRef = useRef(0);
     const lastFaceVideoTimeRef = useRef(-1);
 
     // Identity Comparison Logic
@@ -51,8 +52,14 @@ const CameraMonitor = forwardRef(({ onMetrics, reference }, ref) => {
         return Math.sqrt(sum / len);
     };
 
-    const captureImmediateSnapshot = () => {
-        if (!videoRef.current || latestAnomalySnapshotRef.current) return;
+    const captureImmediateSnapshot = (force = false) => {
+        if (!videoRef.current) return;
+        const now = Date.now();
+        // Throttle automatic snapshots to at most once every 30 seconds unless forced
+        if (!force && now - lastSnapshotTimeRef.current < 30000) {
+            return;
+        }
+        lastSnapshotTimeRef.current = now;
         try {
             const canvas = document.createElement('canvas');
             canvas.width = 320;
@@ -76,12 +83,13 @@ const CameraMonitor = forwardRef(({ onMetrics, reference }, ref) => {
             }
             return null;
         },
-        takeSnapshot() {
+        takeSnapshot(force = false) {
             if (latestAnomalySnapshotRef.current) {
                 const snap = latestAnomalySnapshotRef.current;
                 latestAnomalySnapshotRef.current = null;
                 return snap;
             }
+            if (!force) return null; // Do NOT capture standard frame if no severe anomaly exists and force is false
             if (!videoRef.current) return null;
             try {
                 const canvas = document.createElement('canvas');
@@ -139,8 +147,13 @@ const CameraMonitor = forwardRef(({ onMetrics, reference }, ref) => {
                     });
                 }
                 
-                // Initialize COCO-SSD for Mobile Phone Detection
-                const objDetector = await cocoSsd.load();
+                // Initialize COCO-SSD for Mobile Phone Detection safely
+                let objDetector = null;
+                try {
+                    objDetector = await cocoSsd.load();
+                } catch (objErr) {
+                    console.warn("COCO-SSD object detector failed to load, face detection active:", objErr);
+                }
 
                 if (!isCancelled) {
                     landmarkerRef.current = landmarker;
@@ -240,7 +253,8 @@ const CameraMonitor = forwardRef(({ onMetrics, reference }, ref) => {
                             }
                         }
 
-                        if (faceNotDetected || multipleFacesDetected || identityMismatch || headMovement > 15 || eyeDeviation > 30) {
+                        // Only capture visual proof snapshot for SEVERE anomalies (missing face, multiple faces, identity mismatch)
+                        if (faceNotDetected || multipleFacesDetected || identityMismatch) {
                             captureImmediateSnapshot();
                         }
 
@@ -271,7 +285,9 @@ const CameraMonitor = forwardRef(({ onMetrics, reference }, ref) => {
                     try {
                         ctx.drawImage(videoRef.current, 0, 0, 320, 240);
                         const objectPredictions = await objectDetectorRef.current.detect(canvas);
-                        const phoneDetected = objectPredictions.some(pred => pred.class === 'cell phone' && pred.score > 0.5);
+                        const phoneDetected = objectPredictions.some(pred => 
+                            (pred.class === 'cell phone' || pred.class === 'mobile phone' || pred.class === 'phone' || pred.class === 'remote' || pred.class === 'book') && pred.score > 0.3
+                        );
                         
                         if (phoneDetected) {
                             captureImmediateSnapshot();

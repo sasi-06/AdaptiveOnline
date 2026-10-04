@@ -21,8 +21,8 @@ export default function BehaviorTimeline({ logs }) {
         return <div className="tl-empty">No behavioral flags found for this session.</div>;
     }
 
-    // Filter only logs that have events or high risk for a cleaner timeline
-    const timelineData = logs.filter(l => (l.events && l.events.length > 0) || l.riskScore > 30);
+    // Filter logs that have events, high risk, or photo snapshot proof for evidence timeline
+    const timelineData = logs.filter(l => (l.events && l.events.length > 0) || l.riskScore > 30 || l.snapshot);
 
     const getHumanMetrics = (log) => {
         const details = [];

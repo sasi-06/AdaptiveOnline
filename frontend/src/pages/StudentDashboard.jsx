@@ -7,13 +7,14 @@ import {
     getStudentProfile,      // GET /api/students/:studentId
     getResult,              // GET /api/results/:studentId/:examId
     getStudentInterviews,   // GET /api/interviews/student/:studentId
-    getCircuitQuestionsByExam
+    getCircuitQuestionsByExam,
+    getStudentCadAssessments
 } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import StudentCodingResults from '../components/StudentCodingResults';
 
-const SECTIONS = ['Overview', 'My Exams', 'Coding Round', 'Coding Results', 'Technical Interview', 'My Results', 'Profile'];
+const SECTIONS = ['Overview', 'My Exams', 'Coding Round', 'Coding Results', 'AutoCAD Assessments', 'Technical Interview', 'My Results', 'Profile'];
 const SECTION_ICONS = {
     Overview:       '',
     'My Exams':     '',
@@ -113,6 +114,8 @@ export default function StudentDashboard() {
     const [section, setSection] = useState('Overview');
     const [exams,   setExams]   = useState([]);
     const [interviews, setInterviews] = useState([]);
+    const [cadAssessments, setCadAssessments] = useState([]);
+    const [activeCadModal, setActiveCadModal] = useState(null);
     const [results, setResults] = useState([]);
     const [logs,    setLogs]    = useState([]);
     const [profile, setProfile] = useState(null);
@@ -129,6 +132,13 @@ export default function StudentDashboard() {
         )) return true;
         if (exam.submitted === true) return true;
         if (localStorage.getItem(`exam_submitted_${studentId}_${exam._id}`) === 'true') return true;
+        return false;
+    };
+
+    const isCadDone = (asm) => {
+        if (!asm) return false;
+        if (asm.isSubmitted) return true;
+        if (localStorage.getItem(`exam_submitted_${studentId}_${asm._id}`) === 'true') return true;
         return false;
     };
 
@@ -153,12 +163,13 @@ export default function StudentDashboard() {
         setLoading(true);
         setError('');
         try {
-            // All four calls are student-scoped — no admin access needed
-            const [examRes, resultRes, profileRes, interviewRes] = await Promise.allSettled([
+            // All calls are student-scoped — no admin access needed
+            const [examRes, resultRes, profileRes, interviewRes, cadRes] = await Promise.allSettled([
                 getStudentExams(studentId),
                 getStudentResults(studentId),
                 getStudentProfile(studentId),
-                getStudentInterviews(studentId)
+                getStudentInterviews(studentId),
+                getStudentCadAssessments(studentId)
             ]);
 
             // Exams — required, so surface the error
@@ -173,7 +184,6 @@ export default function StudentDashboard() {
                 setResults(resultRes.value.data || []);
             }
 
-
             // Profile — non-critical, fallback to localStorage values
             if (profileRes.status === 'fulfilled') {
                 setProfile(profileRes.value.data || null);
@@ -181,6 +191,10 @@ export default function StudentDashboard() {
 
             if (interviewRes.status === 'fulfilled') {
                 setInterviews(interviewRes.value.data || []);
+            }
+
+            if (cadRes.status === 'fulfilled') {
+                setCadAssessments(cadRes.value.data || []);
             }
 
         } finally {
@@ -488,10 +502,10 @@ export default function StudentDashboard() {
                                 )}
                                 <div className="sd-stats">
                                     {[
-                                        { val: exams.length,          lbl: 'Assigned Exams' },
-                                        { val: completedExams.length, lbl: 'Completed'       },
-                                        { val: pendingExams.length,   lbl: 'Pending'         },
-                                        { val: `${avgPct}%`,          lbl: 'Avg Score'       },
+                                        { val: exams.length + cadAssessments.length, lbl: 'Assigned Exams' },
+                                        { val: completedExams.length + cadAssessments.filter(a => isCadDone(a)).length, lbl: 'Completed' },
+                                        { val: pendingExams.length + cadAssessments.filter(a => !isCadDone(a)).length, lbl: 'Pending' },
+                                        { val: `${avgPct}%`,                         lbl: 'Avg Score'       },
                                     ].map(({ val, lbl }) => (
                                         <div key={lbl} className="sd-stat">
                                             <div className="sd-stat-val">{val}</div>
@@ -518,6 +532,47 @@ export default function StudentDashboard() {
                                                     </button>
                                                 </div>
                                             ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {cadAssessments.length > 0 && (
+                                    <div className="sd-card">
+                                        <div className="sd-card-title">📐 AutoCAD Assessments</div>
+                                        <div className="sd-exam-list">
+                                            {cadAssessments.map(asm => {
+                                                const done = isCadDone(asm);
+                                                return (
+                                                    <div key={asm._id} className={`sd-exam-card ${done ? 'done' : ''}`}>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div className="sd-exam-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                                <span>{asm.title}</span>
+                                                                {done && (
+                                                                    <span className="sd-badge" style={{ background: '#10b98122', color: '#10b981', border: '1px solid #10b98144' }}>
+                                                                        ✓ Submitted
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="sd-exam-meta">
+                                                                <span className="sd-meta-chip">⏱ {asm.duration} min</span>
+                                                                <span className="sd-meta-chip">🏷️ {asm.cad_level}</span>
+                                                                {done && asm.submittedAt && (
+                                                                    <span className="sd-meta-chip">📅 {new Date(asm.submittedAt).toLocaleDateString()}</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        {done ? (
+                                                            <button className="sd-btn-start" disabled style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', cursor: 'default' }}>
+                                                                Submitted ✓
+                                                            </button>
+                                                        ) : (
+                                                            <button className="sd-btn-start" onClick={() => setActiveCadModal(asm)}>
+                                                                Start CAD Assessment →
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
@@ -662,6 +717,69 @@ export default function StudentDashboard() {
                             <StudentCodingResults />
                         )}
 
+                        {/* ── AUTOCAD ASSESSMENTS (CIVIL ENGINEERING) ── */}
+                        {section === 'AutoCAD Assessments' && !loading && (
+                            <>
+                                <div className="sd-page-title">📐 AutoCAD / 2D Drawing Assessments</div>
+                                <p style={{ color: t.textMuted, fontSize: 14, marginBottom: 24 }}>
+                                    Civil Engineering 2D CAD drawing assessments assigned to your account.
+                                </p>
+
+                                {cadAssessments.length === 0 ? (
+                                    <div className="sd-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+                                        <div style={{ fontSize: 40, marginBottom: 12 }}>📐</div>
+                                        <h3 style={{ fontSize: 18, fontWeight: 700, color: t.text }}>No AutoCAD Assessments Assigned</h3>
+                                        <p style={{ color: t.textMuted, fontSize: 14, marginTop: 8 }}>
+                                            You currently have no published AutoCAD drawing assessments assigned to your profile.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="sd-exam-list">
+                                        {cadAssessments.map(asm => {
+                                            const done = isCadDone(asm);
+                                            return (
+                                                <div key={asm._id} className={`sd-exam-card ${done ? 'done' : ''}`}>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div className="sd-exam-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                                            <span>📐 {asm.title}</span>
+                                                            <span className="sd-badge" style={{ background: t.accent + '22', color: t.accent, border: `1px solid ${t.accent}44` }}>
+                                                                {asm.cad_level}
+                                                            </span>
+                                                            {done && (
+                                                                <span className="sd-badge" style={{ background: '#10b98122', color: '#10b981', border: '1px solid #10b98144' }}>
+                                                                    ✓ Submitted
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p style={{ fontSize: 13, color: t.textMuted, margin: '6px 0 10px' }}>
+                                                            {asm.description || 'Civil Engineering 2D CAD drawing assessment.'}
+                                                        </p>
+                                                        <div className="sd-exam-meta">
+                                                            <span className="sd-meta-chip">⏱ {asm.duration} minutes</span>
+                                                            <span className="sd-meta-chip">📝 {asm.total_questions || 0} questions</span>
+                                                            <span className="sd-meta-chip">🏷️ {asm.category || 'Civil Assessments'}</span>
+                                                            {done && asm.submittedAt && (
+                                                                <span className="sd-meta-chip">📅 Submitted {new Date(asm.submittedAt).toLocaleDateString()}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    {done ? (
+                                                        <button className="sd-btn-start" disabled style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', cursor: 'default' }}>
+                                                            Submitted ✓
+                                                        </button>
+                                                    ) : (
+                                                        <button className="sd-btn-start" onClick={() => setActiveCadModal(asm)}>
+                                                            Start CAD Assessment →
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </>
+                        )}
+
                         {/* ── TECHNICAL INTERVIEW ── */}
                         {section === 'Technical Interview' && !loading && (
                             <>
@@ -767,6 +885,66 @@ export default function StudentDashboard() {
                                     </div>
                                 </div>
                             </>
+                        )}
+
+                        {activeCadModal && (
+                            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+                                <div className="sd-card" style={{ width: '100%', maxWidth: 560, background: t.surface, border: `1px solid ${t.border}`, boxShadow: '0 24px 60px rgba(0,0,0,0.5)', padding: 28 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                                        <div>
+                                            <span className="sd-badge sd-badge-ok" style={{ marginBottom: 6 }}>
+                                                {activeCadModal.cad_level}
+                                            </span>
+                                            <h3 style={{ fontSize: 20, fontWeight: 800, color: t.text, margin: 0 }}>
+                                                📐 {activeCadModal.title}
+                                            </h3>
+                                            <p style={{ fontSize: 13, color: t.textMuted, marginTop: 4 }}>
+                                                {activeCadModal.category || 'Civil Engineering Assessments'} • Duration: {activeCadModal.duration} Mins
+                                            </p>
+                                        </div>
+                                        <button className="sd-modal-close" onClick={() => setActiveCadModal(null)}>✕</button>
+                                    </div>
+
+                                    <div style={{ background: t.surfaceAlt, border: `1px solid ${t.border}`, borderRadius: 10, padding: 14, marginBottom: 20, fontSize: 13.5, color: t.text }}>
+                                        <strong>Instructions:</strong>
+                                        <p style={{ margin: '6px 0 0', color: t.textMuted }}>
+                                            {activeCadModal.description || 'Draft 2D architectural plan & orthographic projection specs according to given geometric constraints.'}
+                                        </p>
+                                    </div>
+
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(5,150,105,0.1)', border: '1px solid rgba(5,150,105,0.3)', borderRadius: 8, color: '#059669', fontSize: 13, fontWeight: 600, marginBottom: 20 }}>
+                                        <span>🔒 AI Proctoring & Monitoring System Initialized</span>
+                                    </div>
+
+                                    <div style={{ border: `1px solid ${t.border}`, borderRadius: 14, padding: '24px 20px', textAlign: 'center', background: t.bg }}>
+                                        <div style={{ fontSize: 36, marginBottom: 10 }}>📐</div>
+                                        <h4 style={{ fontSize: 16, fontWeight: 700, color: t.text, margin: 0 }}>
+                                            2D CAD Drafting Environment
+                                        </h4>
+                                        <p style={{ fontSize: 13, color: t.textMuted, marginTop: 6 }}>
+                                            Interactive CAD canvas with geometric drawing tools, grid snapping, ortho mode, object snap, autosave, and proctoring.
+                                        </p>
+                                    </div>
+
+                                    <div style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <button className="sd-done-btn" onClick={() => setActiveCadModal(null)}>
+                                            Cancel
+                                        </button>
+                                        <button className="sd-btn-start" onClick={() => {
+                                            if (isCadDone(activeCadModal)) {
+                                                alert('You have already submitted this AutoCAD assessment.');
+                                                setActiveCadModal(null);
+                                                return;
+                                            }
+                                            const id = activeCadModal._id;
+                                            setActiveCadModal(null);
+                                            navigate(`/student/cad/${id}`);
+                                        }}>
+                                            Take Assessment →
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         )}
 
                         {reviewData && <ReviewModal data={reviewData} onClose={() => setReviewData(null)} t={t} />}

@@ -5,3 +5,4 @@ numpy
 pandas
 joblib
 pydantic==2.6.1
+requests
