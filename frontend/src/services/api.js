@@ -94,10 +94,10 @@ export const endInterviewSession = (id) => axios.post(`${BASE}/interviews/sessio
 
 // ── DEFAULT EXPORT FOR CODING ASSESSMENT ───────────────────────────────────
 const api = {
-    get: (url) => axios.get(`${BASE}${url}`, authHeaders()),
-    post: (url, data) => axios.post(`${BASE}${url}`, data, authHeaders()),
-    put: (url, data) => axios.put(`${BASE}${url}`, data, authHeaders()),
-    delete: (url) => axios.delete(`${BASE}${url}`, authHeaders()),
+    get: (url, config = {}) => axios.get(`${BASE}${url}`, { ...authHeaders(), ...config }),
+    post: (url, data, config = {}) => axios.post(`${BASE}${url}`, data, { ...authHeaders(), ...config }),
+    put: (url, data, config = {}) => axios.put(`${BASE}${url}`, data, { ...authHeaders(), ...config }),
+    delete: (url, config = {}) => axios.delete(`${BASE}${url}`, { ...authHeaders(), ...config }),
 };
 export default api;
 export const getResult         = (sid, eid)  => axios.get (`${BASE}/results/${sid}/${eid}`,            authHeaders());
@@ -154,4 +154,3 @@ export const getStudentCadSubmissions = (studentId, assessmentId) => axios.get(`
 export const submitCadAssessment = (data) => axios.post(`${BASE}/cad/assessments/submissions/submit`, data, authHeaders());
 export const getCadSubmissionsForAdmin = (assessmentId) => axios.get(`${BASE}/cad/assessments/${assessmentId}/all-submissions`, authHeaders());
 
-

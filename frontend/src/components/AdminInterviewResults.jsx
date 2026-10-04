@@ -216,9 +216,18 @@ export default function AdminInterviewResults({ flash }) {
                                     <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: t.text }}>
                                         {selectedSession.cheatingClips && selectedSession.cheatingClips.length > 0
                                             ? selectedSession.cheatingClips.map((c,i) => (
-                                                <li key={i}>
-                                                    <span style={{ color: '#ef4444', fontWeight: 500 }}>{c.reason}</span>
+                                                <li key={i} style={{ marginBottom: '8px' }}>
+                                                    <span style={{ color: '#ef4444', fontWeight: 600 }}>{c.reason}</span>
                                                     <div style={{ fontSize: '11px', color: t.textMuted }}>{new Date(c.timestamp).toLocaleTimeString()}</div>
+                                                    {c.videoUrl && (
+                                                        <div style={{ marginTop: '4px' }}>
+                                                            {c.videoUrl.startsWith('data:image') || c.videoUrl.endsWith('.jpg') || c.videoUrl.endsWith('.png') ? (
+                                                                <img src={c.videoUrl.startsWith('/') ? `http://localhost:5000${c.videoUrl}` : c.videoUrl} alt="Evidence" style={{ maxWidth: '140px', maxHeight: '90px', objectFit: 'cover', borderRadius: '4px', border: `1px solid ${t.border}` }} />
+                                                            ) : (
+                                                                <a href={c.videoUrl} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: t.accent, textDecoration: 'none' }}>View Evidence →</a>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </li>
                                             ))
                                             : <li>No anomalies detected</li>}
