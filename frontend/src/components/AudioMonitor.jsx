@@ -130,7 +130,7 @@ export default function AudioMonitor({ onMetrics, compact = false, darkTheme = f
             width: '100%',
             ...style
         }}>
-            <div style={{ fontSize: compact ? 14 : 18 }}>{error ? '🔇' : '🎙️'}</div>
+            <div style={{ fontSize: compact ? 14 : 18 }}>{error ? '' : ''}</div>
             <div style={{ fontSize: compact ? 11 : 12.5, fontWeight: 600, color: textColor, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {error || 'Voice Monitor'}
             </div>

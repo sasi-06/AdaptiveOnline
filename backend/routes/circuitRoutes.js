@@ -1,20 +1,20 @@
 /**
- * circuitRoutes.js — REST API for Circuit Design & Evaluation
+ * circuitRoutes.js REST API for Circuit Design & Evaluation
  *
  * All routes require JWT auth (student or admin as noted).
  *
- * GET    /api/circuit/questions             → list all questions (admin)
- * GET    /api/circuit/questions/exam/:examId → questions for exam (student + admin)
- * GET    /api/circuit/questions/:id         → single question
- * POST   /api/circuit/questions             → create question (admin)
- * PUT    /api/circuit/questions/:id         → update question (admin)
- * DELETE /api/circuit/questions/:id         → delete question (admin)
+ * GET    /api/circuit/questions             list all questions (admin)
+ * GET    /api/circuit/questions/exam/:examId questions for exam (student + admin)
+ * GET    /api/circuit/questions/:id         single question
+ * POST   /api/circuit/questions             create question (admin)
+ * PUT    /api/circuit/questions/:id         update question (admin)
+ * DELETE /api/circuit/questions/:id         delete question (admin)
  *
- * POST   /api/circuit/submissions              → save / upsert draft
- * GET    /api/circuit/submissions/:studentId/:questionId → get student's draft
- * POST   /api/circuit/submissions/:id/submit   → lock + evaluate
- * GET    /api/circuit/submissions/student/:sid → all by student
- * GET    /api/circuit/submissions/exam/:examId → all for exam (admin)
+ * POST   /api/circuit/submissions              save / upsert draft
+ * GET    /api/circuit/submissions/:studentId/:questionId get student's draft
+ * POST   /api/circuit/submissions/:id/submit   lock + evaluate
+ * GET    /api/circuit/submissions/student/:sid all by student
+ * GET    /api/circuit/submissions/exam/:examId all for exam (admin)
  */
 
 'use strict';
@@ -30,9 +30,9 @@ const Exam              = require('../models/Exam');
 const { evaluate }      = require('../services/circuitAgent');
 const { protect }       = require('../middleware/authMiddleware');
 
-// ─── ASSIGNMENT ───────────────────────────────────────────────────────────────
+// ASSIGNMENT 
 
-// POST /api/circuit/assign — admin assign circuit question/exam to selected students
+// POST /api/circuit/assign admin assign circuit question/exam to selected students
 router.post('/assign', protect, async (req, res) => {
     try {
         const { questionId, examId, studentIds } = req.body;
@@ -84,9 +84,9 @@ router.post('/assign', protect, async (req, res) => {
     }
 });
 
-// ─── QUESTIONS ────────────────────────────────────────────────────────────────
+// QUESTIONS 
 
-// GET /api/circuit/questions  — admin: all questions
+// GET /api/circuit/questions  admin: all questions
 router.get('/questions', protect, async (req, res) => {
     try {
         const qs = await CircuitQuestion.find().sort({ createdAt: -1 });
@@ -96,7 +96,7 @@ router.get('/questions', protect, async (req, res) => {
     }
 });
 
-// GET /api/circuit/questions/exam/:examId — questions tied to a specific exam
+// GET /api/circuit/questions/exam/:examId questions tied to a specific exam
 router.get('/questions/exam/:examId', protect, async (req, res) => {
     try {
         const { examId } = req.params;
@@ -109,7 +109,7 @@ router.get('/questions/exam/:examId', protect, async (req, res) => {
     }
 });
 
-// GET /api/circuit/questions/:id — single question (omit reference solution for students)
+// GET /api/circuit/questions/:id single question (omit reference solution for students)
 router.get('/questions/:id', protect, async (req, res) => {
     try {
         const q = await CircuitQuestion.findById(req.params.id).select('-reference_solution');
@@ -120,7 +120,7 @@ router.get('/questions/:id', protect, async (req, res) => {
     }
 });
 
-// POST /api/circuit/questions — admin create
+// POST /api/circuit/questions admin create
 router.post('/questions', protect, async (req, res) => {
     try {
         const q = await CircuitQuestion.create(req.body);
@@ -130,7 +130,7 @@ router.post('/questions', protect, async (req, res) => {
     }
 });
 
-// PUT /api/circuit/questions/:id — admin update
+// PUT /api/circuit/questions/:id admin update
 router.put('/questions/:id', protect, async (req, res) => {
     try {
         const q = await CircuitQuestion.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -141,19 +141,41 @@ router.put('/questions/:id', protect, async (req, res) => {
     }
 });
 
-// DELETE /api/circuit/questions/:id — admin delete
+// DELETE /api/circuit/questions/:id admin delete
 router.delete('/questions/:id', protect, async (req, res) => {
     try {
-        await CircuitQuestion.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Deleted successfully' });
+        const questionId = req.params.id;
+        const idListStr = [String(questionId)];
+        const idListObj = mongoose.Types.ObjectId.isValid(questionId) ? [new mongoose.Types.ObjectId(questionId)] : [];
+        const idListAll = [...idListStr, ...idListObj];
+
+        const q = await CircuitQuestion.findById(questionId);
+        if (!q) return res.status(404).json({ message: 'Question not found' });
+
+        if (q.exam_id) {
+            const examIdStr = String(q.exam_id);
+            const examIdObj = mongoose.Types.ObjectId.isValid(q.exam_id) ? new mongoose.Types.ObjectId(q.exam_id) : null;
+            const examIdList = [examIdStr, ...(examIdObj ? [examIdObj] : [])];
+
+            await CircuitSubmission.deleteMany({ exam_id: { $in: examIdList } });
+        }
+
+        await CircuitSubmission.deleteMany({ question_id: { $in: idListAll } });
+
+        const CircuitAttemptLog = require('../models/CircuitAttemptLog');
+        await CircuitAttemptLog.deleteMany({ question_id: { $in: idListAll } });
+
+        await CircuitQuestion.findByIdAndDelete(questionId);
+
+        res.json({ message: 'Circuit Question and all corresponding student submissions and evaluation logs deleted successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 
-// ─── SUBMISSIONS ──────────────────────────────────────────────────────────────
+// SUBMISSIONS 
 
-// POST /api/circuit/submissions — create or update draft
+// POST /api/circuit/submissions create or update draft
 router.post('/submissions', protect, async (req, res) => {
     try {
         const { student_id, question_id, exam_id, components, connections } = req.body;
@@ -185,7 +207,7 @@ router.post('/submissions', protect, async (req, res) => {
     }
 });
 
-// GET /api/circuit/submissions/student/:sid — all submissions by a student
+// GET /api/circuit/submissions/student/:sid all submissions by a student
 router.get('/submissions/student/:sid', protect, async (req, res) => {
     try {
         const subs = await CircuitSubmission.find({ student_id: req.params.sid })
@@ -197,7 +219,7 @@ router.get('/submissions/student/:sid', protect, async (req, res) => {
     }
 });
 
-// GET /api/circuit/submissions/all — all submissions for admin view
+// GET /api/circuit/submissions/all all submissions for admin view
 router.get('/submissions/all', protect, async (req, res) => {
     try {
         const subs = await CircuitSubmission.find()
@@ -210,7 +232,7 @@ router.get('/submissions/all', protect, async (req, res) => {
     }
 });
 
-// GET /api/circuit/submissions/exam/:examId — all submissions for an exam (admin)
+// GET /api/circuit/submissions/exam/:examId all submissions for an exam (admin)
 router.get('/submissions/exam/:examId', protect, async (req, res) => {
     try {
         const subs = await CircuitSubmission.find({ exam_id: req.params.examId })
@@ -223,7 +245,7 @@ router.get('/submissions/exam/:examId', protect, async (req, res) => {
     }
 });
 
-// GET /api/circuit/submissions/:studentId/:questionId — get specific draft
+// GET /api/circuit/submissions/:studentId/:questionId get specific draft
 router.get('/submissions/:studentId/:questionId', protect, async (req, res) => {
     try {
         const { studentId, questionId } = req.params;
@@ -241,14 +263,14 @@ router.get('/submissions/:studentId/:questionId', protect, async (req, res) => {
     }
 });
 
-// POST /api/circuit/submissions/:id/submit — lock + evaluate
+// POST /api/circuit/submissions/:id/submit lock + evaluate
 router.post('/submissions/:id/submit', protect, async (req, res) => {
     try {
         const submission = await CircuitSubmission.findById(req.params.id);
         if (!submission) return res.status(404).json({ message: 'Submission not found' });
 
         if (submission.status === 'evaluated') {
-            return res.json(submission); // Already evaluated — return cached result
+            return res.json(submission); // Already evaluated return cached result
         }
 
         const question = await CircuitQuestion.findById(submission.question_id);

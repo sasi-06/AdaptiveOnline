@@ -1,6 +1,10 @@
 const CadAssessment = require('../models/CadAssessment');
 const CadQuestion = require('../models/CadQuestion');
 const CadSubmission = require('../models/CadSubmission');
+const BehaviorLog = require('../models/BehaviorLog');
+const Alert = require('../models/Alert');
+const TelemetryLog = require('../models/TelemetryLog');
+const Result = require('../models/Result');
 const mongoose = require('mongoose');
 
 // @desc Get all CAD Assessments (for Admin)
@@ -45,7 +49,7 @@ const createCadAssessment = async (req, res) => {
             instructions: instructions || description || '',
             total_questions: Number(total_questions) || 0,
             duration: Number(duration) || 60,
-            cad_level: cad_level || 'Level 1 — Basic',
+            cad_level: cad_level || 'Level 1 Basic',
             created_by: req.admin ? req.admin._id : null
         });
 
@@ -80,15 +84,43 @@ const updateCadAssessment = async (req, res) => {
 // @desc Delete CAD Assessment
 const deleteCadAssessment = async (req, res) => {
     try {
-        const assessment = await CadAssessment.findByIdAndDelete(req.params.id);
+        const assessmentId = req.params.id;
+        const idList = [assessmentId];
+        const idListStr = [String(assessmentId)];
+        if (mongoose.Types.ObjectId.isValid(assessmentId)) {
+            idList.push(new mongoose.Types.ObjectId(assessmentId));
+        }
+
+        const assessment = await CadAssessment.findByIdAndDelete(assessmentId);
         if (!assessment) {
             return res.status(404).json({ message: 'AutoCAD Assessment not found' });
         }
 
-        // Delete associated questions
-        await CadQuestion.deleteMany({ assessment_id: req.params.id });
+        // 1. Delete associated questions
+        await CadQuestion.deleteMany({ assessment_id: { $in: idList } });
 
-        res.json({ message: 'AutoCAD Assessment and questions deleted successfully' });
+        // 2. Delete associated student submissions / draft results / activity events
+        await CadSubmission.deleteMany({ assessment_id: { $in: idList } });
+
+        // 3. Delete associated proctoring behavior logs
+        await BehaviorLog.deleteMany({ exam_id: { $in: idListStr } });
+
+        // 4. Delete associated alerts
+        await Alert.deleteMany({ exam_id: { $in: idListStr } });
+
+        // 5. Delete associated telemetry logs
+        await TelemetryLog.deleteMany({
+            $or: [
+                { assessment_id: { $in: idListStr } },
+                { assessmentId: { $in: idListStr } },
+                { exam_id: { $in: idListStr } }
+            ]
+        });
+
+        // 6. Delete associated general results (if any)
+        await Result.deleteMany({ exam_id: { $in: idListStr } });
+
+        res.json({ message: 'AutoCAD Assessment and all corresponding data (questions, submissions, results, logs) deleted successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -158,8 +190,7 @@ const getStudentCadAssessments = async (req, res) => {
     }
 };
 
-// ──────────────── CAD QUESTION CONTROLLER FUNCTIONS ────────────────
-
+// CAD QUESTION CONTROLLER FUNCTIONS 
 // @desc Get CAD questions for an assessment
 const getCadQuestions = async (req, res) => {
     try {
@@ -255,8 +286,7 @@ const deleteCadQuestion = async (req, res) => {
     }
 };
 
-// ──────────────── CAD SUBMISSION CONTROLLER FUNCTIONS ────────────────
-
+// CAD SUBMISSION CONTROLLER FUNCTIONS 
 // @desc Save / Upsert CAD Draft
 const saveCadDraft = async (req, res) => {
     try {

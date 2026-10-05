@@ -258,7 +258,7 @@ export default function AdminPlagiarismDetector() {
                   onClick={() => setSelectedPair(null)}
                   style={{ background: '#1e293b', border: '1px solid #334155', color: '#94a3b8', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer' }}
                 >
-                  ✕
+                  
                 </button>
               </div>
             </div>

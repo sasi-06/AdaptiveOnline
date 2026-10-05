@@ -3,6 +3,12 @@ const Result = require('../models/Result');
 const Question = require('../models/Question');
 const Exam = require('../models/Exam');
 const BehaviorLog = require('../models/BehaviorLog');
+const Alert = require('../models/Alert');
+const TelemetryLog = require('../models/TelemetryLog');
+const CircuitQuestion = require('../models/CircuitQuestion');
+const CircuitSubmission = require('../models/CircuitSubmission');
+const CircuitAttemptLog = require('../models/CircuitAttemptLog');
+const mongoose = require('mongoose');
 
 // @desc  Create exam
 exports.createExam = async (req, res) => {
@@ -61,26 +67,46 @@ exports.updateExam = async (req, res) => {
 exports.deleteExam = async (req, res) => {
     try {
         const examId = req.params.id;
-        
-        // 1. Delete associated results
-        await Result.deleteMany({ exam_id: examId });
-        
-        // 2. Delete associated questions
-        await Question.deleteMany({ examId: examId });
-        
-        // 3. Delete associated behavior logs
-        await BehaviorLog.deleteMany({ exam_id: examId });
+        const idListStr = [String(examId)];
+        const idListObj = mongoose.Types.ObjectId.isValid(examId) ? [new mongoose.Types.ObjectId(examId)] : [];
+        const idListAll = [...idListStr, ...idListObj];
 
-        // 4. Remove exam from assigned_exams in Student
+        // 1. Delete associated results
+        await Result.deleteMany({ exam_id: { $in: idListAll } });
+
+        // 2. Delete associated questions
+        await Question.deleteMany({ examId: { $in: idListAll } });
+
+        // 3. Delete associated behavior logs
+        await BehaviorLog.deleteMany({ exam_id: { $in: idListStr } });
+
+        // 4. Delete associated alerts
+        await Alert.deleteMany({ exam_id: { $in: idListStr } });
+
+        // 5. Delete associated telemetry logs
+        await TelemetryLog.deleteMany({
+            $or: [
+                { exam_id: { $in: idListStr } },
+                { assessment_id: { $in: idListStr } },
+                { assessmentId: { $in: idListStr } }
+            ]
+        });
+
+        // 6. Delete associated circuit questions & circuit submissions
+        await CircuitQuestion.deleteMany({ exam_id: { $in: idListAll } });
+        await CircuitSubmission.deleteMany({ exam_id: { $in: idListAll } });
+        await CircuitAttemptLog.deleteMany({ examId: { $in: idListStr } });
+
+        // 7. Remove exam from assigned_exams in Student
         await Student.updateMany(
-            { assigned_exams: examId },
-            { $pull: { assigned_exams: examId } }
+            { assigned_exams: { $in: idListAll } },
+            { $pull: { assigned_exams: { $in: idListAll } } }
         );
-        
-        // 5. Delete the exam itself
+
+        // 8. Delete the exam itself
         await Exam.findByIdAndDelete(examId);
-        
-        res.json({ message: 'Exam and all associated results, questions, and behavior logs removed successfully.' });
+
+        res.json({ message: 'Exam and all associated results, questions, circuit data, alerts, and behavior logs removed successfully.' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

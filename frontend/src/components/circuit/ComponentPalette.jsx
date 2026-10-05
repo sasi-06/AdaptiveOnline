@@ -27,7 +27,7 @@ export default function ComponentPalette({ visiblePalette = [], maxInstances = {
     return (
         <div style={styles.palette}>
             <div style={styles.paletteTitle}>
-                <span style={{ fontSize: 14, marginRight: 6 }}>🔌</span>
+                <span style={{ fontSize: 14, marginRight: 6 }}></span>
                 Component Palette
             </div>
             <div style={styles.hint}>Drag components onto the canvas</div>
@@ -40,12 +40,12 @@ export default function ComponentPalette({ visiblePalette = [], maxInstances = {
                             {catDef.label}
                         </div>
                         {types.map(type => {
-                            const def    = COMP_DEFS[type];
+                            const def = COMP_DEFS[type];
                             const placed = placedCounts[type] || 0;
-                            const max    = maxInstances[type];
-                            const atMax  = max !== undefined && placed >= max;
-                            const pw     = Math.round(def.width  * PALETTE_PREVIEW_SCALE);
-                            const ph     = Math.max(Math.round(def.height * PALETTE_PREVIEW_SCALE), 40);
+                            const max = maxInstances[type];
+                            const atMax = max !== undefined && placed >= max;
+                            const pw = Math.round(def.width * PALETTE_PREVIEW_SCALE);
+                            const ph = Math.max(Math.round(def.height * PALETTE_PREVIEW_SCALE), 40);
 
                             return (
                                 <div
@@ -54,8 +54,8 @@ export default function ComponentPalette({ visiblePalette = [], maxInstances = {
                                     onDragStart={atMax ? undefined : (e) => handleDragStart(e, type)}
                                     style={{
                                         ...styles.item,
-                                        opacity:   atMax ? 0.4 : 1,
-                                        cursor:    atMax ? 'not-allowed' : 'grab',
+                                        opacity: atMax ? 0.4 : 1,
+                                        cursor: atMax ? 'not-allowed' : 'grab',
                                         borderColor: def.color + '44',
                                     }}
                                     title={atMax ? `Max ${max} instance(s) reached` : `Drag to add ${def.label}`}

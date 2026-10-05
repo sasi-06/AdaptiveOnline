@@ -3,12 +3,12 @@
  * Right-side results panel shown after circuit submission.
  *
  * Displays:
- *   1. Animated Score Ring & Verdict
- *   2. 📈 Bode Plot & Frequency Response (Magnitude dB + Phase)
- *   3. 🌊 Oscilloscope Time-Domain Waveform Preview (Channel 1 Vin vs Channel 2 Vout)
- *   4. ⚡ Component Thermal & Power Dissipation Audit (mW/W limits)
- *   5. 🛡️ SPICE Design Rule Checks & EE Grade Card
- *   6. 🤖 AI Reasoning & ML Feature Signals
+ * 1. Animated Score Ring & Verdict
+ * 2. Bode Plot & Frequency Response (Magnitude dB + Phase)
+ * 3. Oscilloscope Time-Domain Waveform Preview (Channel 1 Vin vs Channel 2 Vout)
+ * 4. Component Thermal & Power Dissipation Audit (mW/W limits)
+ * 5. SPICE Design Rule Checks & EE Grade Card
+ * 6. AI Reasoning & ML Feature Signals
  */
 
 import React, { useEffect, useState } from 'react';
@@ -32,15 +32,15 @@ function ModelConsensusCard({ votes, disagreement, confidence, isDark }) {
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: textCol, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    🤖 3-Model Ensemble Consensus
+                     3-Model Ensemble Consensus
                 </span>
                 {disagreement ? (
                     <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#fef2f2', color: '#dc2626', fontWeight: 700 }}>
-                        ⚠️ Disagreement (Instructor Review)
+                         Disagreement (Instructor Review)
                     </span>
                 ) : (
                     <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', fontWeight: 700 }}>
-                        ✅ Consensus Reached
+                         Consensus Reached
                     </span>
                 )}
             </div>
@@ -77,7 +77,7 @@ function VivaQuestionsCard({ questions, isDark }) {
             marginBottom: 14
         }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: textCol, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                🎙️ Tailored Circuit Viva Questions
+                 Tailored Circuit Viva Questions
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {questions.map((q, i) => (
@@ -107,7 +107,7 @@ function ScoreRing({ score, size = 120 }) {
 
     const [displayed, setDisplayed] = useState(0);
     const radius = (size - 16) / 2;
-    const circ   = 2 * Math.PI * radius;
+    const circ = 2 * Math.PI * radius;
     const offset = circ - (displayed / 100) * circ;
 
     const color = score >= 85 ? '#22c55e'
@@ -158,7 +158,7 @@ function MiniBar({ value, max, color }) {
     );
 }
 
-// ── 📈 Bode Plot Visualizer (Gain dB & Phase) ───────────────────────────────
+// ── Bode Plot Visualizer (Gain dB & Phase) ───────────────────────────────
 function BodePlotChart({ bodeData, isDark }) {
     if (!bodeData || bodeData.length === 0) return null;
 
@@ -175,7 +175,7 @@ function BodePlotChart({ bodeData, isDark }) {
     const getX = (freq) => {
         const logMin = Math.log10(minF);
         const logMax = Math.log10(maxF);
-        const logF   = Math.log10(Math.max(minF, freq));
+        const logF = Math.log10(Math.max(minF, freq));
         return padding.left + ((logF - logMin) / (logMax - logMin)) * (width - padding.left - padding.right);
     };
 
@@ -185,15 +185,15 @@ function BodePlotChart({ bodeData, isDark }) {
 
     const points = bodeData.map(d => `${getX(d.freq)},${getY(d.gain_db)}`).join(' ');
 
-    const bg     = isDark ? '#0d1117' : '#f8fafc';
-    const grid   = isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0';
-    const text   = isDark ? '#94a3b8' : '#64748b';
-    const line   = isDark ? '#a78bfa' : '#6d28d9';
+    const bg = isDark ? '#0d1117' : '#f8fafc';
+    const grid = isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0';
+    const text = isDark ? '#94a3b8' : '#64748b';
+    const line = isDark ? '#a78bfa' : '#6d28d9';
 
     return (
         <div style={{ background: bg, borderRadius: 10, padding: 10, border: `1px solid ${grid}` }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: text, marginBottom: 4 }}>
-                <span>📈 AC Frequency Response (Bode Plot)</span>
+                <span> AC Frequency Response (Bode Plot)</span>
                 <span style={{ color: line }}>Magnitude (dB)</span>
             </div>
             <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
@@ -221,7 +221,7 @@ function BodePlotChart({ bodeData, isDark }) {
     );
 }
 
-// ── 🌊 Oscilloscope Time-Domain Visualizer ───────────────────────────────────
+// ── Oscilloscope Time-Domain Visualizer ───────────────────────────────────
 function OscilloscopeWaveform({ waveform, isDark }) {
     if (!waveform || waveform.length === 0) return null;
 
@@ -235,18 +235,18 @@ function OscilloscopeWaveform({ waveform, isDark }) {
     const getX = (t) => padding.left + (t / waveform[waveform.length - 1].t_ms) * (width - padding.left - padding.right);
     const getY = (v) => padding.top + (1 - (v - minVin) / vRange) * (height - padding.top - padding.bottom);
 
-    const vinPoints  = waveform.map(w => `${getX(w.t_ms)},${getY(w.vin)}`).join(' ');
+    const vinPoints = waveform.map(w => `${getX(w.t_ms)},${getY(w.vin)}`).join(' ');
     const voutPoints = waveform.map(w => `${getX(w.t_ms)},${getY(w.vout)}`).join(' ');
 
-    const oscBg   = isDark ? '#051b14' : '#0f291e';
-    const grid    = 'rgba(34, 197, 94, 0.2)';
-    const vinCol  = '#facc15'; // CH1 Yellow
+    const oscBg = isDark ? '#051b14' : '#0f291e';
+    const grid = 'rgba(34, 197, 94, 0.2)';
+    const vinCol = '#facc15'; // CH1 Yellow
     const voutCol = '#38bdf8'; // CH2 Cyan
 
     return (
         <div style={{ background: oscBg, borderRadius: 10, padding: 10, border: '1px solid rgba(34,197,94,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: '#4ade80', marginBottom: 4 }}>
-                <span>🌊 Oscilloscope Waveform Preview</span>
+                <span> Oscilloscope Waveform Preview</span>
                 <div style={{ display: 'flex', gap: 10 }}>
                     <span style={{ color: vinCol }}>CH1 (Vin)</span>
                     <span style={{ color: voutCol }}>CH2 (Vout)</span>
@@ -270,21 +270,21 @@ function OscilloscopeWaveform({ waveform, isDark }) {
     );
 }
 
-// ── ⚡ Component Power & Thermal Audit Table ─────────────────────────────────
+// ── Component Power & Thermal Audit Table ─────────────────────────────────
 function ThermalPowerAudit({ breakdown, warnings, isDark }) {
     if (!breakdown || breakdown.length === 0) return null;
 
-    const bg    = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
+    const bg = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
     const border= isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0';
-    const text  = isDark ? '#e2e8f0' : '#0f172a';
+    const text = isDark ? '#e2e8f0' : '#0f172a';
     const muted = isDark ? '#94a3b8' : '#64748b';
 
     return (
         <div style={{ background: bg, border, borderRadius: 10, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: text }}>⚡ Power Dissipation & Thermal Audit</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: text }}> Power Dissipation & Thermal Audit</span>
                 <span style={{ fontSize: 11, fontWeight: 600, color: warnings?.length > 0 ? '#ef4444' : '#22c55e' }}>
-                    {warnings?.length > 0 ? `⚠️ ${warnings.length} Thermal Overload` : '🟢 Thermal Safe (<250mW)'}
+                    {warnings?.length > 0 ? ` ${warnings.length} Thermal Overload` : ' Thermal Safe (<250mW)'}
                 </span>
             </div>
 
@@ -318,24 +318,24 @@ function ThermalPowerAudit({ breakdown, warnings, isDark }) {
 
 // ── Verdict badge ─────────────────────────────────────────────────────────────
 const VERDICT_META = {
-    correct:           { icon: '✅', label: 'Correct',            color: '#22c55e', bg: 'rgba(34,197,94,0.10)' },
-    partially_correct: { icon: '⚠️', label: 'Partially Correct',  color: '#f59e0b', bg: 'rgba(245,158,11,0.10)' },
-    incorrect:         { icon: '❌', label: 'Incorrect',           color: '#ef4444', bg: 'rgba(239,68,68,0.10)' }
+    correct: { icon: '', label: 'Correct', color: '#22c55e', bg: 'rgba(34,197,94,0.10)' },
+    partially_correct: { icon: '', label: 'Partially Correct', color: '#f59e0b', bg: 'rgba(245,158,11,0.10)' },
+    incorrect: { icon: '', label: 'Incorrect', color: '#ef4444', bg: 'rgba(239,68,68,0.10)' }
 };
 
 const ISSUE_META = {
-    topology:          { icon: '🔀', color: '#f59e0b' },
-    component_value:   { icon: '🔢', color: '#f97316' },
-    missing_ground:    { icon: '⚡', color: '#ef4444' },
-    wrong_component:   { icon: '🚫', color: '#ef4444' },
-    floating_pin:      { icon: '📍', color: '#f59e0b' },
-    short_circuit:     { icon: '💥', color: '#ef4444' },
-    too_many_instances:{ icon: '📊', color: '#f59e0b' },
-    polarity_error:    { icon: '🔄', color: '#ef4444' },
-    component_type_mismatch: { icon: '🔧', color: '#f59e0b' },
+    topology: { icon: '', color: '#f59e0b' },
+    component_value: { icon: '', color: '#f97316' },
+    missing_ground: { icon: '', color: '#ef4444' },
+    wrong_component: { icon: '', color: '#ef4444' },
+    floating_pin: { icon: '', color: '#f59e0b' },
+    short_circuit: { icon: '', color: '#ef4444' },
+    too_many_instances:{ icon: '', color: '#f59e0b' },
+    polarity_error: { icon: '', color: '#ef4444' },
+    component_type_mismatch: { icon: '', color: '#f59e0b' },
 };
 
-// ── 🏆 Design Grade Card ─────────────────────────────────────────────────────
+// ── Design Grade Card ─────────────────────────────────────────────────────
 function DesignGradeCard({ designAnalysis, isDark }) {
     if (!designAnalysis) return null;
     const { design_grade, grade_assessment, design_style,
@@ -348,15 +348,15 @@ function DesignGradeCard({ designAnalysis, isDark }) {
         C: '#f59e0b', D: '#f97316', F: '#ef4444'
     }[design_grade] || '#94a3b8';
 
-    const cardBg  = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
-    const border  = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0';
+    const cardBg = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
+    const border = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0';
     const textCol = isDark ? '#e2e8f0' : '#1e293b';
     const mutedCol= isDark ? '#94a3b8' : '#64748b';
 
     return (
         <div style={{ background: cardBg, border, borderRadius: 12, padding: 14 }}>
             <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: mutedCol, marginBottom: 10 }}>
-                🏆 Design Grade & Assessment
+                 Design Grade & Assessment
             </div>
             <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 10 }}>
                 <div style={{
@@ -373,11 +373,11 @@ function DesignGradeCard({ designAnalysis, isDark }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[
                     { label: 'Topology Quality', value: `${topology_quality_pct}%` },
-                    { label: 'Value Accuracy',   value: `${value_accuracy_pct}%`   },
-                    { label: 'Completeness',     value: `${circuit_completeness_pct}%` },
-                    { label: 'Connections',      value: `${total_connections_made}` },
-                    { label: 'Components',       value: `${total_components_placed}` },
-                    { label: 'Measurement Dev.', value: has_measurement_device ? '✓ Yes' : '✗ No' },
+                    { label: 'Value Accuracy', value: `${value_accuracy_pct}%` },
+                    { label: 'Completeness', value: `${circuit_completeness_pct}%` },
+                    { label: 'Connections', value: `${total_connections_made}` },
+                    { label: 'Components', value: `${total_components_placed}` },
+                    { label: 'Measurement Dev.', value: has_measurement_device ? ' Yes' : ' No' },
                 ].map(({ label, value }) => (
                     <div key={label} style={{
                         background: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff',
@@ -392,28 +392,28 @@ function DesignGradeCard({ designAnalysis, isDark }) {
     );
 }
 
-// ── 🔀 Signal Path Section ────────────────────────────────────────────────────
+// ── Signal Path Section ────────────────────────────────────────────────────
 function SignalPathSection({ signalPath, isDark }) {
     if (!signalPath) return null;
-    const isWarning = signalPath.startsWith('⚠️');
-    const bg    = isDark ? (isWarning ? 'rgba(245,158,11,0.07)' : 'rgba(108,99,255,0.06)') : (isWarning ? '#fffbeb' : '#f5f3ff');
-    const bdrC  = isWarning ? (isDark ? 'rgba(245,158,11,0.3)' : '#fde68a') : (isDark ? 'rgba(108,99,255,0.25)' : '#ddd6fe');
+    const isWarning = signalPath.startsWith('');
+    const bg = isDark ? (isWarning ? 'rgba(245,158,11,0.07)' : 'rgba(108,99,255,0.06)') : (isWarning ? '#fffbeb' : '#f5f3ff');
+    const bdrC = isWarning ? (isDark ? 'rgba(245,158,11,0.3)' : '#fde68a') : (isDark ? 'rgba(108,99,255,0.25)' : '#ddd6fe');
     const textCol = isDark ? '#e2e8f0' : '#1e293b';
     const mutedCol = isDark ? '#94a3b8' : '#64748b';
     return (
         <div style={{ background: bg, border: `1px solid ${bdrC}`, borderRadius: 10, padding: '12px 14px' }}>
             <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isDark ? '#a78bfa' : '#6d28d9', marginBottom: 8 }}>
-                🔀 Signal Path Analysis
+                 Signal Path Analysis
             </div>
             <p style={{ color: textCol, fontSize: 12, lineHeight: 1.7, margin: 0, fontFamily: 'monospace' }}>{signalPath}</p>
         </div>
     );
 }
 
-// ── 🔩 Component Analysis Table ───────────────────────────────────────────────
+// ── Component Analysis Table ───────────────────────────────────────────────
 function ComponentAnalysisTable({ componentAnalysis, isDark }) {
     if (!componentAnalysis || componentAnalysis.length === 0) return null;
-    const bg     = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
+    const bg = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
     const border = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0';
     const textCol = isDark ? '#e2e8f0' : '#0f172a';
     const mutedCol = isDark ? '#94a3b8' : '#64748b';
@@ -423,7 +423,7 @@ function ComponentAnalysisTable({ componentAnalysis, isDark }) {
     return (
         <div style={{ background: bg, border, borderRadius: 10, padding: 12 }}>
             <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: mutedCol, marginBottom: 8 }}>
-                🔩 Component-Level Analysis
+                 Component-Level Analysis
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {componentAnalysis.map((comp, idx) => (
@@ -452,17 +452,17 @@ function ComponentAnalysisTable({ componentAnalysis, isDark }) {
     );
 }
 
-// ── 💡 Improvement Suggestions ───────────────────────────────────────────────
+// ── Improvement Suggestions ───────────────────────────────────────────────
 function ImprovementSuggestions({ suggestions, isDark }) {
     if (!suggestions || suggestions.length === 0) return null;
-    const bg    = isDark ? 'rgba(34,197,94,0.05)' : '#f0fdf4';
+    const bg = isDark ? 'rgba(34,197,94,0.05)' : '#f0fdf4';
     const border= isDark ? '1px solid rgba(34,197,94,0.2)' : '1px solid #bbf7d0';
     const textCol = isDark ? '#e2e8f0' : '#15803d';
     const mutedCol = isDark ? '#94a3b8' : '#166534';
     return (
         <div style={{ background: bg, border, borderRadius: 10, padding: '12px 14px' }}>
             <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isDark ? '#4ade80' : '#16a34a', marginBottom: 10 }}>
-                💡 Improvement Suggestions
+                 Improvement Suggestions
             </div>
             <ol style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {suggestions.map((s, i) => (
@@ -473,17 +473,17 @@ function ImprovementSuggestions({ suggestions, isDark }) {
     );
 }
 
-// ── 🌐 Real-World Applications ────────────────────────────────────────────────
+// ── Real-World Applications ────────────────────────────────────────────────
 function RealWorldApplications({ apps, isDark }) {
     if (!apps || apps.length === 0) return null;
-    const bg    = isDark ? 'rgba(56,189,248,0.05)' : '#f0f9ff';
+    const bg = isDark ? 'rgba(56,189,248,0.05)' : '#f0f9ff';
     const border= isDark ? '1px solid rgba(56,189,248,0.2)' : '1px solid #bae6fd';
     const textCol = isDark ? '#7dd3fc' : '#0369a1';
     const mutedCol = isDark ? '#94a3b8' : '#64748b';
     return (
         <div style={{ background: bg, border, borderRadius: 10, padding: '12px 14px' }}>
             <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isDark ? '#38bdf8' : '#0284c7', marginBottom: 8 }}>
-                🌐 Real-World Applications
+                 Real-World Applications
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {apps.map((app, i) => (
@@ -505,14 +505,14 @@ function AIReasoningSection({ evaluation, isDark }) {
     const mi = evaluation?.model_info;
     if (!mi) return null;
 
-    const topoScore  = mi.topology_score  ?? 0;
-    const valueScore = mi.value_score     ?? 0;
+    const topoScore = mi.topology_score ?? 0;
+    const valueScore = mi.value_score ?? 0;
     const confidence = evaluation.ml_confidence ?? 0;
-    const fv         = mi.feature_vector  ?? {};
+    const fv = mi.feature_vector ?? {};
     const classProbabilities = mi.class_probabilities ?? {};
 
-    const cardBg  = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
-    const border  = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0';
+    const cardBg = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
+    const border = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0';
     const textCol = isDark ? '#e2e8f0' : '#1e293b';
     const mutedCol = isDark ? '#94a3b8' : '#64748b';
     const accentBg = isDark ? 'rgba(108,99,255,0.1)' : '#f3e8ff';
@@ -529,7 +529,7 @@ function AIReasoningSection({ evaluation, isDark }) {
                 }}
             >
                 <span style={{ fontSize: 12, fontWeight: 700, color: isDark ? '#a78bfa' : '#6d28d9' }}>
-                    🤖 AI Reasoning Breakdown
+                     AI Reasoning Breakdown
                 </span>
                 <span style={{ color: mutedCol, fontSize: 12 }}>{open ? '▲' : '▼'}</span>
             </div>
@@ -576,9 +576,9 @@ function AIReasoningSection({ evaluation, isDark }) {
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                 {[
-                                    { key: 'correct',           label: '✅ Correct',           color: '#22c55e' },
-                                    { key: 'partially_correct', label: '⚠️ Partially Correct', color: '#f59e0b' },
-                                    { key: 'incorrect',         label: '❌ Incorrect',          color: '#ef4444' },
+                                    { key: 'correct', label: ' Correct', color: '#22c55e' },
+                                    { key: 'partially_correct', label: ' Partially Correct', color: '#f59e0b' },
+                                    { key: 'incorrect', label: ' Incorrect', color: '#ef4444' },
                                 ].map(({ key, label, color }) => (
                                     <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                         <span style={{ fontSize: 11, color: mutedCol, width: 130, flexShrink: 0 }}>{label}</span>
@@ -644,10 +644,10 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
     const vMeta = VERDICT_META[verdict] || VERDICT_META.incorrect;
     const isDark = t?.isDark ?? false;
 
-    const cardBg    = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
-    const border    = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0';
-    const textCol   = isDark ? '#e2e8f0' : '#1e293b';
-    const mutedCol  = isDark ? '#94a3b8' : '#64748b';
+    const cardBg = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc';
+    const border = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0';
+    const textCol = isDark ? '#e2e8f0' : '#1e293b';
+    const mutedCol = isDark ? '#94a3b8' : '#64748b';
 
     return (
         <div style={{ background: 'transparent', padding: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -678,7 +678,7 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
                         boxShadow: '0 4px 14px rgba(108, 99, 255, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
                     }}
                 >
-                    📄 Export Engineering PDF
+                     Export Engineering PDF
                 </button>
                 <button
                     onClick={() => {
@@ -693,7 +693,7 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
                         display: 'flex', alignItems: 'center', gap: 6
                     }}
                 >
-                    🖼️ Download PNG
+                     Download PNG
                 </button>
             </div>
 
@@ -736,7 +736,7 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
                     borderRadius: 10, padding: '12px 14px'
                 }}>
                     <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isDark ? '#38bdf8' : '#0284c7', marginBottom: 10 }}>
-                        📊 SPICE Circuit Parameters
+                         SPICE Circuit Parameters
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {sim_result.measured_gain != null && (
@@ -775,17 +775,17 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
                 </div>
             )}
 
-            {/* 📈 AC Frequency Response (Bode Plot) ────────────────────────── */}
+            {/* AC Frequency Response (Bode Plot) ────────────────────────── */}
             {sim_result?.bode_plot && (
                 <BodePlotChart bodeData={sim_result.bode_plot} isDark={isDark} />
             )}
 
-            {/* 🌊 Oscilloscope Time-Domain Waveform Preview ───────────────── */}
+            {/* Oscilloscope Time-Domain Waveform Preview ───────────────── */}
             {sim_result?.waveform && (
                 <OscilloscopeWaveform waveform={sim_result.waveform} isDark={isDark} />
             )}
 
-            {/* ⚡ Component Power & Thermal Dissipation Audit ───────────── */}
+            {/* Component Power & Thermal Dissipation Audit ───────────── */}
             {sim_result?.power_breakdown && (
                 <ThermalPowerAudit breakdown={sim_result.power_breakdown} warnings={sim_result.thermal_warnings} isDark={isDark} />
             )}
@@ -794,7 +794,7 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
             {normalizedIssues.length > 0 && (
                 <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: textCol, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                        ⚠️ Issues Found ({normalizedIssues.length})
+                         Issues Found ({normalizedIssues.length})
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {normalizedIssues.map((issue, i) => {
@@ -822,7 +822,7 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
                                                 fontSize: 10, color: isDark ? '#f87171' : '#dc2626', fontFamily: 'monospace',
                                                 fontWeight: 700
                                             }}>
-                                                📍 {issue.component_involved}
+                                                 {issue.component_involved}
                                             </span>
                                         )}
                                     </div>
@@ -844,7 +844,7 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
                                                     fontWeight: 700, cursor: 'pointer'
                                                 }}
                                             >
-                                                🎯 Locate on circuit: <code>{issue.component_involved}</code>
+                                                 Locate on circuit: <code>{issue.component_involved}</code>
                                             </button>
                                         </div>
                                     )}
@@ -859,7 +859,7 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
             {feedback_for_student && (
                 <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: textCol, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                        💡 Engineering Feedback
+                         Engineering Feedback
                     </div>
                     <div style={{
                         background: isDark ? 'rgba(108,99,255,0.06)' : '#f5f3ff',
@@ -875,7 +875,7 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
             {concepts_to_review.length > 0 && (
                 <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: textCol, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                        📚 Review Electrical Concepts
+                         Review Electrical Concepts
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {concepts_to_review.map((c, i) => (
@@ -893,7 +893,7 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
             {/* AI Reasoning Breakdown ───────────────────────────────────────── */}
             <AIReasoningSection evaluation={evaluation} isDark={isDark} />
 
-            {/* 🤖 3-Model Ensemble Consensus ────────────────────────────────── */}
+            {/* 3-Model Ensemble Consensus ────────────────────────────────── */}
             {evaluation.model_votes && (
                 <ModelConsensusCard
                     votes={evaluation.model_votes}
@@ -903,37 +903,37 @@ export default function EvaluationPanel({ evaluation, onHighlightComp, question 
                 />
             )}
 
-            {/* 🔍 SHAP Explainable AI Feature Attribution ──────────────────── */}
+            {/* SHAP Explainable AI Feature Attribution ──────────────────── */}
             {evaluation.shap_explanation && (
                 <ShapBreakdown shapData={evaluation.shap_explanation} isDark={isDark} />
             )}
 
-            {/* 🎙️ Tailored Viva Questions ───────────────────────────────────── */}
+            {/* Tailored Viva Questions ───────────────────────────────────── */}
             {evaluation.viva_questions && evaluation.viva_questions.length > 0 && (
                 <VivaQuestionsCard questions={evaluation.viva_questions} isDark={isDark} />
             )}
 
-            {/* 🏆 Design Grade ─────────────────────────────────────────────── */}
+            {/* Design Grade ─────────────────────────────────────────────── */}
             {evaluation.design_analysis && (
                 <DesignGradeCard designAnalysis={evaluation.design_analysis} isDark={isDark} />
             )}
 
-            {/* 🔀 Signal Path ──────────────────────────────────────────────── */}
+            {/* Signal Path ──────────────────────────────────────────────── */}
             {evaluation.design_analysis?.signal_path_description && (
                 <SignalPathSection signalPath={evaluation.design_analysis.signal_path_description} isDark={isDark} />
             )}
 
-            {/* 🔩 Component Analysis ───────────────────────────────────────── */}
+            {/* Component Analysis ───────────────────────────────────────── */}
             {evaluation.design_analysis?.component_analysis?.length > 0 && (
                 <ComponentAnalysisTable componentAnalysis={evaluation.design_analysis.component_analysis} isDark={isDark} />
             )}
 
-            {/* 💡 Improvement Suggestions ──────────────────────────────────── */}
+            {/* Improvement Suggestions ──────────────────────────────────── */}
             {evaluation.design_analysis?.improvement_suggestions?.length > 0 && (
                 <ImprovementSuggestions suggestions={evaluation.design_analysis.improvement_suggestions} isDark={isDark} />
             )}
 
-            {/* 🌐 Real-World Applications ──────────────────────────────────── */}
+            {/* Real-World Applications ──────────────────────────────────── */}
             {evaluation.design_analysis?.real_world_applications?.length > 0 && (
                 <RealWorldApplications apps={evaluation.design_analysis.real_world_applications} isDark={isDark} />
             )}

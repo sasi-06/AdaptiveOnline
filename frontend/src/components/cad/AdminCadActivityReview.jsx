@@ -118,7 +118,7 @@ export default function AdminCadActivityReview({
             <div style={{ height: 60, background: '#18181c', borderBottom: '1px solid #2e2e38', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', flexShrink: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid #38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: '#38bdf8' }}>
-                        📐
+                        
                     </div>
                     <div>
                         <div style={{ fontSize: 16, fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -158,7 +158,7 @@ export default function AdminCadActivityReview({
                     onClick={onClose}
                     style={{ background: '#22222a', border: '1px solid #333340', color: '#94a3b8', padding: '6px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
                 >
-                    ✕ Close Review
+                     Close Review
                 </button>
             </div>
 
@@ -195,7 +195,7 @@ export default function AdminCadActivityReview({
                     {/* Final Drawing Summary Info Card */}
                     <div style={{ background: '#18181c', border: '1px solid #2e2e38', borderRadius: 10, padding: 16 }}>
                         <div style={{ fontSize: 13, fontWeight: 800, color: '#f8fafc', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span>📊</span> Final Drawing Geometry Summary
+                            <span></span> Final Drawing Geometry Summary
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
@@ -231,7 +231,7 @@ export default function AdminCadActivityReview({
                     <div style={{ padding: 18, borderBottom: '1px solid #2e2e38', background: '#18181c' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                             <span style={{ fontSize: 14, fontWeight: 800, color: '#f8fafc' }}>
-                                📜 CAD Activity History
+                                 CAD Activity History
                             </span>
                             <span style={{ padding: '3px 10px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', borderRadius: 20, fontSize: 11, fontWeight: 800 }}>
                                 {activityEvents.length} Actions Committed

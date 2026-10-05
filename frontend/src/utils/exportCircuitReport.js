@@ -6,10 +6,10 @@ import { jsPDF } from 'jspdf';
  * Executive Engineering Schematic & Circuit Analysis PDF Exporter
  *
  * Key Highlights:
- *  1. Dynamic Auto-Cropped Zoomed Schematic SVG Capture (High visibility)
- *  2. Discrete Multi-Page A4 Rendering (Zero table slice lines cut through headers/rows)
- *  3. Dynamic Filename based on Student Name & Department
- *     e.g., John_Doe_ECE_Department_Circuit_Analysis_Report.pdf
+ * 1. Dynamic Auto-Cropped Zoomed Schematic SVG Capture (High visibility)
+ * 2. Discrete Multi-Page A4 Rendering (Zero table slice lines cut through headers/rows)
+ * 3. Dynamic Filename based on Student Name & Department
+ * e.g., John_Doe_ECE_Department_Circuit_Analysis_Report.pdf
  */
 
 /**
@@ -318,7 +318,7 @@ export async function exportCircuitReportPDF({
                 </div>
 
                 <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px; font-size: 12px; line-height: 1.5; color: #334155; margin-bottom: 10px;">
-                    <strong style="color: #0f172a;">🤖 AI Evaluation & Feedback:</strong> ${feedback}
+                    <strong style="color: #0f172a;"> AI Evaluation & Feedback:</strong> ${feedback}
                 </div>
 
                 ${concepts.length > 0 ? `
@@ -332,7 +332,7 @@ export async function exportCircuitReportPDF({
             <!-- ── SECTION 2: SPECIFICATION COMPARISON MATRIX ──────────── -->
             <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
                 <div style="background: #f8fafc; padding: 10px 14px; font-size: 12px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0;">
-                    🎯 SPECIFICATION COMPARISON & TOLERANCE MATRIX
+                     SPECIFICATION COMPARISON & TOLERANCE MATRIX
                 </div>
                 <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left;">
                     <thead>
@@ -352,7 +352,7 @@ export async function exportCircuitReportPDF({
                             <td style="padding: 12px 14px; color: #64748b;">&plusmn;${tolPercent}%</td>
                             <td style="padding: 12px 14px; text-align: right;">
                                 <span style="background: ${isPass ? '#dcfce7' : '#fee2e2'}; color: ${isPass ? '#15803d' : '#b91c1c'}; font-weight: 900; padding: 4px 12px; border-radius: 12px; font-size: 10px;">
-                                    ${isPass ? '🟢 PASS' : '🔴 FAIL'}
+                                    ${isPass ? ' PASS' : ' FAIL'}
                                 </span>
                             </td>
                         </tr>
@@ -364,7 +364,7 @@ export async function exportCircuitReportPDF({
             ${sim && sim.status === 'success' ? `
                 <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; background: #ffffff; margin-bottom: 20px;">
                     <div style="font-size: 12px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">
-                        ⚡ SPICE ELECTRICAL SIGNAL METRICS
+                         SPICE ELECTRICAL SIGNAL METRICS
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11px;">
                         ${sim.measured_gain != null ? `
@@ -410,24 +410,24 @@ export async function exportCircuitReportPDF({
             <!-- ── SECTION 4: DESIGN RULE CHECKS (DRC AUDIT) ───────────── -->
             <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; background: #ffffff; margin-bottom: 16px;">
                 <div style="font-size: 12px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">
-                    🛡️ DESIGN RULE CHECKS (DRC AUDIT & SAFETY)
+                     DESIGN RULE CHECKS (DRC AUDIT & SAFETY)
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 11px;">
                     <div style="padding: 8px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
                         <span>0V Ground Reference:</span>
-                        <strong style="color: ${hasGround ? '#15803d' : '#dc2626'};">${hasGround ? '🟢 Present' : '🔴 Missing'}</strong>
+                        <strong style="color: ${hasGround ? '#15803d' : '#dc2626'};">${hasGround ? ' Present' : ' Missing'}</strong>
                     </div>
                     <div style="padding: 8px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
                         <span>Short Circuit Guard:</span>
-                        <strong style="color: ${hasShort ? '#dc2626' : '#15803d'};">${hasShort ? '🔴 Short Detected' : '🟢 0 Shorts'}</strong>
+                        <strong style="color: ${hasShort ? '#dc2626' : '#15803d'};">${hasShort ? ' Short Detected' : ' 0 Shorts'}</strong>
                     </div>
                     <div style="padding: 8px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
                         <span>Floating Pin Audit:</span>
-                        <strong style="color: ${hasFloating ? '#d97706' : '#15803d'};">${hasFloating ? '⚠️ Floating Pins' : '🟢 Fully Wired'}</strong>
+                        <strong style="color: ${hasFloating ? '#d97706' : '#15803d'};">${hasFloating ? ' Floating Pins' : ' Fully Wired'}</strong>
                     </div>
                     <div style="padding: 8px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
                         <span>Thermal Safety (&lt;250mW):</span>
-                        <strong style="color: #15803d;">🟢 Thermal Safe</strong>
+                        <strong style="color: #15803d;"> Thermal Safe</strong>
                     </div>
                 </div>
             </div>
@@ -435,7 +435,7 @@ export async function exportCircuitReportPDF({
 
         <!-- ── FOOTER PAGE 1 ────────────────────────────────────────── -->
         <div style="border-top: 1px solid #e2e8f0; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #64748b;">
-            <div>🔒 <strong>Verified by AI Neural Engine (${engine})</strong> &bull; Confidence: ${confidence}</div>
+            <div> <strong>Verified by AI Neural Engine (${engine})</strong> &bull; Confidence: ${confidence}</div>
             <div>Page 1 of 2</div>
         </div>
     `;
@@ -466,7 +466,7 @@ export async function exportCircuitReportPDF({
             <!-- ── SECTION 5: SCHEMATIC DIAGRAM REFERENCE ─────────────── -->
             <div style="border: 1.5px solid #0f172a; border-radius: 8px; overflow: hidden; margin-bottom: 20px; background: #0d0f1a;">
                 <div style="background: #1e293b; padding: 8px 16px; color: #f8fafc; font-size: 11px; font-weight: 800; display: flex; justify-content: space-between; align-items: center;">
-                    <span>📐 SCHEMATIC DIAGRAM REFERENCE (AUTOCROPPED & ZOOMED)</span>
+                    <span> SCHEMATIC DIAGRAM REFERENCE (AUTOCROPPED & ZOOMED)</span>
                     <span style="font-size: 9px; color: #38bdf8; font-weight: 600;">High-Contrast Capture</span>
                 </div>
                 <div style="padding: 16px; display: flex; justify-content: center; align-items: center; background: #0d0f1a; min-height: 220px;">
@@ -481,7 +481,7 @@ export async function exportCircuitReportPDF({
             <!-- ── SECTION 6: BILL OF MATERIALS (BOM) INVENTORY ─────────── -->
             <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
                 <div style="background: #f8fafc; padding: 10px 14px; font-size: 12px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                    <span>📦 BILL OF MATERIALS (BOM INVENTORY)</span>
+                    <span> BILL OF MATERIALS (BOM INVENTORY)</span>
                     <span style="color: #4f46e5; font-weight: 700;">${components.length} Components Placed</span>
                 </div>
                 <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left;">
@@ -515,7 +515,7 @@ export async function exportCircuitReportPDF({
             <!-- ── SECTION 7: ELECTRICAL NETLIST WIRING TABLE ──────────── -->
             <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 16px;">
                 <div style="background: #f8fafc; padding: 10px 14px; font-size: 12px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                    <span>⚡ ELECTRICAL NETLIST WIRING (${nets.length} CONNECTIONS)</span>
+                    <span> ELECTRICAL NETLIST WIRING (${nets.length} CONNECTIONS)</span>
                     <span style="color: #16a34a; font-weight: 700;">Active Wire Nets</span>
                 </div>
                 <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left;">
@@ -532,7 +532,7 @@ export async function exportCircuitReportPDF({
                             <tr style="border-bottom: 1px solid #f1f5f9; background: ${i % 2 === 0 ? '#ffffff' : '#f8fafc'};">
                                 <td style="padding: 8px 12px; font-weight: 800; color: #6c63ff;">${net.id}</td>
                                 <td style="padding: 8px 12px; color: #0f172a; font-family: monospace;">${net.from}</td>
-                                <td style="padding: 8px 12px; color: #6c63ff;">➔</td>
+                                <td style="padding: 8px 12px; color: #6c63ff;"></td>
                                 <td style="padding: 8px 12px; color: #0f172a; font-family: monospace;">${net.to}</td>
                             </tr>
                         `).join('')}
@@ -581,7 +581,7 @@ export async function exportCircuitReportPDF({
             format: 'a4',
         });
 
-        const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
+        const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
         const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
 
         const imgData1 = canvas1.toDataURL('image/jpeg', 0.98);

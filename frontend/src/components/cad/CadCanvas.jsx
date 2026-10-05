@@ -3031,21 +3031,21 @@ export default function CadCanvas({
             const baseP = toolPoints[toolPoints.length - 1];
             const len = distance(baseP, cursorWorld).toFixed(2);
             const deg = angleDeg(baseP, cursorWorld).toFixed(1);
-            overlayText = `Length: ${len} mm  |  Angle: ${deg}°`;
+            overlayText = `Length: ${len} mm | Angle: ${deg}°`;
         } else if (activeTool === 'circle') {
             const r = distance(toolPoints[0], cursorWorld).toFixed(2);
             const d = (r * 2).toFixed(2);
-            overlayText = `Radius: ${r} mm  |  Dia: ${d} mm`;
+            overlayText = `Radius: ${r} mm | Dia: ${d} mm`;
         } else if (activeTool === 'rectangle') {
             const w = Math.abs(cursorWorld.x - toolPoints[0].x).toFixed(2);
             const h = Math.abs(cursorWorld.y - toolPoints[0].y).toFixed(2);
-            overlayText = `Width: ${w} mm  |  Height: ${h} mm`;
+            overlayText = `Width: ${w} mm | Height: ${h} mm`;
         } else if (activeTool === 'move' || activeTool === 'copy') {
             const baseP = toolPoints[0];
             const dx = (cursorWorld.x - baseP.x).toFixed(2);
             const dy = (cursorWorld.y - baseP.y).toFixed(2);
             const dist = distance(baseP, cursorWorld).toFixed(2);
-            overlayText = `ΔX: ${dx} mm, ΔY: ${dy} mm  |  Dist: ${dist} mm`;
+            overlayText = `ΔX: ${dx} mm, ΔY: ${dy} mm | Dist: ${dist} mm`;
         } else if (activeTool === 'rotate') {
             const baseP = toolPoints[0];
             const deg = angleDeg(baseP, cursorWorld).toFixed(1);
@@ -3057,7 +3057,7 @@ export default function CadCanvas({
                 const baseP = toolPoints[0];
                 const len = distance(baseP, cursorWorld).toFixed(2);
                 const deg = angleDeg(baseP, cursorWorld).toFixed(1);
-                overlayText = `MIRROR Line: Length ${len} mm  |  Angle: ${deg}°`;
+                overlayText = `MIRROR Line: Length ${len} mm | Angle: ${deg}°`;
             }
         }
     } else if (activeTool === 'mirror') {
@@ -3137,7 +3137,7 @@ export default function CadCanvas({
                     alignItems: 'center',
                     gap: 8
                 }}>
-                    <span>⚠️</span>
+                    <span></span>
                     <span>{offsetErrorMsg}</span>
                 </div>
             )}
@@ -3162,7 +3162,7 @@ export default function CadCanvas({
                     alignItems: 'center',
                     gap: 8
                 }}>
-                    <span>⚠️</span>
+                    <span></span>
                     <span>{trimErrorMsg}</span>
                 </div>
             )}
@@ -3187,7 +3187,7 @@ export default function CadCanvas({
                     alignItems: 'center',
                     gap: 8
                 }}>
-                    <span>⚠️</span>
+                    <span></span>
                     <span>{extendErrorMsg}</span>
                 </div>
             )}
@@ -3212,7 +3212,7 @@ export default function CadCanvas({
                     alignItems: 'center',
                     gap: 8
                 }}>
-                    <span>⚠️</span>
+                    <span></span>
                     <span>{chamferErrorMsg}</span>
                 </div>
             )}
@@ -3272,7 +3272,7 @@ export default function CadCanvas({
                     fontFamily: 'Outfit, sans-serif'
                 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: '#00f0ff' }}>
-                        🪞 Delete source objects? [Yes / No]
+                         Delete source objects? [Yes / No]
                     </div>
                     <div style={{ fontSize: 12, color: '#94a3b8' }}>
                         Default is <strong style={{ color: '#10b981' }}>No</strong> (Keep original objects and create mirrored copies)
@@ -3354,7 +3354,7 @@ export default function CadCanvas({
                     fontFamily: 'Outfit, sans-serif'
                 }}>
                     <h4 style={{ margin: '0 0 14px 0', fontSize: 16, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span>📝</span> {editingTextObj ? 'Edit CAD Text / Label' : 'Create CAD Text / Label'}
+                        <span></span> {editingTextObj ? 'Edit CAD Text / Label' : 'Create CAD Text / Label'}
                     </h4>
 
                     <form onSubmit={handleConfirmTextModal}>
@@ -3510,7 +3510,7 @@ export default function CadCanvas({
                     alignItems: 'center',
                     gap: 8
                 }}>
-                    <span>⚠️</span>
+                    <span></span>
                     <span>{layerErrorMsg}</span>
                 </div>
             )}
@@ -3543,7 +3543,7 @@ export default function CadCanvas({
                         justifyContent: 'space-between'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 14, color: '#38bdf8' }}>
-                            <span>🥞</span> Layers Manager
+                            <span></span> Layers Manager
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <button
@@ -3571,7 +3571,7 @@ export default function CadCanvas({
                                     cursor: 'pointer'
                                 }}
                             >
-                                ✕
+                                
                             </button>
                         </div>
                     </div>
@@ -3662,7 +3662,7 @@ export default function CadCanvas({
                                                 padding: 2
                                             }}
                                         >
-                                            {layer.visible !== false ? '👁' : '🙈'}
+                                            {layer.visible !== false ? '' : ''}
                                         </button>
 
                                         <button
@@ -3676,7 +3676,7 @@ export default function CadCanvas({
                                                 padding: 2
                                             }}
                                         >
-                                            {layer.locked ? '🔒' : '🔓'}
+                                            {layer.locked ? '' : ''}
                                         </button>
 
                                         {!isEditing && (
@@ -3695,7 +3695,7 @@ export default function CadCanvas({
                                                     color: '#94a3b8'
                                                 }}
                                             >
-                                                ✏️
+                                                
                                             </button>
                                         )}
 
@@ -3712,7 +3712,7 @@ export default function CadCanvas({
                                                     color: '#ef4444'
                                                 }}
                                             >
-                                                🗑️
+                                                
                                             </button>
                                         )}
                                     </div>
@@ -3741,7 +3741,7 @@ export default function CadCanvas({
                     fontFamily: 'Outfit, sans-serif'
                 }}>
                     <h4 style={{ margin: '0 0 14px 0', fontSize: 16, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span>➕</span> Create New Layer
+                        <span></span> Create New Layer
                     </h4>
                     <form onSubmit={(e) => {
                         e.preventDefault();
@@ -3959,7 +3959,7 @@ export default function CadCanvas({
                     alignItems: 'center',
                     gap: 8
                 }}>
-                    <span>⚠️</span> {hatchStatusMsg}
+                    <span></span> {hatchStatusMsg}
                 </div>
             )}
 
@@ -3984,14 +3984,14 @@ export default function CadCanvas({
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, borderBottom: '1px solid #2e2e38', paddingBottom: 6 }}>
                         <span style={{ fontWeight: 800, color: '#00f0ff', fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase' }}>
-                            📏 {activeMeasurementResult.type} RESULT
+                             {activeMeasurementResult.type} RESULT
                         </span>
                         <button
                             onClick={() => setActiveMeasurementResult(null)}
                             title="Close Overlay (Esc)"
                             style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 14, padding: 2 }}
                         >
-                            ✕
+                            
                         </button>
                     </div>
 
@@ -4048,7 +4048,7 @@ export default function CadCanvas({
                     alignItems: 'center',
                     gap: 8
                 }}>
-                    <span>⚠️</span> {measureStatusMsg}
+                    <span></span> {measureStatusMsg}
                 </div>
             )}
         </div>

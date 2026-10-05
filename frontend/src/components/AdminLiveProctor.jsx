@@ -152,7 +152,7 @@ export default function AdminLiveProctor() {
             
             {activeStudents.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 0', color: t.textMuted }}>
-                    <div style={{ fontSize: '40px', marginBottom: '16px' }}>🍃</div>
+                    <div style={{ fontSize: '40px', marginBottom: '16px' }}></div>
                     <p>No ongoing exams currently.</p>
                 </div>
             ) : (
@@ -176,7 +176,7 @@ export default function AdminLiveProctor() {
 
             {selectedStudent && (
                 <div className="proctor-overlay">
-                    <button className="close-btn" onClick={stopProctoring}>✕</button>
+                    <button className="close-btn" onClick={stopProctoring}></button>
                     <div className="proctor-modal">
                         <div className="video-container">
                             <video ref={remoteVideoRef} className="video-stream" autoPlay playsInline />

@@ -134,7 +134,7 @@ export default function ExamPage() {
 
     const handleIdentityViolation = useCallback(() => {
         if (submitted) return;
-        setAlert('🚨 Warning: Unauthorised person detected! User changed.');
+        setAlert(' Warning: Unauthorised person detected! User changed.');
         trackerRef.current?.stop();
         setTimeout(() => {
             handleSubmit();
@@ -154,16 +154,16 @@ export default function ExamPage() {
         if (!submitted) {
             if (identityMismatch && isIdentityRegistered) {
                 setIsMismatching(true);
-                setAlert('🚨 Warning: Unauthorised person detected! User changed.');
+                setAlert(' Warning: Unauthorised person detected! User changed.');
                 handleIdentityViolation();
             } else if (multipleFacesDetected) {
-                setAlert('🚨 Warning: Another face is detected! Please ensure only you are visible.');
+                setAlert(' Warning: Another face is detected! Please ensure only you are visible.');
             } else if (phoneDetected) {
-                setAlert('🚨 Warning: Cell phone detected! Use of mobile phones is strictly prohibited.');
+                setAlert(' Warning: Cell phone detected! Use of mobile phones is strictly prohibited.');
             } else if (faceNotDetected) {
-                setAlert('🚨 Warning: Face not detected! Please face the camera.');
+                setAlert(' Warning: Face not detected! Please face the camera.');
             } else if (headMovement > 15 || eyeDeviation > 20) {
-                setAlert('⚠️ Warning: Excessive head movement / eye deviation detected!');
+                setAlert(' Warning: Excessive head movement / eye deviation detected!');
             } else {
                 setAlert(prev => {
                     if (prev.includes('Another face is detected') || prev.includes('Cell phone detected') || prev.includes('Face not detected') || prev.includes('Unauthorised person detected') || prev.includes('Excessive head movement')) {
@@ -180,7 +180,7 @@ export default function ExamPage() {
         if (speechDetected && !submitted) {
             setAlert(prev => {
                 if (prev.includes('Talking')) return prev;
-                return '📢 Talking detected! Please maintain silence during the exam.';
+                return ' Talking detected! Please maintain silence during the exam.';
             });
             setTimeout(() => setAlert(prev => prev.includes('Talking') ? '' : prev), 4000);
         }
@@ -233,13 +233,13 @@ export default function ExamPage() {
         const tracker = new BehaviorTracker((violation) => {
             if (violation.type === 'tab') {
                 setTabWarnings(violation.count);
-                if (violation.count >= 3) setAlert('⚠️ Multiple tab switches detected! This will be flagged in your behavior report.');
-                else setAlert(`⚠️ Tab switch detected (${violation.count}/3). Please stay on the exam page.`);
+                if (violation.count >= 3) setAlert(' Multiple tab switches detected! This will be flagged in your behavior report.');
+                else setAlert(` Tab switch detected (${violation.count}/3). Please stay on the exam page.`);
             } else if (violation.type === 'fullscreen') {
                 setIsFullscreen(false);
-                setAlert('🚨 You exited fullscreen mode! Please return to fullscreen immediately.');
+                setAlert(' You exited fullscreen mode! Please return to fullscreen immediately.');
             } else if (violation.type === 'resize') {
-                setAlert('⚠️ Window resize detected. Please keep the window maximized.');
+                setAlert(' Window resize detected. Please keep the window maximized.');
             }
         });
 
@@ -366,7 +366,7 @@ export default function ExamPage() {
                 }
 
                 if (rs >= 95 && !submitted) {
-                    setAlert('🚨 Critical anomalies detected. Exam forcefully submitted.');
+                    setAlert(' Critical anomalies detected. Exam forcefully submitted.');
                     setTimeout(() => handleSubmitRef.current(true), 2000);
                     return;
                 }
@@ -398,7 +398,7 @@ export default function ExamPage() {
                             setQSeconds(validationTime);
                             setIsAdaptiveMode(true);
                             setReplaced(prev => ({ ...prev, [qIndex]: true }));
-                            setAlert('🛡️ Verification Mode: High behavior anomalies detected. Please answer this validation question.');
+                            setAlert(' Verification Mode: High behavior anomalies detected. Please answer this validation question.');
                             qStartRef.current = Date.now();
                         }
                     } catch (e) {
@@ -583,7 +583,7 @@ export default function ExamPage() {
                 <div className="ep-unconfigured-overlay">
                     <div className="sd-logo" style={{ marginBottom: 40, fontSize: 24 }}><span>Adapt</span>Exam</div>
                     <div className="ep-id-card" style={{ borderColor: '#ef4444' }}>
-                        <div className="ep-id-icon">⚠️</div>
+                        <div className="ep-id-icon"></div>
                         <h2 className="ep-id-title">Exam Not Ready</h2>
                         <p className="ep-id-desc">
                             This exam has not been fully configured by the administrator yet. 
@@ -607,7 +607,7 @@ export default function ExamPage() {
                 <div className="ep-success-overlay">
                     <div className="ep-success-card">
                         <div className="ep-success-ring">
-                            <span className="ep-success-check">✅</span>
+                            <span className="ep-success-check"></span>
                         </div>
                         <div className="ep-success-title">Exam Submitted!</div>
                         <div className="ep-success-subtitle">Thank you for completing the exam</div>
@@ -615,7 +615,7 @@ export default function ExamPage() {
                             Your answers have been recorded successfully. Our system is now processing your responses and evaluating your performance.
                         </p>
                         <div className="ep-success-note">
-                            📬 We will notify you with your results soon. Please check your Student Dashboard for updates.
+                             We will notify you with your results soon. Please check your Student Dashboard for updates.
                         </div>
                         <div className="ep-success-divider" />
                         <div className="ep-success-btns">
@@ -623,7 +623,7 @@ export default function ExamPage() {
                                 className="ep-success-go"
                                 onClick={() => navigate('/student')}
                             >
-                                🏠 Go to Student Dashboard
+                                 Go to Student Dashboard
                             </button>
                             <button
                                 className="ep-success-stay"
@@ -647,7 +647,7 @@ export default function ExamPage() {
                     <div className="ep-nav-logo"><span>{exam.title}</span></div>
                     <div className="ep-nav-right">
                         {tabWarnings > 0 && (
-                            <div className="ep-warn-chip">⚠️ {tabWarnings} tab switch{tabWarnings > 1 ? 'es' : ''}</div>
+                            <div className="ep-warn-chip"> {tabWarnings} tab switch{tabWarnings > 1 ? 'es' : ''}</div>
                         )}
                         <button
                             onClick={() => setShowCalc(v => !v)}
@@ -671,7 +671,7 @@ export default function ExamPage() {
                                 fontFamily: "'Outfit', sans-serif",
                             }}
                         >
-                            🧮 Calculator
+                             Calculator
                         </button>
                     </div>
                 </nav>
@@ -682,7 +682,7 @@ export default function ExamPage() {
                 {!isIdentityRegistered && !submitted && (
                     <div className="ep-identity-overlay">
                         <div className="ep-id-card">
-                            <div className="ep-id-icon">👤</div>
+                            <div className="ep-id-icon"></div>
                             <h2 className="ep-id-title">Identity Verification</h2>
                             <p className="ep-id-desc">
                                 Before starting, the system must capture your face identity to ensure exam integrity. 
@@ -699,10 +699,10 @@ export default function ExamPage() {
                                     if (norm) {
                                         setIdReference(norm);
                                         setIsIdentityRegistered(true);
-                                        setAlert('✅ Identity registered successfully!');
+                                        setAlert(' Identity registered successfully!');
                                         setTimeout(() => setAlert(''), 3000);
                                     } else {
-                                        setAlert('❌ Failed to capture face. Ensure you are well-lit and facing the camera.');
+                                        setAlert(' Failed to capture face. Ensure you are well-lit and facing the camera.');
                                     }
                                 }}
                             >
@@ -715,7 +715,7 @@ export default function ExamPage() {
                 {isIdentityRegistered && !isFullscreen && !submitted && (
                     <div className="ep-fullscreen-overlay">
                         <div className="ep-fs-card">
-                            <h2>🚨 Fullscreen Mode Required</h2>
+                            <h2> Fullscreen Mode Required</h2>
                             <p>To ensure exam integrity, you must be in fullscreen mode to continue.</p>
                             <button className="ep-btn ep-btn-next" onClick={enterFullscreen}>Go Fullscreen</button>
                         </div>
@@ -746,7 +746,7 @@ export default function ExamPage() {
                                     className="ep-btn ep-btn-submit"
                                     onClick={() => setShowConfirmModal(true)}
                                     disabled={submitted || isSubmitting}
-                                  >✔ Submit Exam</button>
+                                  > Submit Exam</button>
                             }
                         </div>
 
@@ -754,7 +754,7 @@ export default function ExamPage() {
                         {showConfirmModal && (
                             <div className="ep-modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowConfirmModal(false)}>
                                 <div className="ep-modal-card">
-                                    <div className="ep-modal-icon">📋</div>
+                                    <div className="ep-modal-icon"></div>
                                     <div className="ep-modal-title">Ready to Submit?</div>
                                     <p className="ep-modal-desc">
                                         You are about to submit your exam. Once submitted, you will not be able to change your answers.
@@ -775,14 +775,14 @@ export default function ExamPage() {
                                             className="ep-modal-cancel"
                                             onClick={() => setShowConfirmModal(false)}
                                         >
-                                            ✖ Cancel
+                                             Cancel
                                         </button>
                                         <button
                                             className="ep-modal-confirm"
                                             onClick={confirmAndSubmit}
                                             disabled={isSubmitting}
                                         >
-                                            {isSubmitting ? '⏳ Submitting...' : '✔ Yes, Submit Exam'}
+                                            {isSubmitting ? '⏳ Submitting...' : ' Yes, Submit Exam'}
                                         </button>
                                     </div>
                                 </div>
@@ -808,11 +808,11 @@ export default function ExamPage() {
                             t={t} 
                         />
                         <div className="ep-widget">
-                            <div className="ep-widget-label">📸 Camera Monitor</div>
+                            <div className="ep-widget-label"> Camera Monitor</div>
                             {Array.isArray(mlMessage) && mlMessage.length > 0 && (
                                 <div className="ep-cam-warn">
                                     {mlMessage.map((m, i) => (
-                                        <div key={i} style={{ marginBottom: 4 }}>⚠️ {m}</div>
+                                        <div key={i} style={{ marginBottom: 4 }}> {m}</div>
                                     ))}
                                 </div>
                             )}
@@ -820,7 +820,7 @@ export default function ExamPage() {
                             <AudioMonitor onMetrics={handleAudioMetrics} />
                         </div>
                         <div className="ep-widget">
-                            <div className="ep-widget-label">🧠 Behavior Risk</div>
+                            <div className="ep-widget-label"> Behavior Risk</div>
                             <div className="ep-risk-val" style={{ color: riskColor }}>{riskPct}%</div>
                             <div className="ep-risk-bar-bg">
                                 <div className="ep-risk-bar-fill" style={{ width: `${riskPct}%`, background: riskColor }} />
@@ -831,7 +831,7 @@ export default function ExamPage() {
                             </div>
                         </div>
                         <div className="ep-widget" style={{ textAlign: 'center' }}>
-                            <div className="ep-widget-label">📊 Progress</div>
+                            <div className="ep-widget-label"> Progress</div>
                             <div className="ep-prog-big">{answeredCount} / {questions.length}</div>
                             <div className="ep-prog-sub">questions answered</div>
                         </div>

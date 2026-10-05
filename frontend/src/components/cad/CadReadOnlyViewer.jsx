@@ -270,7 +270,7 @@ export default function CadReadOnlyViewer({
                     title="Fit to Extents"
                     style={{ background: '#22222a', border: '1px solid #333340', color: '#38bdf8', borderRadius: 4, padding: '0 8px', height: 28, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}
                 >
-                    ⛶ Fit Drawing
+                     Fit Drawing
                 </button>
                 <button
                     onClick={() => setShowGrid(g => !g)}

@@ -53,7 +53,7 @@ export default function CircuitSchematicViewer({ title = "Circuit Analysis Diagr
         <div className="circuit-container">
             <style>{css}</style>
             <div className="circuit-header">
-                <span>🔌 EEE Circuit & System Schematic — {title}</span>
+                <span> EEE Circuit & System Schematic — {title}</span>
                 <span style={{ fontSize: '11px', color: t.textMuted }}>Node: {selectedNode}</span>
             </div>
 

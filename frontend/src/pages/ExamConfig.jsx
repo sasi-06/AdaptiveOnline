@@ -193,13 +193,13 @@ export default function ExamConfig() {
             <ThemeSwitcher />
             <div className="ec-root">
                 <nav className="ec-nav">
-                    <div className="ec-nav-logo">⚙️ <span>Exam Config</span></div>
+                    <div className="ec-nav-logo"> <span>Exam Config</span></div>
                     <button className="ec-back-btn" onClick={() => navigate('/admin')}>← Back to Dashboard</button>
                 </nav>
 
                 <div className="ec-body">
-                    {success && <div className="ec-flash success">✓ {success}</div>}
-                    {error && <div className="ec-flash error">⚠ {error}</div>}
+                    {success && <div className="ec-flash success"> {success}</div>}
+                    {error && <div className="ec-flash error"> {error}</div>}
 
                     <div className="ec-page-title">Configure: {exam?.title}</div>
 
@@ -266,7 +266,7 @@ export default function ExamConfig() {
                                             className={`ec-q-item ${selectedIds.includes(q._id) ? 'selected' : ''}`}
                                             onClick={() => toggleQuestion(q._id)}>
                                             <div className="ec-q-checkbox">
-                                                {selectedIds.includes(q._id) && <span style={{ color: '#fff', fontSize: 11, fontWeight: 800 }}>✓</span>}
+                                                {selectedIds.includes(q._id) && <span style={{ color: '#fff', fontSize: 11, fontWeight: 800 }}></span>}
                                             </div>
                                             <div style={{ flex: 1 }}>
                                                 <div className="ec-q-text">{q.question_text}</div>
@@ -282,7 +282,7 @@ export default function ExamConfig() {
                             </div>
                         </div>
 
-                        <button type="submit" className="ec-save-btn">💾 Save Configuration</button>
+                        <button type="submit" className="ec-save-btn"> Save Configuration</button>
                     </form>
                 </div>
             </div>

@@ -311,7 +311,7 @@ export default function AdminInterviewResults({ flash }) {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                             <div>
                                 <div style={{ fontSize: '20px', fontWeight: 800, color: t.text }}>
-                                    🧠 Behavior Timeline: {timelineStudentName}
+                                     Behavior Timeline: {timelineStudentName}
                                 </div>
                                 <div style={{ fontSize: '13px', color: t.textMuted }}>
                                     Chronological evidence from the AI interview session.
@@ -321,7 +321,7 @@ export default function AdminInterviewResults({ flash }) {
                                 onClick={() => setShowTimeline(false)}
                                 className="ad-btn ad-btn-ghost ad-btn-sm"
                             >
-                                ✕
+                                
                             </button>
                         </div>
 

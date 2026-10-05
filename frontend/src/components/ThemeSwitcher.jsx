@@ -43,7 +43,7 @@ export default function ThemeSwitcher() {
     }
     @keyframes tsPopIn {
       from { opacity: 0; transform: scale(0.93) translateY(-6px); }
-      to   { opacity: 1; transform: scale(1)    translateY(0); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
     }
     .ts-opt {
       display: flex; align-items: center; gap: 10px;
@@ -74,7 +74,7 @@ export default function ThemeSwitcher() {
       <style>{css}</style>
       <div className="ts-wrap">
         <button className="ts-btn" onClick={() => setOpen(o => !o)} title="Change theme">
-          🎨
+          
         </button>
         {open && (
           <div className="ts-panel">

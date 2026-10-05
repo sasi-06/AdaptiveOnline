@@ -28,7 +28,7 @@ export default function ShapBreakdown({ shapData, isDark }) {
         }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 18 }}>🔍</span>
+                    <span style={{ fontSize: 18 }}></span>
                     <div>
                         <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: textPrimary }}>
                             AI Decision Explainability (SHAP Breakdown)

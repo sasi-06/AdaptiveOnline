@@ -6,16 +6,16 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
  * Supports: basic arithmetic, trig, log, sqrt, exp, π, e, power, memory.
  */
 export default function ScientificCalculator({ onClose, t }) {
-    const [display, setDisplay]         = useState('0');
-    const [expression, setExpression]   = useState('');
-    const [memory, setMemory]           = useState(0);
-    const [isShift, setIsShift]         = useState(false);
-    const [isDeg, setIsDeg]             = useState(true);
-    const [justEval, setJustEval]       = useState(false);
-    const [pos, setPos]                 = useState({ x: 40, y: 80 });
-    const [dragging, setDragging]       = useState(false);
-    const dragStart                     = useRef({ mx: 0, my: 0, ox: 0, oy: 0 });
-    const calcRef                       = useRef(null);
+    const [display, setDisplay] = useState('0');
+    const [expression, setExpression] = useState('');
+    const [memory, setMemory] = useState(0);
+    const [isShift, setIsShift] = useState(false);
+    const [isDeg, setIsDeg] = useState(true);
+    const [justEval, setJustEval] = useState(false);
+    const [pos, setPos] = useState({ x: 40, y: 80 });
+    const [dragging, setDragging] = useState(false);
+    const dragStart = useRef({ mx: 0, my: 0, ox: 0, oy: 0 });
+    const calcRef = useRef(null);
 
     // ── Dragging ─────────────────────────────────────────────────
     const onMouseDown = useCallback((e) => {
@@ -57,22 +57,22 @@ export default function ScientificCalculator({ onClose, t }) {
         const v = parseFloat(display);
         let result;
         switch (fn) {
-            case 'sin':  result = isDeg ? Math.sin(toRad(v)) : Math.sin(v); break;
-            case 'cos':  result = isDeg ? Math.cos(toRad(v)) : Math.cos(v); break;
-            case 'tan':  result = isDeg ? Math.tan(toRad(v)) : Math.tan(v); break;
+            case 'sin': result = isDeg ? Math.sin(toRad(v)) : Math.sin(v); break;
+            case 'cos': result = isDeg ? Math.cos(toRad(v)) : Math.cos(v); break;
+            case 'tan': result = isDeg ? Math.tan(toRad(v)) : Math.tan(v); break;
             case 'asin': result = toDeg(Math.asin(v)); break;
             case 'acos': result = toDeg(Math.acos(v)); break;
             case 'atan': result = toDeg(Math.atan(v)); break;
-            case 'log':  result = Math.log10(v); break;
-            case 'ln':   result = Math.log(v); break;
+            case 'log': result = Math.log10(v); break;
+            case 'ln': result = Math.log(v); break;
             case 'sqrt': result = Math.sqrt(v); break;
             case 'cbrt': result = Math.cbrt(v); break;
-            case 'inv':  result = 1 / v; break;
-            case 'sq':   result = v * v; break;
-            case 'exp':  result = Math.exp(v); break;
-            case 'abs':  result = Math.abs(v); break;
-            case 'neg':  result = -v; break;
-            default:     result = v;
+            case 'inv': result = 1 / v; break;
+            case 'sq': result = v * v; break;
+            case 'exp': result = Math.exp(v); break;
+            case 'abs': result = Math.abs(v); break;
+            case 'neg': result = -v; break;
+            default: result = v;
         }
         const r = +result.toPrecision(10);
         setExpression(`${fn}(${v}) =`);
@@ -95,9 +95,9 @@ export default function ScientificCalculator({ onClose, t }) {
         }
     }, [expression]);
 
-    const clear    = () => { setDisplay('0'); setExpression(''); setJustEval(false); };
-    const backsp   = () => { setDisplay(prev => prev.length <= 1 ? '0' : prev.slice(0, -1)); };
-    const inputOp  = (op) => {
+    const clear = () => { setDisplay('0'); setExpression(''); setJustEval(false); };
+    const backsp = () => { setDisplay(prev => prev.length <= 1 ? '0' : prev.slice(0, -1)); };
+    const inputOp = (op) => {
         setExpression(prev => (justEval ? display : prev) + op);
         setDisplay(prev => justEval ? display : prev);
         setJustEval(false);
@@ -127,7 +127,7 @@ export default function ScientificCalculator({ onClose, t }) {
         btn(isShift ? 'cos⁻¹' : 'cos', () => applyFn(isShift ? 'acos' : 'cos'), '#1e3a5f', '#7dd3fc'),
         btn(isShift ? 'tan⁻¹' : 'tan', () => applyFn(isShift ? 'atan' : 'tan'), '#1e3a5f', '#7dd3fc'),
         btn(isShift ? 'log₁₀' : 'log', () => applyFn('log'), '#1e3a5f', '#7dd3fc'),
-        btn(isShift ? 'eˣ' : 'ln',  () => applyFn(isShift ? 'exp' : 'ln'), '#1e3a5f', '#7dd3fc'),
+        btn(isShift ? 'eˣ' : 'ln', () => applyFn(isShift ? 'exp' : 'ln'), '#1e3a5f', '#7dd3fc'),
         btn('π', () => { setDisplay(String(Math.PI.toPrecision(10))); setJustEval(true); }, '#1e3a5f', '#7dd3fc', 'π = 3.14159...'),
 
         // Row 3 – power, sqrt, etc.
@@ -268,8 +268,8 @@ export default function ScientificCalculator({ onClose, t }) {
             <div className="sc-wrap" ref={calcRef}>
                 {/* Header (draggable) */}
                 <div className="sc-header" onMouseDown={onMouseDown}>
-                    <span className="sc-title">🧮 Scientific Calculator</span>
-                    <button className="sc-close" onClick={onClose}>✕</button>
+                    <span className="sc-title"> Scientific Calculator</span>
+                    <button className="sc-close" onClick={onClose}></button>
                 </div>
 
                 {/* Display */}
@@ -281,7 +281,7 @@ export default function ScientificCalculator({ onClose, t }) {
 
                 {/* ECE/EEE Quick Formula Shortcuts */}
                 <div className="sc-shortcuts">
-                    <span style={{ fontSize: 9, color: '#475569', alignSelf: 'center', marginRight: 2 }}>⚡ Quick:</span>
+                    <span style={{ fontSize: 9, color: '#475569', alignSelf: 'center', marginRight: 2 }}> Quick:</span>
                     {shortcuts.map((s, i) => (
                         <button key={i} className="sc-shortcut-btn" onClick={s.fn} title={s.label}>
                             {s.label}

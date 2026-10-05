@@ -381,7 +381,7 @@ const CameraMonitor = forwardRef(({ onMetrics, reference }, ref) => {
                     </>
                 }
             </div>
-            <p className="cm-hint">🧿 Eye & head tracking active</p>
+            <p className="cm-hint"> Eye & head tracking active</p>
         </>
     );
 });

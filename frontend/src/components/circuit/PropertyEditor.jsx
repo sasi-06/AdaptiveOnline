@@ -23,7 +23,7 @@ export default function PropertyEditor({ comp, onSave, onClose }) {
 
     if (!comp) return null;
 
-    const def   = COMP_DEFS[comp.type];
+    const def = COMP_DEFS[comp.type];
     const props = EDITABLE_PROPS[comp.type] || [];
 
     const handleChange = (key, val) => {
@@ -50,7 +50,7 @@ export default function PropertyEditor({ comp, onSave, onClose }) {
                         </div>
                         <div style={styles.compType}>{def?.label || comp.type}</div>
                     </div>
-                    <button style={styles.closeBtn} onClick={onClose}>✕</button>
+                    <button style={styles.closeBtn} onClick={onClose}></button>
                 </div>
 
                 {/* Properties */}
@@ -104,7 +104,7 @@ export default function PropertyEditor({ comp, onSave, onClose }) {
                 {/* Actions */}
                 <div style={styles.footer}>
                     <button style={styles.cancelBtn} onClick={onClose}>Cancel</button>
-                    <button style={styles.saveBtn}   onClick={handleSave}>Apply</button>
+                    <button style={styles.saveBtn} onClick={handleSave}>Apply</button>
                 </div>
             </div>
         </>

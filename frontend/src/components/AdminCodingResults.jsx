@@ -362,7 +362,7 @@ const AdminCodingResults = () => {
                     )}
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        📸 Candidate Exam Verification Image
+                         Candidate Exam Verification Image
                         <span style={{ fontSize: 10, background: '#10b98120', color: '#10b981', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>CAPTURED AT START</span>
                       </div>
                       <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
@@ -376,9 +376,9 @@ const AdminCodingResults = () => {
               {(selectedSession.totalPasteCount > 0) && (() => {
                 const pasteChars = selectedSession.totalPasteChars || selectedSession.totalPasteCount * 50;
                 const severity = pasteChars > 300 ? 'CRITICAL' : pasteChars > 100 ? 'HIGH' : 'MEDIUM';
-                const bgColor  = pasteChars > 300 ? '#7f1d1d' : pasteChars > 100 ? '#431407' : '#422006';
-                const bdColor  = pasteChars > 300 ? '#ef4444' : pasteChars > 100 ? '#f97316' : '#f59e0b';
-                const txColor  = pasteChars > 300 ? '#fca5a5' : pasteChars > 100 ? '#fed7aa' : '#fde68a';
+                const bgColor = pasteChars > 300 ? '#7f1d1d' : pasteChars > 100 ? '#431407' : '#422006';
+                const bdColor = pasteChars > 300 ? '#ef4444' : pasteChars > 100 ? '#f97316' : '#f59e0b';
+                const txColor = pasteChars > 300 ? '#fca5a5' : pasteChars > 100 ? '#fed7aa' : '#fde68a';
                 return (
                   <div style={{
                     background: bgColor, border: `2px solid ${bdColor}`, borderRadius: 14,
@@ -388,7 +388,7 @@ const AdminCodingResults = () => {
                     <AlertTriangle size={22} color={bdColor} style={{ flexShrink: 0, marginTop: 2 }} />
                     <div>
                       <div style={{ fontWeight: 800, color: txColor, fontSize: 14, marginBottom: 4 }}>
-                        🚨 COPY-PASTE DETECTED — Severity: {severity}
+                         COPY-PASTE DETECTED — Severity: {severity}
                       </div>
                       <div style={{ color: '#fecaca', fontSize: 13, lineHeight: 1.6 }}>
                         Student pasted <strong>{pasteChars.toLocaleString()} characters</strong> across{' '}
@@ -398,13 +398,13 @@ const AdminCodingResults = () => {
                       </div>
                       <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
                         <span style={{ fontSize: 11, background: '#ef444430', color: '#fca5a5', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
-                          📋 Paste Events: {selectedSession.totalPasteCount}
+                           Paste Events: {selectedSession.totalPasteCount}
                         </span>
                         <span style={{ fontSize: 11, background: '#ef444430', color: '#fca5a5', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
-                          📝 Characters Pasted: {pasteChars.toLocaleString()}
+                           Characters Pasted: {pasteChars.toLocaleString()}
                         </span>
                         <span style={{ fontSize: 11, background: '#ef444430', color: '#fca5a5', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
-                          📉 paste_ratio: {Math.min(1, pasteChars / Math.max(1, selectedSession.totalKeystrokes || 100)).toFixed(2)}
+                           paste_ratio: {Math.min(1, pasteChars / Math.max(1, selectedSession.totalKeystrokes || 100)).toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -521,8 +521,8 @@ const AdminCodingResults = () => {
                   {/* 2. Copy-Paste Ratio */}
                   {(() => {
                     const pasteChars = selectedSession.totalPasteChars || (selectedSession.totalPasteCount||0) * 50;
-                    const totalKeys  = selectedSession.totalKeystrokes || 100;
-                    const ratio      = Math.min(1, pasteChars / Math.max(1, totalKeys));
+                    const totalKeys = selectedSession.totalKeystrokes || 100;
+                    const ratio = Math.min(1, pasteChars / Math.max(1, totalKeys));
                     const isPasteHigh = ratio > 0.25;
                     return (
                       <div style={{ background: '#0b0f19', padding: 16, borderRadius: 12, border: `1px solid ${isPasteHigh ? '#ef444440' : '#1f2937'}` }}>
@@ -567,10 +567,10 @@ const AdminCodingResults = () => {
                     return (
                       <div style={{ background: '#0b0f19', padding: 16, borderRadius: 12, border: `1px solid ${isAudioAlert ? '#ef444440' : '#1f2937'}` }}>
                         <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 14 }}>🎙️</span> Audio Proctoring Stream
+                          <span style={{ fontSize: 14 }}></span> Audio Proctoring Stream
                         </div>
                         <div style={{ fontSize: 16, fontWeight: 800, color: isAudioAlert ? '#ef4444' : '#10b981', marginTop: 6 }}>
-                          {speech > 0 ? `🚨 Voice (${speech})` : '✅ Quiet (0 Speech)'}
+                          {speech > 0 ? ` Voice (${speech})` : ' Quiet (0 Speech)'}
                         </div>
                         <div style={{ fontSize: 10, color: '#64748b', marginTop: 4 }}>Noise spikes: {noise} | Web Audio API</div>
                       </div>
@@ -586,7 +586,7 @@ const AdminCodingResults = () => {
                     return (
                       <div style={{ background: '#0b0f19', padding: 16, borderRadius: 12, border: `1px solid ${isExcessive ? '#f59e0b40' : '#1f2937'}` }}>
                         <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 14 }}>👁️</span> Head Movement Rotation
+                          <span style={{ fontSize: 14 }}></span> Head Movement Rotation
                         </div>
                         <div style={{ fontSize: 16, fontWeight: 800, color: isExcessive ? '#f59e0b' : '#38bdf8', marginTop: 6 }}>
                           {headDeg}° <span style={{ fontSize: 10, color: isExcessive ? '#f59e0b' : '#38bdf8' }}>({isExcessive ? 'Head Turned' : 'Centered'})</span>
@@ -745,13 +745,13 @@ const AdminCodingResults = () => {
                     {/* Heatmap Legend Pills */}
                     <div style={{ display: 'flex', gap: 12, marginBottom: 14, background: '#111827', padding: '8px 14px', borderRadius: 10, border: '1px solid #1f2937', fontSize: 12, flexWrap: 'wrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#10b981', fontWeight: 700 }}>
-                        <span style={{ width: 10, height: 10, borderRadius: 2, background: '#10b981' }} /> 🟩 Self-Typed ({typedCount} lines)
+                        <span style={{ width: 10, height: 10, borderRadius: 2, background: '#10b981' }} /> Self-Typed ({typedCount} lines)
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#f59e0b', fontWeight: 700 }}>
-                        <span style={{ width: 10, height: 10, borderRadius: 2, background: '#f59e0b' }} /> 🟨 Revised/Edited ({editedCount} lines)
+                        <span style={{ width: 10, height: 10, borderRadius: 2, background: '#f59e0b' }} /> Revised/Edited ({editedCount} lines)
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700 }}>
-                        <span style={{ width: 10, height: 10, borderRadius: 2, background: '#ef4444' }} /> 🟥 Pasted ({pastedCount} lines)
+                        <span style={{ width: 10, height: 10, borderRadius: 2, background: '#ef4444' }} /> Pasted ({pastedCount} lines)
                       </div>
                     </div>
 
@@ -894,7 +894,7 @@ const AdminCodingResults = () => {
             <style>{`
               @keyframes modalSlideUp {
                 from { opacity: 0; transform: translateY(24px); }
-                to   { opacity: 1; transform: translateY(0); }
+                to { opacity: 1; transform: translateY(0); }
               }
             `}</style>
           </div>

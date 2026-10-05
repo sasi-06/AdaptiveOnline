@@ -191,7 +191,7 @@ export default function Login() {
     }
     @keyframes popIn {
       from { opacity: 0; transform: scale(0.92) translateY(-6px); }
-      to   { opacity: 1; transform: scale(1) translateY(0); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
     }
     .theme-opt {
       display: flex; align-items: center; gap: 10px; padding: 9px 12px;
@@ -215,7 +215,7 @@ export default function Login() {
         {/* Global Theme Switcher */}
         <div className="theme-switcher">
           <button className="theme-toggle-btn" onClick={() => setShowThemes(!showThemes)} title="Change theme">
-            🎨
+            
           </button>
           {showThemes && (
             <div className="theme-panel">
@@ -243,7 +243,7 @@ export default function Login() {
           <div className="login-card">
             {error && (
               <div className="error-box">
-                <span>⚠</span>
+                <span></span>
                 <span>{error}</span>
               </div>
             )}
@@ -252,7 +252,7 @@ export default function Login() {
               <div className="form-group">
                 <label className="form-label">Email or Username</label>
                 <div className="input-wrap">
-                  <span className="input-icon">👤</span>
+                  <span className="input-icon"></span>
                   <input
                     className="form-input"
                     name="identifier"
@@ -274,7 +274,7 @@ export default function Login() {
               <div className="form-group">
                 <label className="form-label">Password</label>
                 <div className="input-wrap">
-                  <span className="input-icon">🔒</span>
+                  <span className="input-icon"></span>
                   <input
                     className="form-input"
                     name="password"
@@ -287,7 +287,7 @@ export default function Login() {
                   />
                   <button type="button" className="input-icon-right"
                     onClick={() => setShowPassword(!showPassword)} tabIndex={-1}>
-                    {showPassword ? '🙈' : '👁'}
+                    {showPassword ? '' : ''}
                   </button>
                 </div>
               </div>
@@ -300,7 +300,7 @@ export default function Login() {
             </form>
           </div>
 
-          <div className="secure-badge">🔐 &nbsp;256-bit encrypted · Secure session</div>
+          <div className="secure-badge"> &nbsp;256-bit encrypted · Secure session</div>
         </div>
       </div>
     </>

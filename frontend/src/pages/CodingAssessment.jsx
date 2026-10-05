@@ -18,12 +18,12 @@ import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
 
 const LANGUAGES = [
-  { value: 'python', label: 'Python 3', monacoLang: 'python', icon: '🐍' },
+  { value: 'python', label: 'Python 3', monacoLang: 'python', icon: '' },
   { value: 'javascript', label: 'JavaScript', monacoLang: 'javascript', icon: 'JS' },
-  { value: 'java', label: 'Java', monacoLang: 'java', icon: '☕' },
+  { value: 'java', label: 'Java', monacoLang: 'java', icon: '' },
   { value: 'cpp', label: 'C++', monacoLang: 'cpp', icon: 'C++' },
-  { value: 'verilog', label: 'Verilog HDL (ECE)', monacoLang: 'verilog', icon: '⚡' },
-  { value: 'c_embedded', label: 'Embedded C (ECE/EEE)', monacoLang: 'cpp', icon: '🔌' },
+  { value: 'verilog', label: 'Verilog HDL (ECE)', monacoLang: 'verilog', icon: '' },
+  { value: 'c_embedded', label: 'Embedded C (ECE/EEE)', monacoLang: 'cpp', icon: '' },
 ];
 
 export default function CodingAssessment() {
@@ -48,7 +48,7 @@ export default function CodingAssessment() {
   const [telemetryStats, setTelemetryStats] = useState({ 
     totalKeystrokes: 0, 
     totalPasteCount: 0, 
-    totalPasteChars: 0,    // actual characters pasted (for ML paste_ratio)
+    totalPasteChars: 0, // actual characters pasted (for ML paste_ratio)
     compilationCount: 0, 
     averagePause: 0, 
     totalTabSwitches: 0 
@@ -68,7 +68,7 @@ export default function CodingAssessment() {
   const startTimeRef = useRef(null);
   const telemetryBatch = useRef([]);
   const lastKeypressRef = useRef(null);
-  const keypressIntervalsRef = useRef([]);  // ← stores real inter-key intervals (ms)
+  const keypressIntervalsRef = useRef([]); // ← stores real inter-key intervals (ms)
   const socketRef = useRef(null);
   const timerRef = useRef(null);
   const flushRef = useRef(null);
@@ -263,30 +263,30 @@ export default function CodingAssessment() {
                offScreenCount = 0;
                setFaceAlert(null);
 
-               // 📷 Capture Candidate Initial Exam Snapshot
+               // Capture Candidate Initial Exam Snapshot
                captureCandidateSnapshot();
 
-               // 📐 MediaPipe 468 Landmark Geometry (Accurate 3D Angles)
+               // MediaPipe 468 Landmark Geometry (Accurate 3D Angles)
                const kps = faces[0].keypoints;
                if (Array.isArray(kps) && kps.length >= 10) {
-                 const videoW = videoRef.current.videoWidth  || 640;
+                 const videoW = videoRef.current.videoWidth || 640;
                  const videoH = videoRef.current.videoHeight || 480;
 
                  // Landmark indices from MediaPipe 468 Face Mesh standard topology:
-                 // 1   = Nose Tip
-                 // 33  = Left Eye Outer Corner
+                 // 1 = Nose Tip
+                 // 33 = Left Eye Outer Corner
                  // 263 = Right Eye Outer Corner
                  // 234 = Left Face Boundary (Ear / Cheek)
                  // 454 = Right Face Boundary (Ear / Cheek)
-                 // 10  = Forehead Top
+                 // 10 = Forehead Top
                  // 152 = Chin Bottom
-                 const nose      = kps[1]   || kps[0];
-                 const leftEye   = kps[33]  || kps[133] || kps[1];
-                 const rightEye  = kps[263] || kps[362] || kps[0];
-                 const leftEdge  = kps[234] || kps[127] || kps[33];
+                 const nose = kps[1] || kps[0];
+                 const leftEye = kps[33] || kps[133] || kps[1];
+                 const rightEye = kps[263] || kps[362] || kps[0];
+                 const leftEdge = kps[234] || kps[127] || kps[33];
                  const rightEdge = kps[454] || kps[356] || kps[263];
-                 const forehead  = kps[10]  || kps[1];
-                 const chin      = kps[152] || kps[1];
+                 const forehead = kps[10] || kps[1];
+                 const chin = kps[152] || kps[1];
 
                  if (nose && leftEye && rightEye && leftEdge && rightEdge) {
                    // ── 1. HEAD YAW (Left/Right Turn Degree 0°–90°) ──────
@@ -315,9 +315,9 @@ export default function CodingAssessment() {
                    const faceScale = parseFloat(Math.min(1.0, faceWidth / videoW).toFixed(3));
 
                    // ── 5. LIVE REAL-TIME REF UPDATES ────────────────────
-                   maxEyeDeviationRef.current  = Math.max(maxEyeDeviationRef.current,  eyeDeviationDeg);
-                   maxHeadMovementRef.current  = Math.max(maxHeadMovementRef.current,  headMovementDeg);
-                   faceScaleRef.current        = faceScale;
+                   maxEyeDeviationRef.current = Math.max(maxEyeDeviationRef.current, eyeDeviationDeg);
+                   maxHeadMovementRef.current = Math.max(maxHeadMovementRef.current, headMovementDeg);
+                   faceScaleRef.current = faceScale;
 
                    // Track frame-to-frame nose movement
                    if (lastKeypoints && nose) {
@@ -334,10 +334,10 @@ export default function CodingAssessment() {
                    // ── EMIT LIVE DEGREES PERIODICALLY ──────────────────────
                    if (Math.random() < 0.25) {
                      addEvent('gaze_pose_degrees', {
-                       eyeDeviation:  eyeDeviationDeg,
-                       headMovement:  headMovementDeg,
-                       headYaw:       headYawDeg,
-                       headPitch:     headPitchDeg,
+                       eyeDeviation: eyeDeviationDeg,
+                       headMovement: headMovementDeg,
+                       headYaw: headYawDeg,
+                       headPitch: headPitchDeg,
                        faceScale
                      });
                    }
@@ -451,27 +451,27 @@ export default function CodingAssessment() {
         } catch (_) { pastedChars = 50; }
       }
       if (pastedChars === 0) pastedChars = 50;
-      // ✅ Use 'paste' (matches socket handler, not 'code_pasted')
+      // Use 'paste' (matches socket handler, not 'code_pasted')
       addEvent('paste', { length: pastedChars, chars: pastedChars });
       setTelemetryStats(s => ({
         ...s,
         totalPasteCount: s.totalPasteCount + 1,
         totalPasteChars: s.totalPasteChars + pastedChars,
       }));
-      toast.error(`⚠️ Paste detected (${pastedChars} chars). Logged & flagged for AI review.`, { duration: 4000 });
+      toast.error(` Paste detected (${pastedChars} chars). Logged & flagged for AI review.`, { duration: 4000 });
     });
 
     // ── TAB-VISIBILITY TELEMETRY: detect when student switches away ──
     const onVisibilityChange = () => {
       if (!startTimeRef.current) return;
-      // ✅ Use 'tab_switch' (matches socket handler)
+      // Use 'tab_switch' (matches socket handler)
       addEvent('tab_switch', { state: document.visibilityState });
       setTelemetryStats(s => ({
         ...s,
         totalTabSwitches: s.totalTabSwitches + (document.visibilityState === 'hidden' ? 1 : 0),
       }));
       if (document.visibilityState === 'hidden') {
-        toast.error('⚠️ Tab switch detected. This event is logged.', { duration: 3000 });
+        toast.error(' Tab switch detected. This event is logged.', { duration: 3000 });
       }
     };
     document.addEventListener('visibilitychange', onVisibilityChange);
@@ -503,7 +503,7 @@ export default function CodingAssessment() {
          socketRef.current.emit('join_session', res.data.session._id);
          socketRef.current.on('proctor_alert', (alert) => {
             setLiveAlerts(prev => [...prev, alert]);
-            toast(alert.message, { icon: '🛡️', style: { background: t.errorBg, color: t.errorText } });
+            toast(alert.message, { icon: '', style: { background: t.errorBg, color: t.errorText } });
          });
       }
       
@@ -514,7 +514,7 @@ export default function CodingAssessment() {
          if (document.hidden) {
             addEvent('tab_switched', { state: 'hidden' });
             setTelemetryStats(s => ({ ...s, totalTabSwitches: s.totalTabSwitches + 1 }));
-            toast.error('Tab switch detected! Return to the assessment immediately.', { icon: '🚨' });
+            toast.error('Tab switch detected! Return to the assessment immediately.', { icon: '' });
          } else {
             addEvent('tab_switched', { state: 'visible' });
          }
@@ -548,7 +548,7 @@ export default function CodingAssessment() {
         const passed = res.data.results.filter(r => r.passed).length;
         const total = res.data.results.length;
         setOutput(`> Execution Complete: ${passed}/${total} Public Tests Passed\n\n` + 
-           res.data.results.map((r, i) => `Test ${i+1}: ${r.passed ? '✅ PASSED' : '❌ FAILED'}\nOutput: ${r.actual || r.errorMessage}`).join('\n\n')
+           res.data.results.map((r, i) => `Test ${i+1}: ${r.passed ? ' PASSED' : ' FAILED'}\nOutput: ${r.actual || r.errorMessage}`).join('\n\n')
         );
       }
     } catch (err) {
@@ -586,7 +586,7 @@ export default function CodingAssessment() {
     setSubmitLoading(true);
     flushTelemetry();
     clearInterval(flushRef.current);
-    stopMediaRecording(); // 🛑 Stop camera & microphone recording immediately!
+    stopMediaRecording(); // Stop camera & microphone recording immediately!
     
     try {
        const payload = {
@@ -711,7 +711,7 @@ export default function CodingAssessment() {
                           color: selectedQ?._id === q._id ? '#fff' : 
                             q.department === 'ECE' ? '#818cf8' : q.department === 'EEE' ? '#fbbf24' : t.text, 
                           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 'bold' }}>
-                         {q.department === 'ECE' ? '⚡' : q.department === 'EEE' ? '🔌' : q.title?.charAt(0) || 'C'}
+                         {q.department === 'ECE' ? '' : q.department === 'EEE' ? '' : q.title?.charAt(0) || 'C'}
                        </div>
                        <div style={{ flex: 1 }}>
                          <div style={{ fontWeight: 800, fontSize: '15px', color: t.text }}>{q.title}</div>
@@ -726,7 +726,7 @@ export default function CodingAssessment() {
                            )}
                            {q.circuitDiagram && (
                              <span className="ca-badge" style={{ background: '#0ea5e920', color: '#38bdf8', border: '1px solid #0ea5e930' }}>
-                               📐 Circuit
+                                Circuit
                              </span>
                            )}
                            {isCompleted && <span className="ca-badge" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981' }}>Completed</span>}
@@ -889,7 +889,7 @@ export default function CodingAssessment() {
               animation: 'pulse-warning 1.2s ease-in-out infinite',
             }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b', display: 'inline-block', boxShadow: '0 0 8px #f59e0b' }} />
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: 1 }}>⚠ Face Not Visible</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: 1 }}> Face Not Visible</span>
             </div>
           )}
           {faceAlert === 'multiple_faces' && (
@@ -900,7 +900,7 @@ export default function CodingAssessment() {
               animation: 'pulse-warning 0.8s ease-in-out infinite',
             }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block', boxShadow: '0 0 8px #ef4444' }} />
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#ef4444', textTransform: 'uppercase', letterSpacing: 1 }}>🚨 Multiple Faces Detected</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#ef4444', textTransform: 'uppercase', letterSpacing: 1 }}> Multiple Faces Detected</span>
             </div>
           )}
           <video 
@@ -977,7 +977,7 @@ export default function CodingAssessment() {
                       display: 'flex', alignItems: 'center', gap: 8,
                       borderBottom: '1px solid #334155'
                     }}>
-                      <span style={{ fontSize: 16 }}>⚡</span>
+                      <span style={{ fontSize: 16 }}></span>
                       <span style={{ fontSize: 12, fontWeight: 800, color: '#818cf8', textTransform: 'uppercase', letterSpacing: 1 }}>
                         Circuit / Hardware Reference Diagram
                       </span>
@@ -992,7 +992,7 @@ export default function CodingAssessment() {
                         borderTop: '1px solid #334155', fontSize: 12,
                         color: '#94a3b8', lineHeight: 1.6
                       }}>
-                        <strong style={{ color: '#e2e8f0' }}>📐 Circuit Notes: </strong>
+                        <strong style={{ color: '#e2e8f0' }}> Circuit Notes: </strong>
                         {selectedQ.circuitDescription}
                       </div>
                     )}

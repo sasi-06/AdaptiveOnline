@@ -23,40 +23,40 @@ export default function CadToolbar({
         { id: 'line', label: 'Line', icon: '╱', category: 'draw' },
         { id: 'circle', label: 'Circle', icon: '◯', category: 'draw' },
         { id: 'rectangle', label: 'Rectangle', icon: '▭', category: 'draw' },
-        { id: 'polyline', label: 'Polyline', icon: '⚡', category: 'draw' },
+        { id: 'polyline', label: 'Polyline', icon: '', category: 'draw' },
         { id: 'arc', label: 'Arc', icon: '⌒', category: 'draw' },
         { id: 'text', label: 'Text', icon: 'T', category: 'draw' },
         { id: 'hatch', label: 'Hatch', icon: '▒', category: 'draw' },
         
         { id: 'sep1', isSep: true },
 
-        { id: 'move', label: 'Move', icon: '✥', category: 'modify' },
+        { id: 'move', label: 'Move', icon: '', category: 'modify' },
         { id: 'copy', label: 'Copy', icon: '⧉', category: 'modify' },
         { id: 'rotate', label: 'Rotate', icon: '↻', category: 'modify' },
-        { id: 'mirror', label: 'Mirror', icon: '🪞', category: 'modify' },
+        { id: 'mirror', label: 'Mirror', icon: '', category: 'modify' },
         { id: 'offset', label: 'Offset', icon: '║', category: 'modify' },
-        { id: 'trim', label: 'Trim', icon: '✂️', category: 'modify' },
+        { id: 'trim', label: 'Trim', icon: '', category: 'modify' },
         { id: 'extend', label: 'Extend', icon: '⤇', category: 'modify' },
         { id: 'fillet', label: 'Fillet', icon: '╭', category: 'modify' },
         { id: 'chamfer', label: 'Chamfer', icon: '◣', category: 'modify' },
         { id: 'sep2', isSep: true },
 
-        { id: 'dim_linear', label: 'Linear', icon: '📏', category: 'dim' },
-        { id: 'dim_aligned', label: 'Aligned', icon: '📐', category: 'dim' },
+        { id: 'dim_linear', label: 'Linear', icon: '', category: 'dim' },
+        { id: 'dim_aligned', label: 'Aligned', icon: '', category: 'dim' },
         { id: 'dim_angular', label: 'Angular', icon: '∠', category: 'dim' },
         { id: 'dim_radius', label: 'Radius', icon: 'ⓦ', category: 'dim' },
         { id: 'dim_diameter', label: 'Diameter', icon: '⌀', category: 'dim' },
 
         { id: 'sep3', isSep: true },
 
-        { id: 'measure_distance', label: 'Dist (M)', icon: '📏', category: 'measure' },
-        { id: 'measure_angle', label: 'Angle (M)', icon: '📐', category: 'measure' },
+        { id: 'measure_distance', label: 'Dist (M)', icon: '', category: 'measure' },
+        { id: 'measure_angle', label: 'Angle (M)', icon: '', category: 'measure' },
         { id: 'measure_radius', label: 'Radius (M)', icon: 'ⓦ', category: 'measure' },
         { id: 'measure_area', label: 'Area (M)', icon: '▧', category: 'measure' },
 
         { id: 'sep4', isSep: true },
 
-        { id: 'pan', label: 'Pan', icon: '✋', category: 'view' },
+        { id: 'pan', label: 'Pan', icon: '', category: 'view' },
     ];
 
     return (
@@ -139,7 +139,7 @@ export default function CadToolbar({
                         >
                             {layers.map(l => (
                                 <option key={l.id} value={l.id}>
-                                    {l.name} {l.locked ? '🔒' : (l.visible === false ? '🙈' : '👁')}
+                                    {l.name} {l.locked ? '' : (l.visible === false ? '' : '')}
                                 </option>
                             ))}
                         </select>
@@ -198,7 +198,7 @@ export default function CadToolbar({
                         transition: 'all 0.15s ease'
                     }}
                 >
-                    <span>🥞</span>
+                    <span></span>
                     <span>Layers</span>
                 </button>
 

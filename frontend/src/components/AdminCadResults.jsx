@@ -121,13 +121,13 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
 
     const formatEventLabel = (evt) => {
         switch (evt) {
-            case 'head_turn': return '👤 Head Movement / Rotation';
-            case 'gaze_away': return '👁️ Eye Deviation / Gazed Away';
-            case 'face_missing': return '🚫 Face Connection Lost';
-            case 'multiple_faces': return '👥 Proxy / Multiple Faces';
-            case 'phone_detected': return '📱 Prohibited Device Detected';
-            case 'speech_detected': return '🎙️ Human Speech Activity';
-            case 'fullscreen_exit': return '🖥️ Exited Fullscreen / Tab Switch';
+            case 'head_turn': return ' Head Movement / Rotation';
+            case 'gaze_away': return ' Eye Deviation / Gazed Away';
+            case 'face_missing': return ' Face Connection Lost';
+            case 'multiple_faces': return ' Proxy / Multiple Faces';
+            case 'phone_detected': return ' Prohibited Device Detected';
+            case 'speech_detected': return ' Human Speech Activity';
+            case 'fullscreen_exit': return ' Exited Fullscreen / Tab Switch';
             default: return evt || 'Behavior Anomaly';
         }
     };
@@ -147,7 +147,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
                 <div>
                     <h2 className="ad-page-title" style={{ margin: 0 }}>
-                        📈 AutoCAD Assessment Results
+                         AutoCAD Assessment Results
                     </h2>
                     <p style={{ color: t.textMuted, fontSize: 14, marginTop: 4 }}>
                         Student 2D CAD vector drawings, geometric telemetry, and webcam photo proof proctoring logs.
@@ -155,7 +155,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                 </div>
 
                 <button className="ad-btn ad-btn-primary" onClick={() => loadResults(selectedAssessmentId)}>
-                    🔄 Refresh Results
+                     Refresh Results
                 </button>
             </div>
 
@@ -226,7 +226,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                 <div style={{ textAlign: 'center', padding: 40, color: t.textMuted }}>Loading AutoCAD assessment results...</div>
             ) : filteredResults.length === 0 ? (
                 <div className="ad-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}></div>
                     <h3 style={{ fontSize: 18, fontWeight: 700, color: t.text }}>No AutoCAD Results Found</h3>
                     <p style={{ color: t.textMuted, fontSize: 14, maxWidth: 480, margin: '8px auto 0' }}>
                         No student CAD submissions match the selected filters.
@@ -267,7 +267,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                             <span className="ad-badge" style={{ fontSize: 11 }}>{st.department || 'General'}</span>
                                         </td>
                                         <td style={{ padding: '14px 16px', fontWeight: 600 }}>
-                                            <div>📐 {asm.title || 'AutoCAD Assessment'}</div>
+                                            <div> {asm.title || 'AutoCAD Assessment'}</div>
                                             <div style={{ fontSize: 11, color: t.textMuted }}>{asm.cad_level || 'Level 1'}</div>
                                         </td>
                                         <td style={{ padding: '14px 16px' }}>
@@ -276,7 +276,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                                 color: isSubmitted ? '#10b981' : '#f59e0b',
                                                 border: `1px solid ${isSubmitted ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}`
                                             }}>
-                                                {isSubmitted ? '✓ Submitted' : 'Draft / In-Progress'}
+                                                {isSubmitted ? ' Submitted' : 'Draft / In-Progress'}
                                             </span>
                                         </td>
                                         <td style={{ padding: '14px 16px', color: t.textMuted }}>
@@ -295,7 +295,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                                     style={{ background: 'linear-gradient(135deg, #0284c7, #38bdf8)', color: '#000', fontWeight: 800 }}
                                                     title="View chronological CAD activity events, timestamps, and final drawing review"
                                                 >
-                                                    📜 Activity History & CAD Review
+                                                     Activity History & CAD Review
                                                 </button>
 
                                                 <button
@@ -305,7 +305,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                                         setModalTab('drawings');
                                                     }}
                                                 >
-                                                    📐 View Drawings
+                                                     View Drawings
                                                 </button>
 
                                                 <button
@@ -316,7 +316,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                                     }}
                                                     title="View Webcam Anomaly Photos & Evidence"
                                                 >
-                                                    📸 Photo Evidence
+                                                     Photo Evidence
                                                 </button>
 
                                                 {openTimeline && st._id && asm._id && (
@@ -324,7 +324,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                                         className="ad-btn ad-btn-ghost ad-btn-sm"
                                                         onClick={() => openTimeline(st._id, asm._id, st.name)}
                                                     >
-                                                        🧠 Timeline
+                                                         Timeline
                                                     </button>
                                                 )}
                                             </div>
@@ -352,7 +352,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                     Assessment: {viewingStudentResult.assessment?.title} • Email: {viewingStudentResult.student?.email} • Dept: {viewingStudentResult.student?.department || 'General'}
                                 </p>
                             </div>
-                            <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setViewingStudentResult(null)}>✕ Close</button>
+                            <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setViewingStudentResult(null)}> Close</button>
                         </div>
 
                         {/* Modal Navigation Tabs */}
@@ -362,7 +362,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                     className={`ad-btn ${modalTab === 'drawings' ? 'ad-btn-primary' : 'ad-btn-ghost'} ad-btn-sm`}
                                     onClick={() => setModalTab('drawings')}
                                 >
-                                    📐 2D CAD Drawings ({viewingStudentResult.drawings?.length || 0})
+                                     2D CAD Drawings ({viewingStudentResult.drawings?.length || 0})
                                 </button>
 
                                 <button
@@ -370,7 +370,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                     onClick={() => setModalTab('proctoring')}
                                     style={{ display: 'flex', alignItems: 'center', gap: 6 }}
                                 >
-                                    📸 Visual Proctoring & Photo Evidence
+                                     Visual Proctoring & Photo Evidence
                                     {snapshotLogs.length > 0 && (
                                         <span style={{ background: '#ef4444', color: '#fff', fontSize: 11, fontWeight: 800, padding: '1px 7px', borderRadius: 10 }}>
                                             {snapshotLogs.length} Photos
@@ -384,7 +384,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                 onClick={() => setActivityReviewItem(viewingStudentResult)}
                                 style={{ background: 'linear-gradient(135deg, #0284c7, #38bdf8)', color: '#000', fontWeight: 800 }}
                             >
-                                📜 Open Interactive Activity Review Screen
+                                 Open Interactive Activity Review Screen
                             </button>
                         </div>
 
@@ -468,7 +468,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                             </div>
 
                                             <div style={{ display: 'flex', gap: 12, marginBottom: 12, fontSize: 12, color: t.textMuted, flexWrap: 'wrap' }}>
-                                                <span>📐 Total Primitives: <strong>{objs.length}</strong></span>
+                                                <span> Total Primitives: <strong>{objs.length}</strong></span>
                                                 <span>| Lines: <strong>{lineCount}</strong></span>
                                                 <span>| Circles: <strong>{circleCount}</strong></span>
                                                 <span>| Rectangles: <strong>{rectCount}</strong></span>
@@ -573,7 +573,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                     <div style={{ background: t.surfaceAlt, padding: '14px 16px', borderRadius: 10, border: `1px solid ${t.border}` }}>
                                         <div style={{ fontSize: 11, fontWeight: 700, color: t.textMuted, textTransform: 'uppercase' }}>Photo Evidence Captured</div>
                                         <div style={{ fontSize: 24, fontWeight: 800, color: t.accent, marginTop: 4 }}>
-                                            📸 {snapshotLogs.length} Photos
+                                             {snapshotLogs.length} Photos
                                         </div>
                                     </div>
 
@@ -589,7 +589,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                                         <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: t.text }}>
-                                            📸 Visual Photo Proof & Webcam Evidence
+                                             Visual Photo Proof & Webcam Evidence
                                         </h4>
                                         <span style={{ fontSize: 12, color: t.textMuted }}>
                                             Click any photo to enlarge high-resolution snapshot
@@ -600,7 +600,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                         <div style={{ textAlign: 'center', padding: 40, color: t.textMuted }}>Loading proctoring photos & telemetry evidence...</div>
                                     ) : snapshotLogs.length === 0 ? (
                                         <div style={{ padding: 32, textAlign: 'center', background: t.surfaceAlt, borderRadius: 12, border: `1.5px dashed ${t.border}` }}>
-                                            <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
+                                            <div style={{ fontSize: 36, marginBottom: 8 }}></div>
                                             <div style={{ fontWeight: 700, fontSize: 15, color: t.text }}>No Photo Evidence Snapshots Captured</div>
                                             <div style={{ fontSize: 13, color: t.textMuted, marginTop: 4 }}>
                                                 No behavioral anomaly photo triggers were captured during this student's CAD exam session.
@@ -650,7 +650,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                             />
                                                             <span style={{ position: 'absolute', bottom: 6, right: 8, background: 'rgba(0,0,0,0.75)', color: '#38bdf8', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>
-                                                                🔍 Enlarge
+                                                                 Enlarge
                                                             </span>
                                                             <span style={{ position: 'absolute', top: 6, left: 8, background: `${riskColor}dd`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 10, textTransform: 'uppercase' }}>
                                                                 Risk: {Math.round(log.riskScore || 0)}%
@@ -671,7 +671,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
 
                                                             <div style={{ fontSize: 11, color: t.textMuted, marginTop: 6, display: 'flex', justifyContent: 'space-between' }}>
                                                                 <span>⏱ {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-                                                                <span>📅 {new Date(log.timestamp).toLocaleDateString()}</span>
+                                                                <span> {new Date(log.timestamp).toLocaleDateString()}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -684,7 +684,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                 {/* Full Interactive Timeline */}
                                 <div style={{ borderTop: `1px solid ${t.border}`, paddingTop: 20, marginTop: 10 }}>
                                     <h4 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 800, color: t.text }}>
-                                        🧠 Complete Chronological Proctoring Timeline
+                                         Complete Chronological Proctoring Timeline
                                     </h4>
                                     <BehaviorTimeline logs={studentLogs} />
                                 </div>
@@ -705,7 +705,7 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                             style={{ position: 'absolute', top: -14, right: -14, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: 34, height: 34, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,0,0,0.5)' }}
                             onClick={() => setLightboxPhoto(null)}
                         >
-                            ✕
+                            
                         </button>
                         <img
                             src={lightboxPhoto}

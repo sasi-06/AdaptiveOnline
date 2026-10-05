@@ -276,7 +276,7 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                             ← Back to AutoCAD Assessments
                         </button>
                         <h2 className="ad-page-title" style={{ margin: 0 }}>
-                            📐 {selectedAssessment.title}
+                             {selectedAssessment.title}
                         </h2>
                         <p style={{ color: t.textMuted, fontSize: 14, marginTop: 4 }}>
                             {selectedAssessment.category || 'Civil Engineering Assessments'} • {selectedAssessment.assessment_type || 'AutoCAD / 2D Drawing Assessment'}
@@ -288,16 +288,16 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                             className="ad-btn ad-btn-secondary"
                             onClick={() => setDetailTab('questions')}
                         >
-                            ⚙️ Configure Questions ({cadQuestions.length || selectedAssessment.questions?.length || 0})
+                             Configure Questions ({cadQuestions.length || selectedAssessment.questions?.length || 0})
                         </button>
                         <button className="ad-btn ad-btn-secondary" onClick={() => openAssign(selectedAssessment)}>
-                            👥 Assign Students ({selectedAssessment.assigned_students?.length || 0})
+                             Assign Students ({selectedAssessment.assigned_students?.length || 0})
                         </button>
                         <button
                             className="ad-btn ad-btn-danger"
                             onClick={() => handleDelete(selectedAssessment._id, selectedAssessment.title)}
                         >
-                            🗑 Delete Assessment
+                             Delete Assessment
                         </button>
                     </div>
                 </div>
@@ -305,9 +305,9 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                 {/* Nav Tabs */}
                 <div style={{ display: 'flex', gap: 8, borderBottom: `1px solid ${t.border}`, paddingBottom: 8 }}>
                     {[
-                        { key: 'overview', label: '📊 Overview' },
-                        { key: 'questions', label: `✏️ Questions (${cadQuestions.length || selectedAssessment.questions?.length || 0})` },
-                        { key: 'students', label: '🎓 Students' },
+                        { key: 'overview', label: ' Overview' },
+                        { key: 'questions', label: ` Questions (${cadQuestions.length || selectedAssessment.questions?.length || 0})` },
+                        { key: 'students', label: ' Students' },
                     ].map(tab => (
                         <button
                             key={tab.key}
@@ -393,7 +393,7 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                             <div style={{ textAlign: 'center', padding: 40, color: t.textMuted }}>Loading CAD questions...</div>
                         ) : cadQuestions.length === 0 ? (
                             <div className="ad-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
-                                <div style={{ fontSize: 40, marginBottom: 12 }}>📏</div>
+                                <div style={{ fontSize: 40, marginBottom: 12 }}></div>
                                 <h3 style={{ fontSize: 18, fontWeight: 700, color: t.text }}>No CAD Questions Configured Yet</h3>
                                 <p style={{ color: t.textMuted, fontSize: 14, maxWidth: 480, margin: '8px auto 16px' }}>
                                     Click below to add your first 2D drawing prompt, instruction constraints, and optional blueprint reference photo.
@@ -414,11 +414,11 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                                                 title="Click to view full size photo"
                                             >
                                                 <img src={q.image_url} alt="Reference Photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                <span style={{ position: 'absolute', bottom: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>🔍 Enlarge</span>
+                                                <span style={{ position: 'absolute', bottom: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}> Enlarge</span>
                                             </div>
                                         ) : (
                                             <div style={{ width: 100, height: 90, borderRadius: 10, border: `1.5px dashed ${t.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: t.textMuted, fontSize: 11 }}>
-                                                <span>🖼️</span> No Photo
+                                                <span></span> No Photo
                                             </div>
                                         )}
 
@@ -448,10 +448,10 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                                         {/* Actions */}
                                         <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                                             <button className="ad-btn ad-btn-secondary ad-btn-sm" onClick={() => openEditQuestion(q)}>
-                                                ✏️ Edit
+                                                 Edit
                                             </button>
                                             <button className="ad-btn ad-btn-danger ad-btn-sm" onClick={() => handleDeleteQuestion(q._id)}>
-                                                🗑 Delete
+                                                 Delete
                                             </button>
                                         </div>
                                     </div>
@@ -507,7 +507,7 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                             </div>
                             <div style={{ marginTop: 14, display: 'flex', justifyContent: 'flex-end' }}>
                                 <button type="submit" className="ad-btn ad-btn-primary" disabled={assigning}>
-                                    {assigning ? 'Saving Assignments...' : '💾 Save Student Assignments'}
+                                    {assigning ? 'Saving Assignments...' : ' Save Student Assignments'}
                                 </button>
                             </div>
                         </form>
@@ -521,9 +521,9 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                         <div className="ad-card" style={{ width: '100%', maxWidth: 580, background: t.surface, border: `1px solid ${t.border}`, boxShadow: '0 20px 50px rgba(0,0,0,0.4)', maxHeight: '90vh', overflowY: 'auto' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, borderBottom: `1px solid ${t.border}`, paddingBottom: 12 }}>
                                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>
-                                    {editingQ ? '✏️ Edit CAD Question' : '＋ Add New CAD Question'}
+                                    {editingQ ? ' Edit CAD Question' : '＋ Add New CAD Question'}
                                 </h3>
-                                <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setShowQModal(false)}>✕</button>
+                                <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setShowQModal(false)}></button>
                             </div>
 
                             <form onSubmit={handleSaveQuestion} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -631,7 +631,7 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                                 style={{ position: 'absolute', top: -14, right: -14, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: 32, height: 32, fontSize: 16, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.4)' }}
                                 onClick={() => setPreviewImageModal(null)}
                             >
-                                ✕
+                                
                             </button>
                             <img src={previewImageModal} alt="Enlarged Reference Drawing" style={{ maxWidth: '100%', maxHeight: '85vh', borderRadius: 12, border: `2px solid ${t.border}` }} />
                         </div>
@@ -667,7 +667,7 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                     <div style={{ flex: '1 1 240px' }}>
                         <input
                             className="ad-input"
-                            placeholder="🔍 Search CAD assessments..."
+                            placeholder=" Search CAD assessments..."
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                         />
@@ -693,7 +693,7 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                 <div style={{ textAlign: 'center', padding: 40, color: t.textMuted }}>Loading AutoCAD Assessments...</div>
             ) : filteredAssessments.length === 0 ? (
                 <div className="ad-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>📐</div>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}></div>
                     <h3 style={{ fontSize: 18, fontWeight: 700, color: t.text }}>No AutoCAD Assessments Found</h3>
                     <p style={{ color: t.textMuted, fontSize: 14, margin: '8px 0 16px' }}>
                         {assessments.length === 0
@@ -740,7 +740,7 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                                     <td>{asm.duration} mins</td>
                                     <td>
                                         <span className="ad-badge" style={{ background: t.surfaceAlt }}>
-                                            👥 {asm.assigned_students?.length || 0} Students
+                                             {asm.assigned_students?.length || 0} Students
                                         </span>
                                     </td>
                                     <td className="ad-cell-muted">
@@ -756,7 +756,7 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                                                 }}
                                                 title="View Assessment Details"
                                             >
-                                                👁 Details
+                                                 Details
                                             </button>
                                             <button
                                                 className="ad-btn ad-btn-secondary ad-btn-sm"
@@ -766,7 +766,7 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                                                 }}
                                                 title="Configure CAD Questions"
                                             >
-                                                ⚙️ Questions
+                                                 Questions
                                             </button>
                                             <button
                                                 className="ad-btn ad-btn-secondary ad-btn-sm"
@@ -794,8 +794,8 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyCenter: 'center', padding: 20 }}>
                     <div className="ad-card" style={{ width: '100%', maxWidth: 540, margin: 'auto', background: t.surface, border: `1px solid ${t.border}`, boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottom: `1px solid ${t.border}`, paddingBottom: 12 }}>
-                            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>📐 Create AutoCAD Assessment</h3>
-                            <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setShowCreateModal(false)}>✕</button>
+                            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}> Create AutoCAD Assessment</h3>
+                            <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setShowCreateModal(false)}></button>
                         </div>
 
                         <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -888,10 +888,10 @@ export default function AutoCADRoundAdmin({ theme: t, students = [], flash, open
                     <div className="ad-card" style={{ width: '100%', maxWidth: 520, margin: 'auto', background: t.surface, border: `1px solid ${t.border}`, boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, borderBottom: `1px solid ${t.border}`, paddingBottom: 12 }}>
                             <div>
-                                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>👥 Assign Students</h3>
+                                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}> Assign Students</h3>
                                 <p style={{ fontSize: 13, color: t.textMuted, margin: '2px 0 0' }}>{assignTarget.title}</p>
                             </div>
-                            <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setShowAssignModal(false)}>✕</button>
+                            <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setShowAssignModal(false)}></button>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>

@@ -1,32 +1,32 @@
 /**
- * CircuitBoard.jsx  —  Interactive drag-and-drop SVG circuit canvas
+ * CircuitBoard.jsx — Interactive drag-and-drop SVG circuit canvas
  *
  * Features:
- *  • Drag components from palette → drop onto canvas (snapped to 20px grid)
- *  • Drag components on canvas to reposition (wires follow automatically)
- *  • Click a pin → click another pin → wire is drawn (orthogonal routing)
- *  • Right-click: context menu (rotate, delete, edit properties)
- *  • Double-click: property editor modal
- *  • Delete key: remove selected component/wire
- *  • Ctrl+Z / Ctrl+Y: undo / redo (50-state stack)
- *  • Mouse wheel: zoom (0.5×–3×)
- *  • Middle-mouse / Space+drag: pan
- *  • Live validation: floating pins (orange), short circuit (red)
- *  • Toolbar: Save Draft, Submit, Clear, Undo, Redo, Zoom+/-, Check Circuit
+ * • Drag components from palette → drop onto canvas (snapped to 20px grid)
+ * • Drag components on canvas to reposition (wires follow automatically)
+ * • Click a pin → click another pin → wire is drawn (orthogonal routing)
+ * • Right-click: context menu (rotate, delete, edit properties)
+ * • Double-click: property editor modal
+ * • Delete key: remove selected component/wire
+ * • Ctrl+Z / Ctrl+Y: undo / redo (50-state stack)
+ * • Mouse wheel: zoom (0.5×–3×)
+ * • Middle-mouse / Space+drag: pan
+ * • Live validation: floating pins (orange), short circuit (red)
+ * • Toolbar: Save Draft, Submit, Clear, Undo, Redo, Zoom+/-, Check Circuit
  */
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import ComponentRenderer from './ComponentRenderer';
-import PropertyEditor    from './PropertyEditor';
+import PropertyEditor from './PropertyEditor';
 import {
     COMP_DEFS, EDITABLE_PROPS, snap, nextCompId,
     getPinWorldPos, orthogonalPath
 } from './constants';
 
 const CANVAS_W = 1200;
-const CANVAS_H =  800;
-const ZOOM_MIN =  0.4;
-const ZOOM_MAX =  3.0;
+const CANVAS_H = 800;
+const ZOOM_MIN = 0.4;
+const ZOOM_MAX = 3.0;
 const PIN_SNAP_R = 14; // px — radius for pin click snapping
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ function uuid() {
 function screenToWorld(clientX, clientY, svgRect, vt) {
     return {
         x: (clientX - svgRect.left - vt.x) / vt.scale,
-        y: (clientY - svgRect.top  - vt.y) / vt.scale
+        y: (clientY - svgRect.top - vt.y) / vt.scale
     };
 }
 
@@ -65,7 +65,7 @@ function findNearestPin(worldPos, components, excludeCompId = null, maxDist = PI
 function connectionExists(connections, fromComp, fromPin, toComp, toPin) {
     return connections.some(c =>
         (c.from.comp_id === fromComp && c.from.pin === fromPin && c.to.comp_id === toComp && c.to.pin === toPin) ||
-        (c.from.comp_id === toComp   && c.from.pin === toPin   && c.to.comp_id === fromComp && c.to.pin === fromPin)
+        (c.from.comp_id === toComp && c.from.pin === toPin && c.to.comp_id === fromComp && c.to.pin === fromPin)
     );
 }
 
@@ -80,7 +80,7 @@ function getFloatingPins(components, connections) {
             if (!pinPos) continue;
             const connected = connections.some(c =>
                 (c.from.comp_id === comp.comp_id && c.from.pin === pin) ||
-                (c.to.comp_id   === comp.comp_id && c.to.pin   === pin)
+                (c.to.comp_id === comp.comp_id && c.to.pin === pin)
             );
             if (!connected) floating.add(`${comp.comp_id}::${pin}`);
         }
@@ -109,29 +109,29 @@ export default function CircuitBoard({
     highlightedComps = [],
     submitting = false,
 }) {
-    const svgRef    = useRef(null);
-    const wrapRef   = useRef(null);
+    const svgRef = useRef(null);
+    const wrapRef = useRef(null);
 
     // ── Canvas state
-    const [components,  setComponents]  = useState(initialComponents);
+    const [components, setComponents] = useState(initialComponents);
     const [connections, setConnections] = useState(initialConnections);
-    const [vt, setVt]                   = useState({ x: 60, y: 40, scale: 1 }); // view transform
+    const [vt, setVt] = useState({ x: 60, y: 40, scale: 1 }); // view transform
 
     // ── Interaction state
-    const [selected,     setSelected]     = useState(null);  // { type: 'comp'|'wire', id }
-    const [dragging,     setDragging]     = useState(null);  // { comp_id, ox, oy }
-    const [wiringFrom,   setWiringFrom]   = useState(null);  // { comp_id, pinId, worldPos }
-    const [mouseWorld,   setMouseWorld]   = useState({ x: 0, y: 0 });
-    const [panning,      setPanning]      = useState(null);  // { startX, startY, startVtX, startVtY }
-    const [contextMenu,  setContextMenu]  = useState(null);  // { x, y, comp_id }
-    const [propEditor,   setPropEditor]   = useState(null);  // comp object
+    const [selected, setSelected] = useState(null); // { type: 'comp'|'wire', id }
+    const [dragging, setDragging] = useState(null); // { comp_id, ox, oy }
+    const [wiringFrom, setWiringFrom] = useState(null); // { comp_id, pinId, worldPos }
+    const [mouseWorld, setMouseWorld] = useState({ x: 0, y: 0 });
+    const [panning, setPanning] = useState(null); // { startX, startY, startVtX, startVtY }
+    const [contextMenu, setContextMenu] = useState(null); // { x, y, comp_id }
+    const [propEditor, setPropEditor] = useState(null); // comp object
     const [floatingPins, setFloatingPins] = useState(new Set());
-    const [feedback,     setFeedback]     = useState('');    // quick validation message
-    const [spaceDown,    setSpaceDown]    = useState(false);
+    const [feedback, setFeedback] = useState(''); // quick validation message
+    const [spaceDown, setSpaceDown] = useState(false);
 
     // ── Undo stack
-    const [history,      setHistory]      = useState([{ components: [], connections: [] }]);
-    const [histIdx,      setHistIdx]      = useState(0);
+    const [history, setHistory] = useState([{ components: [], connections: [] }]);
+    const [histIdx, setHistIdx] = useState(0);
 
     // ─ Auto-center view on components
     const autoCenterView = useCallback((comps) => {
@@ -155,8 +155,8 @@ export default function CircuitBoard({
             return;
         }
 
-        const rect   = svgRef.current?.getBoundingClientRect();
-        const width  = (rect?.width && rect.width > 0) ? rect.width : 600;
+        const rect = svgRef.current?.getBoundingClientRect();
+        const width = (rect?.width && rect.width > 0) ? rect.width : 600;
         const height = (rect?.height && rect.height > 0) ? rect.height : 400;
 
         const bboxW = Math.max(140, maxX - minX);
@@ -225,7 +225,7 @@ export default function CircuitBoard({
         };
         const onKeyUp = (e) => { if (e.code === 'Space') setSpaceDown(false); };
         window.addEventListener('keydown', onKeyDown);
-        window.addEventListener('keyup',   onKeyUp);
+        window.addEventListener('keyup', onKeyUp);
         return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp); };
     // eslint-disable-next-line
     }, [selected, histIdx, history, components]);
@@ -234,7 +234,7 @@ export default function CircuitBoard({
     const pushHistory = useCallback((comps, conns) => {
         setHistory(prev => {
             const sliced = prev.slice(0, histIdx + 1);
-            const next   = [...sliced, { components: comps, connections: conns }].slice(-50);
+            const next = [...sliced, { components: comps, connections: conns }].slice(-50);
             return next;
         });
         setHistIdx(prev => Math.min(prev + 1, 49));
@@ -263,13 +263,13 @@ export default function CircuitBoard({
         const def = COMP_DEFS[type];
         if (!def) return;
         const comp = {
-            comp_id:    nextCompId(type, components),
+            comp_id: nextCompId(type, components),
             type,
             properties: Object.fromEntries(
                 (EDITABLE_PROPS[type] || []).map(p => [p.key, p.default])
             ),
-            position:   { x: snap(worldPos.x - def.width / 2), y: snap(worldPos.y - def.height / 2) },
-            rotation:   0
+            position: { x: snap(worldPos.x - def.width / 2), y: snap(worldPos.y - def.height / 2) },
+            rotation: 0
         };
         const newComps = [...components, comp];
         setComponents(newComps);
@@ -310,8 +310,8 @@ export default function CircuitBoard({
 
     const deleteSelected = () => {
         if (!selected) return;
-        if (selected.type === 'comp')  deleteComponent(selected.id);
-        if (selected.type === 'wire')  deleteWire(selected.id);
+        if (selected.type === 'comp') deleteComponent(selected.id);
+        if (selected.type === 'wire') deleteWire(selected.id);
     };
 
     const updateProperties = (comp_id, newProps) => {
@@ -327,7 +327,7 @@ export default function CircuitBoard({
         e.stopPropagation();
         if (readOnly) return;
         const worldPins = getPinWorldPos(comp);
-        const worldPos  = worldPins[pinId];
+        const worldPos = worldPins[pinId];
 
         if (!wiringFrom) {
             // Start wiring
@@ -359,8 +359,8 @@ export default function CircuitBoard({
         if (e.button !== 0 || wiringFrom || readOnly) return;
         e.stopPropagation();
         const rect = svgRef.current.getBoundingClientRect();
-        const wx   = (e.clientX - rect.left - vt.x) / vt.scale;
-        const wy   = (e.clientY - rect.top  - vt.y) / vt.scale;
+        const wx = (e.clientX - rect.left - vt.x) / vt.scale;
+        const wy = (e.clientY - rect.top - vt.y) / vt.scale;
         const comp = components.find(c => c.comp_id === comp_id);
         setDragging({ comp_id, ox: wx - comp.position.x, oy: wy - comp.position.y });
         setSelected({ type: 'comp', id: comp_id });
@@ -422,21 +422,21 @@ export default function CircuitBoard({
             const rect = svgEl.getBoundingClientRect();
             if (!rect || rect.width === 0) return;
 
-            const mx     = e.clientX - rect.left;
-            const my     = e.clientY - rect.top;
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
             const factor = e.deltaY < 0 ? 1.15 : 0.85;
 
             setVt(prev => {
                 const currentScale = Number.isFinite(prev.scale) && prev.scale > 0 ? prev.scale : 1;
-                const currentX     = Number.isFinite(prev.x) ? prev.x : 60;
-                const currentY     = Number.isFinite(prev.y) ? prev.y : 40;
+                const currentX = Number.isFinite(prev.x) ? prev.x : 60;
+                const currentY = Number.isFinite(prev.y) ? prev.y : 40;
 
                 const newScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, currentScale * factor));
                 if (Math.abs(newScale - currentScale) < 0.001) return prev;
 
                 const ratio = newScale / currentScale;
-                const newX  = mx - (mx - currentX) * ratio;
-                const newY  = my - (my - currentY) * ratio;
+                const newX = mx - (mx - currentX) * ratio;
+                const newY = my - (my - currentY) * ratio;
 
                 if (!Number.isFinite(newX) || !Number.isFinite(newY) || !Number.isFinite(newScale)) {
                     return prev;
@@ -458,8 +458,8 @@ export default function CircuitBoard({
         e.preventDefault();
         if (readOnly) return;
         try {
-            const data  = JSON.parse(e.dataTransfer.getData('text/plain'));
-            const rect  = svgRef.current.getBoundingClientRect();
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const rect = svgRef.current.getBoundingClientRect();
             const world = screenToWorld(e.clientX, e.clientY, rect, vt);
             addComponent(data.componentType, world);
         } catch (_) {}
@@ -479,10 +479,10 @@ export default function CircuitBoard({
         const floating = getFloatingPins(components, connections);
         const gnd = components.find(c => c.type === 'ground');
         const msgs = [];
-        if (!gnd) msgs.push('⚠ No ground component placed.');
-        if (floating.size > 0) msgs.push(`⚠ ${floating.size} floating pin(s) detected (shown in orange).`);
-        if (msgs.length === 0) msgs.push('✅ Basic validation passed. Circuit looks connected.');
-        setFeedback(msgs.join('  '));
+        if (!gnd) msgs.push(' No ground component placed.');
+        if (floating.size > 0) msgs.push(` ${floating.size} floating pin(s) detected (shown in orange).`);
+        if (msgs.length === 0) msgs.push(' Basic validation passed. Circuit looks connected.');
+        setFeedback(msgs.join(' '));
     };
 
     // ─── Computed per-frame ──────────────────────────────────────────────────
@@ -494,11 +494,11 @@ export default function CircuitBoard({
         allPinPositions[comp.comp_id] = getPinWorldPos(comp);
     }
 
-    const safeX     = Number.isFinite(vt.x) ? vt.x : 60;
-    const safeY     = Number.isFinite(vt.y) ? vt.y : 40;
+    const safeX = Number.isFinite(vt.x) ? vt.x : 60;
+    const safeY = Number.isFinite(vt.y) ? vt.y : 40;
     const safeScale = (Number.isFinite(vt.scale) && vt.scale > 0) ? vt.scale : 1;
-    const gridX     = ((safeX % 20) + 20) % 20;
-    const gridY     = ((safeY % 20) + 20) % 20;
+    const gridX = ((safeX % 20) + 20) % 20;
+    const gridY = ((safeY % 20) + 20) % 20;
 
     // ─── Render ─────────────────────────────────────────────────────────────
     return (
@@ -508,16 +508,16 @@ export default function CircuitBoard({
                 <div style={styles.toolbarLeft}>
                     {!readOnly ? (
                         <>
-                            <ToolBtn disabled={submitting} icon="💾" label="Save Draft"
+                            <ToolBtn disabled={submitting} icon="" label="Save Draft"
                                      accent onClick={() => onSave?.({ components, connections })} />
-                            <ToolBtn disabled={submitting} icon="🚀" label="Submit"
+                            <ToolBtn disabled={submitting} icon="" label="Submit"
                                      primary submitting={submitting}
                                      onClick={() => onSubmit?.({ components, connections })} />
                             <div style={styles.divider} />
-                            <ToolBtn icon="↩" onClick={undo}  disabled={histIdx <= 0} title="Undo (Ctrl+Z)" />
-                            <ToolBtn icon="↪" onClick={redo}  disabled={histIdx >= history.length - 1} title="Redo (Ctrl+Y)" />
-                            <ToolBtn icon="✓" label="Check"   onClick={handleValidate} />
-                            <ToolBtn icon="🗑" label="Clear"   onClick={() => {
+                            <ToolBtn icon="↩" onClick={undo} disabled={histIdx <= 0} title="Undo (Ctrl+Z)" />
+                            <ToolBtn icon="↪" onClick={redo} disabled={histIdx >= history.length - 1} title="Redo (Ctrl+Y)" />
+                            <ToolBtn icon="" label="Check" onClick={handleValidate} />
+                            <ToolBtn icon="" label="Clear" onClick={() => {
                                 if (window.confirm('Clear all components and wires?')) {
                                     setComponents([]); setConnections([]);
                                     pushHistory([], []); setSelected(null);
@@ -526,7 +526,7 @@ export default function CircuitBoard({
                         </>
                     ) : (
                         <span style={{ fontSize: 12, fontWeight: 700, color: '#a78bfa', display: 'flex', alignItems: 'center', gap: 6, paddingLeft: 4 }}>
-                            🔒 Read-Only Circuit View
+                             Read-Only Circuit View
                         </span>
                     )}
                 </div>
@@ -534,7 +534,7 @@ export default function CircuitBoard({
                     <ToolBtn icon="＋" onClick={() => setVt(p => ({ ...p, scale: Math.min(ZOOM_MAX, p.scale * 1.2) }))} />
                     <span style={styles.zoomLabel}>{Math.round(vt.scale * 100)}%</span>
                     <ToolBtn icon="－" onClick={() => setVt(p => ({ ...p, scale: Math.max(ZOOM_MIN, p.scale * 0.8) }))} />
-                    <ToolBtn icon="⊞"  title="Reset / Center View"
+                    <ToolBtn icon="⊞" title="Reset / Center View"
                              onClick={() => autoCenterView(components)} />
                 </div>
             </div>
@@ -543,7 +543,7 @@ export default function CircuitBoard({
             {!readOnly && (
                 <div style={styles.shortcutGuideStrip}>
                     <span>
-                        💡 <b>Shortcuts:</b> Select component & press <kbd style={styles.kbd}>R</kbd> to rotate &bull; Press <kbd style={styles.kbd}>C</kbd> (or double-click) to edit Voltage / Values &bull; Press <kbd style={styles.kbd}>Delete</kbd> to remove
+                         <b>Shortcuts:</b> Select component & press <kbd style={styles.kbd}>R</kbd> to rotate &bull; Press <kbd style={styles.kbd}>C</kbd> (or double-click) to edit Voltage / Values &bull; Press <kbd style={styles.kbd}>Delete</kbd> to remove
                     </span>
                 </div>
             )}
@@ -552,7 +552,7 @@ export default function CircuitBoard({
             {feedback && (
                 <div style={styles.feedbackStrip}>
                     <span>{feedback}</span>
-                    <button style={styles.fbClose} onClick={() => setFeedback('')}>✕</button>
+                    <button style={styles.fbClose} onClick={() => setFeedback('')}></button>
                 </div>
             )}
 
@@ -590,10 +590,10 @@ export default function CircuitBoard({
                         {/* ── Wires ────────────────────────────────── */}
                         {connections.map(conn => {
                             const fromComp = components.find(c => c.comp_id === conn.from.comp_id);
-                            const toComp   = components.find(c => c.comp_id === conn.to.comp_id);
+                            const toComp = components.find(c => c.comp_id === conn.to.comp_id);
                             if (!fromComp || !toComp) return null;
                             const fromPins = getPinWorldPos(fromComp);
-                            const toPins   = getPinWorldPos(toComp);
+                            const toPins = getPinWorldPos(toComp);
                             const fp = fromPins[conn.from.pin];
                             const tp = toPins[conn.to.pin];
                             if (!fp || !tp) return null;
@@ -627,12 +627,12 @@ export default function CircuitBoard({
 
                         {/* ── Components ───────────────────────────── */}
                         {components.map(comp => {
-                            const def     = COMP_DEFS[comp.type];
+                            const def = COMP_DEFS[comp.type];
                             if (!def) return null;
-                            const isSelected   = selected?.type === 'comp' && selected?.id === comp.comp_id;
+                            const isSelected = selected?.type === 'comp' && selected?.id === comp.comp_id;
                             const isHighlighted = highlightedComps.includes(comp.comp_id);
-                            const pinPositions  = allPinPositions[comp.comp_id] || {};
-                            const cx = def.width  / 2;
+                            const pinPositions = allPinPositions[comp.comp_id] || {};
+                            const cx = def.width / 2;
                             const cy = def.height / 2;
 
                             return (
@@ -694,10 +694,10 @@ export default function CircuitBoard({
                                 <g key={`pins-${comp.comp_id}`}>
                                     {Object.entries(pinPositions).map(([pinId, worldPos]) => {
                                         const isWiringStart = wiringFrom?.comp_id === comp.comp_id && wiringFrom?.pinId === pinId;
-                                        const isFloating    = floatingPins.has(`${comp.comp_id}::${pinId}`);
-                                        const pinColor      = isWiringStart ? '#6c63ff'
-                                                            : isFloating    ? '#f59e0b'
-                                                            : wiringFrom    ? '#22c55e'
+                                        const isFloating = floatingPins.has(`${comp.comp_id}::${pinId}`);
+                                        const pinColor = isWiringStart ? '#6c63ff'
+                                                            : isFloating ? '#f59e0b'
+                                                            : wiringFrom ? '#22c55e'
                                                             : def.color;
                                         const pinR = wiringFrom ? 7 : 4;
                                         return (
@@ -732,10 +732,10 @@ export default function CircuitBoard({
                 {/* ── Context Menu ───────────────────────────────────────── */}
                 {contextMenu && (
                     <div style={{ ...styles.ctxMenu, left: contextMenu.x, top: contextMenu.y }}>
-                        <CtxItem icon="🔄" label="Rotate 90°"     onClick={() => { rotateComponent(contextMenu.comp_id); setContextMenu(null); }} />
-                        <CtxItem icon="✏️" label="Edit Properties" onClick={() => { setPropEditor(components.find(c => c.comp_id === contextMenu.comp_id)); setContextMenu(null); }} />
+                        <CtxItem icon="" label="Rotate 90°" onClick={() => { rotateComponent(contextMenu.comp_id); setContextMenu(null); }} />
+                        <CtxItem icon="" label="Edit Properties" onClick={() => { setPropEditor(components.find(c => c.comp_id === contextMenu.comp_id)); setContextMenu(null); }} />
                         <div style={styles.ctxDivider} />
-                        <CtxItem icon="🗑" label="Delete"          danger onClick={() => { deleteComponent(contextMenu.comp_id); setContextMenu(null); }} />
+                        <CtxItem icon="" label="Delete" danger onClick={() => { deleteComponent(contextMenu.comp_id); setContextMenu(null); }} />
                     </div>
                 )}
             </div>
@@ -760,7 +760,7 @@ function ToolBtn({ icon, label, onClick, disabled, title, accent, primary, submi
             style={{
                 ...styles.toolBtn,
                 ...(primary ? styles.toolBtnPrimary : {}),
-                ...(accent  ? styles.toolBtnAccent  : {}),
+                ...(accent ? styles.toolBtnAccent : {}),
                 opacity: disabled ? 0.4 : 1,
                 cursor: disabled ? 'not-allowed' : 'pointer',
             }}
@@ -808,7 +808,7 @@ const styles = {
         flexShrink: 0,
         zIndex: 10,
     },
-    toolbarLeft:  { display: 'flex', alignItems: 'center', gap: 6 },
+    toolbarLeft: { display: 'flex', alignItems: 'center', gap: 6 },
     toolbarRight: { display: 'flex', alignItems: 'center', gap: 6 },
     toolBtn: {
         display: 'flex',

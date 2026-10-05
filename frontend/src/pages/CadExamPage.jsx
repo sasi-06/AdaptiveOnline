@@ -63,7 +63,7 @@ export default function CadExamPage() {
     const handleHistoryChange = useCallback((h) => setHistoryState(h), []);
 
     // Autosave & Submission State
-    const [saveStatus, setSaveStatus] = useState('Saved ✓'); // 'Saving...', 'Saved ✓', 'Save failed ⚠️'
+    const [saveStatus, setSaveStatus] = useState('Saved '); // 'Saving...', 'Saved ', 'Save failed '
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
@@ -142,15 +142,15 @@ export default function CadExamPage() {
 
         let warningText = '';
         if (m.multipleFacesDetected) {
-            warningText = '🚨 Warning: Multiple faces detected in camera feed!';
+            warningText = ' Warning: Multiple faces detected in camera feed!';
         } else if (m.faceNotDetected) {
-            warningText = '🚨 Warning: No face detected in camera frame!';
+            warningText = ' Warning: No face detected in camera frame!';
         } else if (m.phoneDetected) {
-            warningText = '🚨 Warning: Mobile phone/unauthorized device detected!';
+            warningText = ' Warning: Mobile phone/unauthorized device detected!';
         } else if (m.identityMismatch) {
-            warningText = '🚨 Warning: Identity mismatch / face unrecognized!';
+            warningText = ' Warning: Identity mismatch / face unrecognized!';
         } else if (m.headMovement > 15 || m.eyeDeviation > 20) {
-            warningText = '⚠️ Warning: Excessive head movement / looking away!';
+            warningText = ' Warning: Excessive head movement / looking away!';
         }
 
         if (warningText) {
@@ -162,7 +162,7 @@ export default function CadExamPage() {
     const handleAudioMetrics = useCallback((m) => {
         audioMetrics.current = { ...audioMetrics.current, ...m };
         if (m.speechDetected || m.multipleVoicesDetected) {
-            setProctorWarning('🚨 Warning: Background voice activity detected!');
+            setProctorWarning(' Warning: Background voice activity detected!');
             triggerImmediateAnomalyLog({ speech_detected: true });
         }
     }, [triggerImmediateAnomalyLog]);
@@ -206,7 +206,7 @@ export default function CadExamPage() {
                     setRiskScore(res.data.riskScore);
                 }
                 if (res.data?.messages?.length > 0 && res.data.messages[0] !== 'Behavior appears normal.') {
-                    setProctorWarning(`⚠️ ${res.data.messages[0]}`);
+                    setProctorWarning(` ${res.data.messages[0]}`);
                     setWarningCount(w => w + 1);
                 }
             } catch (err) {
@@ -220,7 +220,7 @@ export default function CadExamPage() {
     useEffect(() => {
         if (!studentId || !assessmentId) return;
         const tracker = new BehaviorTracker((violation) => {
-            setProctorWarning(`⚠️ Alert: ${violation.message || violation.type || 'Behavior Event'}`);
+            setProctorWarning(` Alert: ${violation.message || violation.type || 'Behavior Event'}`);
             triggerImmediateAnomalyLog({
                 tabSwitches: trackerRef.current?.getMetrics()?.tabSwitches || 0,
                 fullscreenExits: trackerRef.current?.getMetrics()?.fullscreenExits || 0
@@ -250,7 +250,7 @@ export default function CadExamPage() {
             const inFs = !!document.fullscreenElement;
             setIsFullscreen(inFs);
             if (!inFs) {
-                setFsAlert('🚨 Warning: You exited fullscreen mode! Return immediately for assessment integrity.');
+                setFsAlert(' Warning: You exited fullscreen mode! Return immediately for assessment integrity.');
             }
         };
 
@@ -404,10 +404,10 @@ export default function CadExamPage() {
                 drawing_data: { objects: objs, layers: lyrs, currentLayerId: curL, viewport: {} },
                 activity_events: eventsToSave
             });
-            setSaveStatus('Saved ✓');
+            setSaveStatus('Saved ');
         } catch (err) {
             console.error('Autosave error:', err);
-            setSaveStatus('Save failed ⚠️');
+            setSaveStatus('Save failed ');
         }
     }, [studentId, assessmentId, activeObjects, activeLayers, activeCurrentLayerId, questionEvents]);
 
@@ -512,7 +512,7 @@ export default function CadExamPage() {
     if (error || !assessment) {
         return (
             <div style={{ minHeight: '100vh', background: '#121216', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'Outfit, sans-serif' }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+                <div style={{ fontSize: 48, marginBottom: 16 }}></div>
                 <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Unable to Load CAD Assessment</h2>
                 <p style={{ color: '#94a3b8', fontSize: 14, marginBottom: 24 }}>{error || 'Assessment not found.'}</p>
                 <button onClick={handleReturnToDashboard} style={{ padding: '10px 24px', background: '#38bdf8', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>
@@ -529,7 +529,7 @@ export default function CadExamPage() {
                 <div style={{ background: 'linear-gradient(90deg, #ef4444, #dc2626)', color: '#fff', padding: '8px 16px', fontSize: 13, fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10000, boxShadow: '0 4px 15px rgba(239,68,68,0.4)' }}>
                     <span>{proctorWarning}</span>
                     <button onClick={() => setProctorWarning('')} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 11, fontWeight: 800 }}>
-                        Dismiss ✕
+                        Dismiss 
                     </button>
                 </div>
             )}
@@ -546,7 +546,7 @@ export default function CadExamPage() {
             <div style={{ height: 54, background: '#18181c', borderBottom: '1px solid #2e2e38', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', flexShrink: 0, zIndex: 30 }}>
                 {/* Left: Title & Level */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ fontSize: 20 }}>📐</span>
+                    <span style={{ fontSize: 20 }}></span>
                     <div>
                         <div style={{ fontSize: 15, fontWeight: 800, color: '#f8fafc', lineHeight: 1.2 }}>{assessment.title}</div>
                         <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>Civil Engineering 2D CAD Assessment</div>
@@ -593,7 +593,7 @@ export default function CadExamPage() {
                             boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)'
                         }}
                     >
-                        Submit Assessment ✓
+                        Submit Assessment 
                     </button>
                 </div>
             </div>
@@ -653,7 +653,7 @@ export default function CadExamPage() {
                                                 style={{ width: '100%', maxHeight: 220, objectFit: 'contain', display: 'block' }}
                                             />
                                             <div style={{ position: 'absolute', bottom: 6, right: 6, background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>
-                                                🔍 Click to Enlarge
+                                                 Click to Enlarge
                                             </div>
                                         </div>
                                     </div>
@@ -668,11 +668,11 @@ export default function CadExamPage() {
                     <div style={{ padding: 12, borderTop: '1px solid #2e2e38', background: '#131317' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                             <div style={{ fontSize: 11, fontWeight: 700, color: '#777788', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                                🔒 AI Proctoring & Voice Monitor
+                                 AI Proctoring & Voice Monitor
                             </div>
                             {warningCount > 0 && (
                                 <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 6px', background: 'rgba(239,68,68,0.2)', color: '#ef4444', borderRadius: 4 }}>
-                                    ⚠️ {warningCount} Alerts
+                                     {warningCount} Alerts
                                 </span>
                             )}
                         </div>
@@ -861,7 +861,7 @@ export default function CadExamPage() {
                                 fontWeight: 700
                             }}
                         >
-                            Submit Assessment ✓
+                            Submit Assessment 
                         </button>
                     )}
                 </div>
@@ -873,7 +873,7 @@ export default function CadExamPage() {
                     <div onClick={e => e.stopPropagation()} style={{ background: '#18181c', border: '1px solid #333340', borderRadius: 12, overflow: 'hidden', maxWidth: '90vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
                         <div style={{ padding: '12px 20px', background: '#22222a', borderBottom: '1px solid #333340', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Reference CAD Specification Drawing</span>
-                            <button onClick={() => setPreviewImageModal(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 18, cursor: 'pointer' }}>✕</button>
+                            <button onClick={() => setPreviewImageModal(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 18, cursor: 'pointer' }}></button>
                         </div>
                         <div style={{ padding: 20, overflow: 'auto' }}>
                             <img src={previewImageModal} alt="Expanded Reference" style={{ maxWidth: '100%', maxHeight: '75vh', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
@@ -906,7 +906,7 @@ export default function CadExamPage() {
             {showSuccessScreen && (
                 <div style={{ position: 'fixed', inset: 0, background: '#121216', zIndex: 30000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, textAlign: 'center' }}>
                     <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', border: '2px solid #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, color: '#10b981', marginBottom: 20 }}>
-                        ✓
+                        
                     </div>
                     <h2 style={{ fontSize: 24, fontWeight: 800, color: '#f8fafc', marginBottom: 8 }}>AutoCAD Assessment Submitted!</h2>
                     <p style={{ fontSize: 14, color: '#94a3b8', maxWidth: 460, lineHeight: 1.6, marginBottom: 28 }}>

@@ -43,60 +43,60 @@ function rowToQuestion(row) {
     const raw = get(['options', 'Options']);
     const options = typeof raw === 'string' ? raw.split(',').map(s => s.trim()).filter(Boolean) : Array.isArray(raw) ? raw : [];
     return {
-        question_text:  String(get(['question_text','question','Question']) || '').trim(),
+        question_text: String(get(['question_text','question','Question']) || '').trim(),
         options,
         correct_answer: String(get(['correct_answer','answer','Answer']) || '').trim(),
-        topic:          String(get(['topic','Topic']) || '').trim(),
-        concept:        String(get(['concept','Concept']) || '').trim(),
-        difficulty:     String(get(['difficulty','Difficulty']) || 'medium').toLowerCase().trim(),
+        topic: String(get(['topic','Topic']) || '').trim(),
+        concept: String(get(['concept','Concept']) || '').trim(),
+        difficulty: String(get(['difficulty','Difficulty']) || 'medium').toLowerCase().trim(),
         structure_type: String(get(['structure_type','type','Type']) || 'mcq').toLowerCase().trim(),
-        marks:          Number(get(['marks','Marks'])) || 1,
+        marks: Number(get(['marks','Marks'])) || 1,
     };
 }
 
 export default function AdminDashboard() {
-    const navigate  = useNavigate();
+    const navigate = useNavigate();
     const { theme: t } = useTheme();
     const adminName = localStorage.getItem('name') || 'Admin';
 
-    const [section,   setSection]   = useState('Overview');
+    const [section, setSection] = useState('Overview');
     const [civilExpanded, setCivilExpanded] = useState(true);
-    const fileInputRef   = useRef(null);
+    const fileInputRef = useRef(null);
     const studentFormRef = useRef(null);
 
-    const [students,  setStudents]  = useState([]);
-    const [exams,     setExams]     = useState([]);
+    const [students, setStudents] = useState([]);
+    const [exams, setExams] = useState([]);
     const [questions, setQuestions] = useState([]);
-    const [results,   setResults]   = useState([]);
-    const [logs,      setLogs]      = useState([]);
-    const [loading,   setLoading]   = useState(false);
-    const [error,     setError]     = useState('');
-    const [success,   setSuccess]   = useState('');
+    const [results, setResults] = useState([]);
+    const [logs, setLogs] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     const [studentForm, setStudentForm] = useState({ ...EMPTY_STUDENT });
-    const [examForm,    setExamForm]    = useState({ 
+    const [examForm, setExamForm] = useState({ 
         title: '', 
         description: '', 
         per_question_time: { easy: 60, medium: 120, hard: 180 } 
     });
-    const [assignForm,  setAssignForm]  = useState({ examId: '', studentIds: [] });
+    const [assignForm, setAssignForm] = useState({ examId: '', studentIds: [] });
 
     // ── Department-wise Workflow States ──
     // Removed Departments States
 
     // ── Two-column configurator state ──
-    const [configExam,   setConfigExam]   = useState(null);
-    const [available,    setAvailable]    = useState([]);  // left column
-    const [selected,     setSelected]     = useState([]);  // right column
+    const [configExam, setConfigExam] = useState(null);
+    const [available, setAvailable] = useState([]); // left column
+    const [selected, setSelected] = useState([]); // right column
     const [configSaving, setConfigSaving] = useState(false);
-    const [avSearch,     setAvSearch]     = useState('');
-    const [avFilter,     setAvFilter]     = useState('all');
-    const [selSearch,    setSelSearch]    = useState('');
-    const [dragItem,     setDragItem]     = useState(null); // { q, from }
+    const [avSearch, setAvSearch] = useState('');
+    const [avFilter, setAvFilter] = useState('all');
+    const [selSearch, setSelSearch] = useState('');
+    const [dragItem, setDragItem] = useState(null); // { q, from }
 
     // ── Upload inside configurator ──
-    const qUploadRef  = useRef(null);
-    const [qPreview,   setQPreview]   = useState([]);
+    const qUploadRef = useRef(null);
+    const [qPreview, setQPreview] = useState([]);
     const [qUploading, setQUploading] = useState(false);
     const [showUpload, setShowUpload] = useState(false);
     const [selectedDeptFilter, setSelectedDeptFilter] = useState('ALL');
@@ -201,7 +201,7 @@ export default function AdminDashboard() {
 
     // ── Open configurator ──
     // Available = global bank questions NOT in this exam
-    // Selected  = questions already tagged/linked to this exam
+    // Selected = questions already tagged/linked to this exam
     const openConfigurator = (exam) => {
         const attachedIds = new Set(
             (exam.questions || []).map(q => (typeof q === 'object' ? q._id : q))
@@ -216,8 +216,8 @@ export default function AdminDashboard() {
     const closeConfigurator = () => { setConfigExam(null); setQPreview([]); };
 
     // ── Move between columns ──
-    const moveToSelected  = (q) => { setAvailable(p => p.filter(x => x._id !== q._id)); setSelected(p => [...p, q]); };
-    const moveToAvailable = (q) => { setSelected(p => p.filter(x => x._id !== q._id));  setAvailable(p => [...p, q]); };
+    const moveToSelected = (q) => { setAvailable(p => p.filter(x => x._id !== q._id)); setSelected(p => [...p, q]); };
+    const moveToAvailable = (q) => { setSelected(p => p.filter(x => x._id !== q._id)); setAvailable(p => [...p, q]); };
 
     const matchesAvFilter = useCallback((q) => {
         const ms = !avSearch || q.question_text?.toLowerCase().includes(avSearch.toLowerCase()) || q.topic?.toLowerCase().includes(avSearch.toLowerCase());
@@ -230,7 +230,7 @@ export default function AdminDashboard() {
         !selSearch || q.question_text?.toLowerCase().includes(selSearch.toLowerCase()) || q.topic?.toLowerCase().includes(selSearch.toLowerCase()),
     [selSearch]);
 
-    const moveAllToSelected  = () => {
+    const moveAllToSelected = () => {
         const f = available.filter(matchesAvFilter);
         setSelected(p => [...p, ...f]);
         setAvailable(p => p.filter(q => !f.find(x => x._id === q._id)));
@@ -242,10 +242,10 @@ export default function AdminDashboard() {
     };
 
     // ── Drag & drop ──
-    const handleDragStart       = (q, from) => setDragItem({ q, from });
-    const handleDragEnd         = ()         => setDragItem(null);
-    const handleDropOnSelected  = (e) => { e.preventDefault(); if (dragItem?.from === 'available') moveToSelected(dragItem.q);  setDragItem(null); };
-    const handleDropOnAvailable = (e) => { e.preventDefault(); if (dragItem?.from === 'selected')  moveToAvailable(dragItem.q); setDragItem(null); };
+    const handleDragStart = (q, from) => setDragItem({ q, from });
+    const handleDragEnd = () => setDragItem(null);
+    const handleDropOnSelected = (e) => { e.preventDefault(); if (dragItem?.from === 'available') moveToSelected(dragItem.q); setDragItem(null); };
+    const handleDropOnAvailable = (e) => { e.preventDefault(); if (dragItem?.from === 'selected') moveToAvailable(dragItem.q); setDragItem(null); };
 
     // ── Save ──
     const handleSaveConfig = async () => {
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
     };
 
     const filteredAvailable = available.filter(matchesAvFilter);
-    const filteredSelected  = selected.filter(matchesSelFilter);
+    const filteredSelected = selected.filter(matchesSelFilter);
 
     // ── Questions section: group by exam ──
     const questionsByExam = exams.map(ex => ({
@@ -346,7 +346,7 @@ export default function AdminDashboard() {
 
         .ad-flash { display: flex; align-items: center; gap: 10px; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; font-size: 13.5px; font-weight: 500; }
         .ad-flash.success { background: ${t.tabActiveBg}; border: 1px solid ${t.accent}44; color: ${t.accent}; }
-        .ad-flash.error   { background: ${t.errorBg};     border: 1px solid ${t.errorBorder}55; color: ${t.errorText}; }
+        .ad-flash.error { background: ${t.errorBg}; border: 1px solid ${t.errorBorder}55; color: ${t.errorText}; }
 
         .ad-page-title { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: ${t.text}; margin-bottom: 28px; }
 
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
 
         .ad-card { background: ${t.surface}; border: 1px solid ${t.border}; border-radius: 14px; padding: 24px; margin-bottom: 20px; }
         .ad-card-title { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; color: ${t.text}; margin-bottom: 16px; }
-        .ad-card-hint  { font-size: 12.5px; color: ${t.textMuted}; margin-bottom: 14px; line-height: 1.5; }
+        .ad-card-hint { font-size: 12.5px; color: ${t.textMuted}; margin-bottom: 14px; line-height: 1.5; }
 
         .ad-input, .ad-select { background: ${t.inputBg}; border: 1.5px solid ${t.border}; border-radius: 9px; color: ${t.text}; font-family: 'Outfit', sans-serif; font-size: 14px; padding: 10px 13px; outline: none; width: 100%; transition: all 0.2s; }
         .ad-input:-webkit-autofill, .ad-input:-webkit-autofill:hover, .ad-input:-webkit-autofill:focus, .ad-input:-webkit-autofill:active {
@@ -370,15 +370,15 @@ export default function AdminDashboard() {
         .ad-input:focus, .ad-select:focus { border-color: ${t.accent}; box-shadow: 0 0 0 3px ${t.accentGlow}; background: ${t.surfaceAlt}; }
         .ad-select option { background: ${t.surface}; color: ${t.text}; }
         .ad-form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 10px; margin-bottom: 16px; }
-        .ad-form-row  { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+        .ad-form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
 
         .ad-btn { padding: 10px 20px; border-radius: 9px; border: none; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
         .ad-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-        .ad-btn-primary   { background: ${t.gradient}; color: #fff; box-shadow: 0 4px 14px ${t.accentGlow}; }
+        .ad-btn-primary { background: ${t.gradient}; color: #fff; box-shadow: 0 4px 14px ${t.accentGlow}; }
         .ad-btn-primary:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
         .ad-btn-secondary { background: ${t.surfaceAlt}; color: ${t.textMuted}; border: 1px solid ${t.border}; }
         .ad-btn-secondary:hover { color: ${t.text}; border-color: ${t.accent}; background: ${t.tabActiveBg}; }
-        .ad-btn-danger  { background: ${t.errorBg}; color: ${t.errorText}; border: 1px solid ${t.errorBorder}44; padding: 7px 14px; font-size: 12.5px; }
+        .ad-btn-danger { background: ${t.errorBg}; color: ${t.errorText}; border: 1px solid ${t.errorBorder}44; padding: 7px 14px; font-size: 12.5px; }
         .ad-btn-danger:hover { border-color: ${t.errorBorder}; }
         .ad-btn-ghost { background: transparent; color: ${t.textMuted}; border: 1px solid ${t.border}; }
         .ad-btn-ghost:hover { background: ${t.surfaceAlt}; color: ${t.text}; }
@@ -395,10 +395,10 @@ export default function AdminDashboard() {
         .ad-td-actions { display: flex; gap: 8px; align-items: center; }
 
         .ad-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 100px; font-size: 11.5px; font-weight: 600; }
-        .ad-badge-easy   { background: rgba(5,150,105,0.12); color: #059669; }
-        .ad-badge-medium { background: rgba(234,179,8,0.12);  color: #ca8a04; }
-        .ad-badge-hard   { background: ${t.errorBg}; color: ${t.errorText}; }
-        .ad-badge-ok     { background: ${t.tabActiveBg}; color: ${t.accent}; }
+        .ad-badge-easy { background: rgba(5,150,105,0.12); color: #059669; }
+        .ad-badge-medium { background: rgba(234,179,8,0.12); color: #ca8a04; }
+        .ad-badge-hard { background: ${t.errorBg}; color: ${t.errorText}; }
+        .ad-badge-ok { background: ${t.tabActiveBg}; color: ${t.accent}; }
 
         .ad-loading { display: flex; align-items: center; gap: 10px; color: ${t.textMuted}; font-size: 14px; padding: 16px 0; }
         .ad-spinner { width: 18px; height: 18px; border: 2px solid ${t.border}; border-top-color: ${t.accent}; border-radius: 50%; animation: spin 0.7s linear infinite; }
@@ -410,7 +410,7 @@ export default function AdminDashboard() {
         .exam-group-header:hover { background: ${t.surfaceAlt}; }
         .exam-group-header.open { background: ${t.tabActiveBg}; border-bottom: 1px solid ${t.border}; }
         .exam-group-title { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; color: ${t.text}; display: flex; align-items: center; gap: 10px; }
-        .exam-group-meta  { display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: ${t.textMuted}; flex-wrap: wrap; }
+        .exam-group-meta { display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: ${t.textMuted}; flex-wrap: wrap; }
         .eg-chevron { font-size: 11px; color: ${t.textMuted}; transition: transform 0.2s; display: inline-block; }
         .eg-chevron.open { transform: rotate(90deg); }
 
@@ -434,7 +434,7 @@ export default function AdminDashboard() {
             display: flex; align-items: flex-start; justify-content: space-between;
             padding: 22px 28px; border-bottom: 1px solid ${t.border}; flex-shrink: 0; gap: 16px;
         }
-        .cfg-title    { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: ${t.text}; }
+        .cfg-title { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: ${t.text}; }
         .cfg-subtitle { font-size: 12.5px; color: ${t.textMuted}; margin-top: 4px; line-height: 1.6; }
         .cfg-header-btns { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
 
@@ -458,10 +458,10 @@ export default function AdminDashboard() {
             padding: 12px 16px; border-bottom: 1px solid ${t.border}; flex-shrink: 0;
         }
         .cfg-col-label { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; color: ${t.text}; white-space: nowrap; }
-        .cfg-col-pill  { font-size: 11.5px; font-weight: 600; padding: 2px 9px; border-radius: 100px; white-space: nowrap; }
-        .cfg-col-pill-blue  { background: ${t.tabActiveBg}; color: ${t.accent}; }
+        .cfg-col-pill { font-size: 11.5px; font-weight: 600; padding: 2px 9px; border-radius: 100px; white-space: nowrap; }
+        .cfg-col-pill-blue { background: ${t.tabActiveBg}; color: ${t.accent}; }
         .cfg-col-pill-green { background: rgba(5,150,105,0.12); color: #059669; }
-        .cfg-col-head .ad-input  { flex: 1; min-width: 80px; padding: 7px 10px; font-size: 12.5px; }
+        .cfg-col-head .ad-input { flex: 1; min-width: 80px; padding: 7px 10px; font-size: 12.5px; }
         .cfg-col-head .ad-select { width: auto; min-width: 80px; padding: 7px 10px; font-size: 12.5px; }
 
         /* Scrollable list */
@@ -485,10 +485,10 @@ export default function AdminDashboard() {
         .cfg-q-body { flex: 1; min-width: 0; }
         .cfg-q-text { font-size: 13px; color: ${t.text}; line-height: 1.45; word-break: break-word; }
         .cfg-q-meta { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
-        .cfg-q-tag  { font-size: 10.5px; color: ${t.textMuted}; background: ${t.surfaceAlt}; padding: 1px 7px; border-radius: 5px; }
-        .cfg-q-btn  { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; transition: all 0.15s; }
-        .cfg-q-btn-add    { background: ${t.tabActiveBg}; color: ${t.accent}; }
-        .cfg-q-btn-add:hover    { background: ${t.accent}; color: #fff; }
+        .cfg-q-tag { font-size: 10.5px; color: ${t.textMuted}; background: ${t.surfaceAlt}; padding: 1px 7px; border-radius: 5px; }
+        .cfg-q-btn { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; transition: all 0.15s; }
+        .cfg-q-btn-add { background: ${t.tabActiveBg}; color: ${t.accent}; }
+        .cfg-q-btn-add:hover { background: ${t.accent}; color: #fff; }
         .cfg-q-btn-remove { background: ${t.errorBg}; color: ${t.errorText}; }
         .cfg-q-btn-remove:hover { background: ${t.errorText}; color: #fff; }
 
@@ -543,7 +543,7 @@ export default function AdminDashboard() {
                         </button>
                     ))}
                     <div className="ad-nav-spacer" />
-                    <button className="ad-logout" onClick={handleLogout}>🚪 Logout</button>
+                    <button className="ad-logout" onClick={handleLogout}> Logout</button>
                 </aside>
 
                 <div className="ad-main">
@@ -553,8 +553,8 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="ad-content">
-                        {success && <div className="ad-flash success">✓ {success}</div>}
-                        {error   && <div className="ad-flash error">⚠ {error}</div>}
+                        {success && <div className="ad-flash success"> {success}</div>}
+                        {error && <div className="ad-flash error"> {error}</div>}
                         {loading && <div className="ad-loading"><span className="ad-spinner" /> Loading…</div>}
 
                         {/* ══ AUTOCAD ASSESSMENTS (CIVIL ENGINEERING) ══ */}
@@ -579,14 +579,14 @@ export default function AdminDashboard() {
                         {/* ══ OVERVIEW ══ */}
                         {section === 'Overview' && (
                             <>
-                                <div className="ad-page-title">Welcome back, {adminName} 👋</div>
+                                <div className="ad-page-title">Welcome back, {adminName} </div>
                                 <div className="ad-stats">
                                     {[
-                                        { val: students.length,  lbl: 'Students' },
-                                        { val: exams.length,     lbl: 'Exams' },
+                                        { val: students.length, lbl: 'Students' },
+                                        { val: exams.length, lbl: 'Exams' },
                                         { val: questions.length, lbl: 'Questions' },
-                                        { val: results.length,   lbl: 'Results' },
-                                        { val: logs.length,      lbl: 'Behavior Logs' },
+                                        { val: results.length, lbl: 'Results' },
+                                        { val: logs.length, lbl: 'Behavior Logs' },
                                         { val: `${logs.length?(logs.reduce((a,l)=>a+l.riskScore,0)/logs.length).toFixed(0):0}%`, lbl: 'Avg Risk' },
                                     ].map(({ val, lbl }) => (
                                         <div key={lbl} className="ad-stat">
@@ -607,15 +607,15 @@ export default function AdminDashboard() {
                                     <form ref={studentFormRef} onSubmit={handleCreateStudent}>
                                         <div className="ad-form-grid">
                                             {[
-                                                {ph:'Full Name *',     key:'name',            type:'text',     req:true},
-                                                {ph:'Email *',         key:'email',           type:'email',    req:true},
-                                                {ph:'Password *',      key:'password',        type:'password', req:true},
-                                                {ph:'Roll No',         key:'rollno',          type:'text'},
-                                                {ph:'Age',             key:'age',             type:'number'},
-                                                {ph:'Phone Number',    key:'phone_number',    type:'text'},
-                                                {ph:'Department',      key:'department',      type:'text'},
-                                                {ph:'Year of Study',   key:'year_of_study',   type:'text'},
-                                                {ph:'College',         key:'college',         type:'text'},
+                                                {ph:'Full Name *', key:'name', type:'text', req:true},
+                                                {ph:'Email *', key:'email', type:'email', req:true},
+                                                {ph:'Password *', key:'password', type:'password', req:true},
+                                                {ph:'Roll No', key:'rollno', type:'text'},
+                                                {ph:'Age', key:'age', type:'number'},
+                                                {ph:'Phone Number', key:'phone_number', type:'text'},
+                                                {ph:'Department', key:'department', type:'text'},
+                                                {ph:'Year of Study', key:'year_of_study', type:'text'},
+                                                {ph:'College', key:'college', type:'text'},
                                             ].map(({ph,key,type,req}) => (
                                                 <input key={key} className="ad-input" placeholder={ph} type={type}
                                                     value={studentForm[key]} required={req} autoComplete="new-password"
@@ -792,7 +792,7 @@ export default function AdminDashboard() {
                                                     <td>
                                                         <div className="ad-td-actions">
                                                             <button className="ad-btn ad-btn-secondary ad-btn-sm" onClick={()=>openConfigurator(ex)}>
-                                                                ⚙ Configure Questions
+                                                                 Configure Questions
                                                             </button>
                                                             <button className="ad-btn ad-btn-danger ad-btn-sm" onClick={()=>handleDeleteExam(ex._id)}>Delete</button>
                                                         </div>
@@ -812,7 +812,7 @@ export default function AdminDashboard() {
                                 <div className="ad-page-title">Coding Results</div>
                                 <div className="ad-card" style={{background:t.tabActiveBg,border:`1px solid ${t.accent}33`,marginBottom:24}}>
                                     <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
-                                        <span style={{fontSize:22}}>📊</span>
+                                        <span style={{fontSize:22}}></span>
                                         <div style={{fontSize:13,color:t.textMuted,lineHeight:1.6}}>
                                             Coding session results are stored in the database and accessible via the sessions API.
                                             Query <strong style={{color:t.text}}>GET /api/coding/sessions</strong> to view all student coding submissions with test case pass rates, telemetry, and code analysis.
@@ -836,10 +836,10 @@ export default function AdminDashboard() {
                                 <div className="ad-page-title">Question Bank</div>
                                 <div className="ad-card" style={{background:t.tabActiveBg,border:`1px solid ${t.accent}33`,marginBottom:24}}>
                                     <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
-                                        <span style={{fontSize:22}}>💡</span>
+                                        <span style={{fontSize:22}}></span>
                                         <div style={{fontSize:13,color:t.textMuted,lineHeight:1.6}}>
                                             All questions are in the <strong style={{color:t.text}}>global bank</strong>, grouped by exam below.
-                                            To add questions to an exam, go to <strong style={{color:t.text}}>Exams → ⚙ Configure Questions</strong> → upload Excel/CSV → move questions to the <strong style={{color:t.text}}>right column</strong> → Save.
+                                            To add questions to an exam, go to <strong style={{color:t.text}}>Exams → Configure Questions</strong> → upload Excel/CSV → move questions to the <strong style={{color:t.text}}>right column</strong> → Save.
                                         </div>
                                     </div>
                                 </div>
@@ -850,7 +850,7 @@ export default function AdminDashboard() {
                                             onClick={()=>setExpandedExam(expandedExam===exam._id?null:exam._id)}>
                                             <div className="exam-group-title">
                                                 <span className={`eg-chevron${expandedExam===exam._id?' open':''}`}>▶</span>
-                                                📋 {exam.title}
+                                                 {exam.title}
                                                 <span className="ad-badge ad-badge-ok">{qs.length} Qs</span>
                                             </div>
                                             <div className="exam-group-meta">
@@ -863,7 +863,7 @@ export default function AdminDashboard() {
                                                 </>}
                                                 <button className="ad-btn ad-btn-secondary ad-btn-sm"
                                                     onClick={e=>{e.stopPropagation();openConfigurator(exam);}}>
-                                                    ⚙ Configure
+                                                     Configure
                                                 </button>
                                             </div>
                                         </div>
@@ -898,7 +898,7 @@ export default function AdminDashboard() {
                                             onClick={()=>setExpandedExam(expandedExam==='__untagged__'?null:'__untagged__')}>
                                             <div className="exam-group-title">
                                                 <span className={`eg-chevron${expandedExam==='__untagged__'?' open':''}`}>▶</span>
-                                                ⚠ Untagged Questions
+                                                 Untagged Questions
                                                 <span className="ad-badge ad-badge-medium">{untaggedQs.length}</span>
                                             </div>
                                             <div className="exam-group-meta">Not linked to any exam</div>
@@ -922,7 +922,7 @@ export default function AdminDashboard() {
 
                                 {questions.length===0 && (
                                     <div style={{textAlign:'center',padding:'48px 0',color:t.textMuted,fontSize:14}}>
-                                        No questions yet. Go to <strong>Exams → ⚙ Configure Questions</strong> to upload.
+                                        No questions yet. Go to <strong>Exams → Configure Questions</strong> to upload.
                                     </div>
                                 )}
                             </>
@@ -991,8 +991,8 @@ export default function AdminDashboard() {
 
             {/* ══════════════════════════════════════════════════════════════
                 TWO-COLUMN DRAG-AND-DROP QUESTION CONFIGURATOR
-                Left  = Available (global bank, not yet in this exam)
-                Right = Selected  (will be saved to this exam)
+                Left = Available (global bank, not yet in this exam)
+                Right = Selected (will be saved to this exam)
                 Upload Excel → questions go to global bank + jump to Selected
             ══════════════════════════════════════════════════════════════ */}
             {configExam && (
@@ -1002,19 +1002,19 @@ export default function AdminDashboard() {
                         {/* Header */}
                         <div className="cfg-header">
                             <div>
-                                <div className="cfg-title">⚙ {configExam.title} — Configure Questions</div>
+                                <div className="cfg-title"> {configExam.title} — Configure Questions</div>
                                 <div className="cfg-subtitle">
                                     <strong>Left:</strong> all available questions · <strong>Right:</strong> questions in this exam.<br/>
-                                    Drag cards across · click ＋/✕ · use ▶▶ ◀◀ arrows · or upload a new Excel/CSV to add fresh questions directly to the right column.
+                                    Drag cards across · click ＋/ · use ▶▶ ◀◀ arrows · or upload a new Excel/CSV to add fresh questions directly to the right column.
                                 </div>
                             </div>
                             <div className="cfg-header-btns">
                                 <button className="ad-btn ad-btn-secondary ad-btn-sm"
                                     onClick={()=>{setShowUpload(v=>!v);setQPreview([]);if(qUploadRef.current)qUploadRef.current.value='';}}>
-                                    {showUpload?'✕ Hide Upload':'📥 Upload Excel/CSV'}
+                                    {showUpload?' Hide Upload':' Upload Excel/CSV'}
                                 </button>
                                 <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={downloadQTemplate}>⬇ Template</button>
-                                <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={closeConfigurator}>✕</button>
+                                <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={closeConfigurator}></button>
                             </div>
                         </div>
 
@@ -1028,7 +1028,7 @@ export default function AdminDashboard() {
                                     {qPreview.length>0 && <>
                                         <span className="cfg-pill">{qPreview.length} rows parsed</span>
                                         <button className="ad-btn ad-btn-primary ad-btn-sm" onClick={handleUploadToExam} disabled={qUploading}>
-                                            {qUploading?'Uploading…':`✓ Upload & Add to Selected`}
+                                            {qUploading?'Uploading…':` Upload & Add to Selected`}
                                         </button>
                                     </>}
                                 </div>
@@ -1061,7 +1061,7 @@ export default function AdminDashboard() {
                             {/* LEFT — Available */}
                             <div className="cfg-col">
                                 <div className="cfg-col-head">
-                                    <span className="cfg-col-label">📚 Available</span>
+                                    <span className="cfg-col-label"> Available</span>
                                     <span className="cfg-col-pill cfg-col-pill-blue">{filteredAvailable.length}/{available.length}</span>
                                     <input className="ad-input" placeholder="Search…" value={avSearch} onChange={e=>setAvSearch(e.target.value)} />
                                     <select className="ad-select" value={avFilter} onChange={e=>setAvFilter(e.target.value)}>
@@ -1082,7 +1082,7 @@ export default function AdminDashboard() {
                                     onDragLeave={e=>e.currentTarget.classList.remove('drag-target')}
                                     onDrop={e=>{e.currentTarget.classList.remove('drag-target');handleDropOnAvailable(e);}}>
                                     {filteredAvailable.length===0
-                                        ? <div className="cfg-empty"><div className="cfg-empty-icon">📭</div>No questions here.<br/>All matched questions are in the exam,<br/>or change the filter.</div>
+                                        ? <div className="cfg-empty"><div className="cfg-empty-icon"></div>No questions here.<br/>All matched questions are in the exam,<br/>or change the filter.</div>
                                         : filteredAvailable.map(q=>(
                                             <div key={q._id}
                                                 className={`cfg-q-card${dragItem?.q._id===q._id?' is-dragging':''}`}
@@ -1113,7 +1113,7 @@ export default function AdminDashboard() {
                             {/* RIGHT — Selected */}
                             <div className="cfg-col">
                                 <div className="cfg-col-head">
-                                    <span className="cfg-col-label">✅ In This Exam</span>
+                                    <span className="cfg-col-label"> In This Exam</span>
                                     <span className="cfg-col-pill cfg-col-pill-green">{selected.length} selected</span>
                                     <input className="ad-input" placeholder="Search…" value={selSearch} onChange={e=>setSelSearch(e.target.value)} />
                                 </div>
@@ -1122,7 +1122,7 @@ export default function AdminDashboard() {
                                     onDragLeave={e=>e.currentTarget.classList.remove('drag-target')}
                                     onDrop={e=>{e.currentTarget.classList.remove('drag-target');handleDropOnSelected(e);}}>
                                     {filteredSelected.length===0
-                                        ? <div className="cfg-empty"><div className="cfg-empty-icon">🎯</div>{selected.length===0?'Drag questions here or click ＋ to add them.':'No questions match the search.'}</div>
+                                        ? <div className="cfg-empty"><div className="cfg-empty-icon"></div>{selected.length===0?'Drag questions here or click ＋ to add them.':'No questions match the search.'}</div>
                                         : filteredSelected.map(q=>(
                                             <div key={q._id}
                                                 className={`cfg-q-card${dragItem?.q._id===q._id?' is-dragging':''}`}
@@ -1136,7 +1136,7 @@ export default function AdminDashboard() {
                                                         <span className="cfg-q-tag">{q.marks}m</span>
                                                     </div>
                                                 </div>
-                                                <button className="cfg-q-btn cfg-q-btn-remove" title="Remove from exam" onClick={()=>moveToAvailable(q)}>✕</button>
+                                                <button className="cfg-q-btn cfg-q-btn-remove" title="Remove from exam" onClick={()=>moveToAvailable(q)}></button>
                                             </div>
                                         ))
                                     }
@@ -1156,7 +1156,7 @@ export default function AdminDashboard() {
                             </div>
                             <button className="ad-btn ad-btn-ghost" onClick={closeConfigurator}>Cancel</button>
                             <button className="ad-btn ad-btn-primary" onClick={handleSaveConfig} disabled={configSaving}>
-                                {configSaving?'Saving…':'💾 Save to Exam'}
+                                {configSaving?'Saving…':' Save to Exam'}
                             </button>
                         </div>
 
@@ -1169,10 +1169,10 @@ export default function AdminDashboard() {
                     <div className="tl-modal">
                         <div className="tl-modal-header">
                             <div>
-                                <div className="cfg-title">🧠 Behavior Timeline: {timelineStudent}</div>
+                                <div className="cfg-title"> Behavior Timeline: {timelineStudent}</div>
                                 <div className="cfg-subtitle">Chronological evidence analysis of behavior anomalies and metrics.</div>
                             </div>
-                            <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setShowTimeline(false)}>✕</button>
+                            <button className="ad-btn ad-btn-ghost ad-btn-sm" onClick={() => setShowTimeline(false)}></button>
                         </div>
                         <div className="tl-modal-body">
                             {tlLoading ? (

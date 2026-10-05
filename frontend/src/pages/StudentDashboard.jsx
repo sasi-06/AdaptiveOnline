@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     getStudentExams,
-    getStudentResults,      // GET /api/results/student/:studentId
+    getStudentResults, // GET /api/results/student/:studentId
     getStudentBehaviorLogs, // GET /api/behavior/student/:studentId
-    getStudentProfile,      // GET /api/students/:studentId
-    getResult,              // GET /api/results/:studentId/:examId
-    getStudentInterviews,   // GET /api/interviews/student/:studentId
+    getStudentProfile, // GET /api/students/:studentId
+    getResult, // GET /api/results/:studentId/:examId
+    getStudentInterviews, // GET /api/interviews/student/:studentId
     getCircuitQuestionsByExam,
     getStudentCadAssessments
 } from '../services/api';
@@ -16,13 +16,13 @@ import StudentCodingResults from '../components/StudentCodingResults';
 
 const SECTIONS = ['Overview', 'My Exams', 'Coding Round', 'Coding Results', 'AutoCAD Assessments', 'Technical Interview', 'My Results', 'Profile'];
 const SECTION_ICONS = {
-    Overview:       '',
-    'My Exams':     '',
+    Overview: '',
+    'My Exams': '',
     'Coding Round': '',
     'Coding Results': '',
     'Technical Interview': '',
-    'My Results':   '',
-    Profile:        '',
+    'My Results': '',
+    Profile: '',
 };
 
 // Sub-component for Answer Review Modal
@@ -41,7 +41,7 @@ const ReviewModal = ({ data, onClose, t }) => {
             <div className="sd-modal-content" onClick={e => e.stopPropagation()}>
                 <div className="sd-modal-header">
                     <div className="sd-modal-title">Review Answers: {data.exam_id?.title}</div>
-                    <button className="sd-modal-close" onClick={onClose}>✕</button>
+                    <button className="sd-modal-close" onClick={onClose}></button>
                 </div>
                 <div className="sd-modal-body">
                     <div className="sd-review-summary">
@@ -104,23 +104,23 @@ const ReviewModal = ({ data, onClose, t }) => {
 };
 
 export default function StudentDashboard() {
-    const navigate     = useNavigate();
+    const navigate = useNavigate();
     const { theme: t } = useTheme();
 
-    const studentId    = localStorage.getItem('studentId') || localStorage.getItem('userId') || '';
-    const studentName  = localStorage.getItem('name')  || 'Student';
+    const studentId = localStorage.getItem('studentId') || localStorage.getItem('userId') || '';
+    const studentName = localStorage.getItem('name') || 'Student';
     const studentEmail = localStorage.getItem('email') || '';
 
     const [section, setSection] = useState('Overview');
-    const [exams,   setExams]   = useState([]);
+    const [exams, setExams] = useState([]);
     const [interviews, setInterviews] = useState([]);
     const [cadAssessments, setCadAssessments] = useState([]);
     const [activeCadModal, setActiveCadModal] = useState(null);
     const [results, setResults] = useState([]);
-    const [logs,    setLogs]    = useState([]);
+    const [logs, setLogs] = useState([]);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error,   setError]   = useState('');
+    const [error, setError] = useState('');
 
     const [reviewData, setReviewData] = useState(null);
     const [reviewLoading, setReviewLoading] = useState(false);
@@ -264,11 +264,11 @@ export default function StudentDashboard() {
 
     // ─── Derived stats ───
     const completedExams = exams.filter(ex => isExamDone(ex));
-    const pendingExams   = exams.filter(ex => !isExamDone(ex));
+    const pendingExams = exams.filter(ex => !isExamDone(ex));
 
-    const totalScore = results.reduce((a, r) => a + (r.score      || 0), 0);
+    const totalScore = results.reduce((a, r) => a + (r.score || 0), 0);
     const totalMarks = results.reduce((a, r) => a + (r.total_marks || 0), 0);
-    const avgPct     = totalMarks ? ((totalScore / totalMarks) * 100).toFixed(1) : '—';
+    const avgPct = totalMarks ? ((totalScore / totalMarks) * 100).toFixed(1) : '—';
 
 
     // ─── Sub-components ───
@@ -280,7 +280,7 @@ export default function StudentDashboard() {
     };
 
     const ScoreBar = ({ score, total }) => {
-        const pct   = total ? Math.round((score / total) * 100) : 0;
+        const pct = total ? Math.round((score / total) * 100) : 0;
         const color = pct >= 70 ? '#059669' : pct >= 40 ? '#ca8a04' : '#ef4444';
         return (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -308,7 +308,7 @@ export default function StudentDashboard() {
         .sd-logo { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: ${t.text}; padding: 0 12px; margin-bottom: 28px; }
         .sd-logo span { background: ${t.gradient}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .sd-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px; border: none; background: transparent; color: ${t.textMuted}; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.18s ease; text-align: left; width: 100%; margin-bottom: 2px; }
-        .sd-nav-item:hover  { background: ${t.surfaceAlt}; color: ${t.text}; }
+        .sd-nav-item:hover { background: ${t.surfaceAlt}; color: ${t.text}; }
         .sd-nav-item.active { background: ${t.tabActiveBg}; color: ${t.accent}; font-weight: 600; }
         .sd-nav-spacer { flex: 1; }
         .sd-logout { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px; border: none; background: transparent; color: ${t.textMuted}; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.18s ease; width: 100%; }
@@ -347,10 +347,10 @@ export default function StudentDashboard() {
         .sd-bar-wrap { display: inline-block; width: 80px; height: 6px; background: ${t.border}; border-radius: 100px; overflow: hidden; vertical-align: middle; }
         .sd-bar-fill { display: block; height: 100%; border-radius: 100px; transition: width 0.6s ease; }
         .sd-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 100px; font-size: 11.5px; font-weight: 600; }
-        .sd-badge-low  { background: rgba(5,150,105,0.12); color: #059669; }
-        .sd-badge-med  { background: rgba(234,179,8,0.12);  color: #ca8a04; }
+        .sd-badge-low { background: rgba(5,150,105,0.12); color: #059669; }
+        .sd-badge-med { background: rgba(234,179,8,0.12); color: #ca8a04; }
         .sd-badge-high { background: ${t.errorBg}; color: ${t.errorText}; }
-        .sd-badge-ok   { background: ${t.tabActiveBg}; color: ${t.accent}; }
+        .sd-badge-ok { background: ${t.tabActiveBg}; color: ${t.accent}; }
         .sd-btn-start { padding: 10px 22px; border-radius: 9px; border: none; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; background: ${t.gradient}; color: #fff; box-shadow: 0 4px 16px ${t.accentGlow}; white-space: nowrap; transition: all 0.2s ease; flex-shrink: 0; }
         .sd-btn-start:hover { transform: translateY(-1px); filter: brightness(1.08); }
         .sd-done-btn { padding: 10px 22px; background: transparent; border: 1px solid ${t.border}; border-radius: 9px; color: ${t.textSub}; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; cursor: not-allowed; white-space: nowrap; flex-shrink: 0; opacity: 0.7; }
@@ -359,7 +359,7 @@ export default function StudentDashboard() {
         .sd-round-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px ${t.accentGlow}; }
         .sd-profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
         .sd-profile-row { display: flex; flex-direction: column; gap: 4px; padding: 14px 0; border-bottom: 1px solid ${t.border}55; }
-        .sd-profile-row:nth-child(odd)  { padding-right: 24px; }
+        .sd-profile-row:nth-child(odd) { padding-right: 24px; }
         .sd-profile-row:nth-child(even) { padding-left: 24px; border-left: 1px solid ${t.border}55; }
         .sd-profile-label { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: ${t.textSub}; }
         .sd-profile-value { font-size: 14px; color: ${t.text}; font-weight: 500; }
@@ -426,7 +426,7 @@ export default function StudentDashboard() {
                         </button>
                     ))}
                     <div className="sd-nav-spacer" />
-                    <button className="sd-logout" onClick={handleLogout}>🚪 Logout</button>
+                    <button className="sd-logout" onClick={handleLogout}> Logout</button>
                 </aside>
 
                 <div className="sd-main">
@@ -439,17 +439,17 @@ export default function StudentDashboard() {
                     </div>
 
                     <div className="sd-content">
-                        {error   && <div className="sd-flash error">⚠ {error}</div>}
+                        {error && <div className="sd-flash error"> {error}</div>}
                         {loading && <div className="sd-loading"><span className="sd-spinner" /> Loading…</div>}
 
                         {/* ── OVERVIEW ── */}
                         {section === 'Overview' && !loading && (
                             <>
-                                <div className="sd-page-title">Welcome back, {studentName} 👋</div>
+                                <div className="sd-page-title">Welcome back, {studentName} </div>
 
                                 {profile && profile.department && profile.round_progress && profile.round_progress.length > 0 && (
                                     <div className="sd-card" style={{ marginBottom: '24px' }}>
-                                        <div className="sd-card-title">💼 Recruitment Workflow: {profile.department}</div>
+                                        <div className="sd-card-title"> Recruitment Workflow: {profile.department}</div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', padding: '10px 0' }}>
                                             {profile.round_progress.map((rp, idx) => {
                                                 const isMCQ = rp.round_name.toLowerCase().includes('mcq');
@@ -492,7 +492,7 @@ export default function StudentDashboard() {
                                                             )}
                                                         </div>
                                                         {idx < profile.round_progress.length - 1 && (
-                                                            <span style={{ fontSize: '20px', color: t.textSub }}>➔</span>
+                                                            <span style={{ fontSize: '20px', color: t.textSub }}></span>
                                                         )}
                                                     </React.Fragment>
                                                 );
@@ -505,7 +505,7 @@ export default function StudentDashboard() {
                                         { val: exams.length + cadAssessments.length, lbl: 'Assigned Exams' },
                                         { val: completedExams.length + cadAssessments.filter(a => isCadDone(a)).length, lbl: 'Completed' },
                                         { val: pendingExams.length + cadAssessments.filter(a => !isCadDone(a)).length, lbl: 'Pending' },
-                                        { val: `${avgPct}%`,                         lbl: 'Avg Score'       },
+                                        { val: `${avgPct}%`, lbl: 'Avg Score' },
                                     ].map(({ val, lbl }) => (
                                         <div key={lbl} className="sd-stat">
                                             <div className="sd-stat-val">{val}</div>
@@ -538,7 +538,7 @@ export default function StudentDashboard() {
 
                                 {cadAssessments.length > 0 && (
                                     <div className="sd-card">
-                                        <div className="sd-card-title">📐 AutoCAD Assessments</div>
+                                        <div className="sd-card-title"> AutoCAD Assessments</div>
                                         <div className="sd-exam-list">
                                             {cadAssessments.map(asm => {
                                                 const done = isCadDone(asm);
@@ -549,21 +549,21 @@ export default function StudentDashboard() {
                                                                 <span>{asm.title}</span>
                                                                 {done && (
                                                                     <span className="sd-badge" style={{ background: '#10b98122', color: '#10b981', border: '1px solid #10b98144' }}>
-                                                                        ✓ Submitted
+                                                                         Submitted
                                                                     </span>
                                                                 )}
                                                             </div>
                                                             <div className="sd-exam-meta">
                                                                 <span className="sd-meta-chip">⏱ {asm.duration} min</span>
-                                                                <span className="sd-meta-chip">🏷️ {asm.cad_level}</span>
+                                                                <span className="sd-meta-chip"> {asm.cad_level}</span>
                                                                 {done && asm.submittedAt && (
-                                                                    <span className="sd-meta-chip">📅 {new Date(asm.submittedAt).toLocaleDateString()}</span>
+                                                                    <span className="sd-meta-chip"> {new Date(asm.submittedAt).toLocaleDateString()}</span>
                                                                 )}
                                                             </div>
                                                         </div>
                                                         {done ? (
                                                             <button className="sd-btn-start" disabled style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', cursor: 'default' }}>
-                                                                Submitted ✓
+                                                                Submitted 
                                                             </button>
                                                         ) : (
                                                             <button className="sd-btn-start" onClick={() => setActiveCadModal(asm)}>
@@ -579,7 +579,7 @@ export default function StudentDashboard() {
 
                                 {interviews.filter(i => !isInterviewCompleted(i)).length > 0 && (
                                     <div className="sd-card">
-                                        <div className="sd-card-title">🎙️ Pending Technical Interviews</div>
+                                        <div className="sd-card-title"> Pending Technical Interviews</div>
                                         <div className="sd-exam-list">
                                             {interviews.filter(i => !isInterviewCompleted(i)).map(interview => (
                                                 <div key={interview._id} className="sd-exam-card">
@@ -587,14 +587,14 @@ export default function StudentDashboard() {
                                                         <div className="sd-exam-title">{interview.title}</div>
                                                         <div className="sd-exam-meta">
                                                             <span className="sd-meta-chip">Type: {interview.type || 'Auto'}</span>
-                                                            {interview.date && <span className="sd-meta-chip">📅 {interview.date} {interview.time}</span>}
+                                                            {interview.date && <span className="sd-meta-chip"> {interview.date} {interview.time}</span>}
                                                             {interview.type !== 'Manual' && <span className="sd-meta-chip">{interview.numQuestions} questions</span>}
                                                             <span className="sd-meta-chip">Roles: {Array.isArray(interview.roles) ? interview.roles.join(', ') : interview.roles}</span>
                                                         </div>
                                                     </div>
                                                     {interview.type === 'Manual' ? (
                                                         <a href={interview.meetLink} target="_blank" rel="noreferrer" className="sd-btn-start" style={{ textDecoration: 'none', display: 'inline-block' }}>
-                                                            Join GMeet 📹
+                                                            Join GMeet 
                                                         </a>
                                                     ) : (
                                                         <button className="sd-btn-start" onClick={() => navigate(`/student/interview/${interview._id}`, { state: { roles: interview.roles } })}>
@@ -639,7 +639,7 @@ export default function StudentDashboard() {
                                 <div className="sd-page-title">My Exams</div>
                                 {exams.length === 0 ? (
                                     <div className="sd-empty">
-                                        <div className="sd-empty-icon">📋</div>
+                                        <div className="sd-empty-icon"></div>
                                         <p>No exams assigned yet. Check back later.</p>
                                     </div>
                                 ) : (
@@ -656,11 +656,11 @@ export default function StudentDashboard() {
                                                             <span className="sd-meta-chip">
                                                                 E:{exam.difficulty_distribution?.easy || 0} M:{exam.difficulty_distribution?.medium || 0} H:{exam.difficulty_distribution?.hard || 0}
                                                             </span>
-                                                            {done && <span className="sd-badge sd-badge-ok">✓ Completed</span>}
+                                                            {done && <span className="sd-badge sd-badge-ok"> Completed</span>}
                                                         </div>
                                                     </div>
                                                     {done
-                                                        ? <button className="sd-done-btn" disabled>Submitted ✓</button>
+                                                        ? <button className="sd-done-btn" disabled>Submitted </button>
                                                         : <button className="sd-btn-start" onClick={() => handleStartExam(exam)}>Start Exam →</button>
                                                     }
                                                 </div>
@@ -674,7 +674,7 @@ export default function StudentDashboard() {
                         {/* ── CODING ROUND ── */}
                         {section === 'Coding Round' && !loading && (
                             <>
-                                <div className="sd-page-title">💻 Coding Round</div>
+                                <div className="sd-page-title"> Coding Round</div>
                                 <div className="sd-card" style={{ marginBottom: 20, borderLeft: `4px solid ${t.accent}` }}>
                                     <div className="sd-card-title">Coding Assessment</div>
                                     <p style={{ fontSize: 14, color: t.textMuted, marginBottom: 16, lineHeight: 1.6 }}>
@@ -682,7 +682,7 @@ export default function StudentDashboard() {
                                         It features real-time code execution, AI-powered proctoring, and behavioral telemetry.
                                     </p>
                                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
-                                        {['Python 3 🐍', 'JavaScript JS', 'Java ☕', 'C++ C++'].map(lang => (
+                                        {['Python 3 ', 'JavaScript JS', 'Java ', 'C++ C++'].map(lang => (
                                             <span key={lang} className="sd-meta-chip">{lang.split(' ')[0]}</span>
                                         ))}
                                     </div>
@@ -691,13 +691,13 @@ export default function StudentDashboard() {
                                     </button>
                                 </div>
                                 <div className="sd-card">
-                                    <div className="sd-card-title">ℹ️ About the Coding Round</div>
+                                    <div className="sd-card-title">ℹ About the Coding Round</div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                                         {[
-                                            ['🕒', 'Timed Problems', 'Each problem has a configurable time limit.'],
-                                            ['🧪', 'Test Cases', 'Your code is evaluated against hidden test cases.'],
-                                            ['🔒', 'Proctored', 'AI monitors your session for academic integrity.'],
-                                            ['📊', 'Instant Feedback', 'See test case results immediately after running.'],
+                                            ['', 'Timed Problems', 'Each problem has a configurable time limit.'],
+                                            ['', 'Test Cases', 'Your code is evaluated against hidden test cases.'],
+                                            ['', 'Proctored', 'AI monitors your session for academic integrity.'],
+                                            ['', 'Instant Feedback', 'See test case results immediately after running.'],
                                         ].map(([icon, title, desc]) => (
                                             <div key={title} style={{ display: 'flex', gap: 12, padding: '12px', background: t.surfaceAlt, borderRadius: 10 }}>
                                                 <span style={{ fontSize: 22 }}>{icon}</span>
@@ -720,14 +720,14 @@ export default function StudentDashboard() {
                         {/* ── AUTOCAD ASSESSMENTS (CIVIL ENGINEERING) ── */}
                         {section === 'AutoCAD Assessments' && !loading && (
                             <>
-                                <div className="sd-page-title">📐 AutoCAD / 2D Drawing Assessments</div>
+                                <div className="sd-page-title"> AutoCAD / 2D Drawing Assessments</div>
                                 <p style={{ color: t.textMuted, fontSize: 14, marginBottom: 24 }}>
                                     Civil Engineering 2D CAD drawing assessments assigned to your account.
                                 </p>
 
                                 {cadAssessments.length === 0 ? (
                                     <div className="sd-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
-                                        <div style={{ fontSize: 40, marginBottom: 12 }}>📐</div>
+                                        <div style={{ fontSize: 40, marginBottom: 12 }}></div>
                                         <h3 style={{ fontSize: 18, fontWeight: 700, color: t.text }}>No AutoCAD Assessments Assigned</h3>
                                         <p style={{ color: t.textMuted, fontSize: 14, marginTop: 8 }}>
                                             You currently have no published AutoCAD drawing assessments assigned to your profile.
@@ -741,13 +741,13 @@ export default function StudentDashboard() {
                                                 <div key={asm._id} className={`sd-exam-card ${done ? 'done' : ''}`}>
                                                     <div style={{ flex: 1 }}>
                                                         <div className="sd-exam-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                                            <span>📐 {asm.title}</span>
+                                                            <span> {asm.title}</span>
                                                             <span className="sd-badge" style={{ background: t.accent + '22', color: t.accent, border: `1px solid ${t.accent}44` }}>
                                                                 {asm.cad_level}
                                                             </span>
                                                             {done && (
                                                                 <span className="sd-badge" style={{ background: '#10b98122', color: '#10b981', border: '1px solid #10b98144' }}>
-                                                                    ✓ Submitted
+                                                                     Submitted
                                                                 </span>
                                                             )}
                                                         </div>
@@ -756,16 +756,16 @@ export default function StudentDashboard() {
                                                         </p>
                                                         <div className="sd-exam-meta">
                                                             <span className="sd-meta-chip">⏱ {asm.duration} minutes</span>
-                                                            <span className="sd-meta-chip">📝 {asm.total_questions || 0} questions</span>
-                                                            <span className="sd-meta-chip">🏷️ {asm.category || 'Civil Assessments'}</span>
+                                                            <span className="sd-meta-chip"> {asm.total_questions || 0} questions</span>
+                                                            <span className="sd-meta-chip"> {asm.category || 'Civil Assessments'}</span>
                                                             {done && asm.submittedAt && (
-                                                                <span className="sd-meta-chip">📅 Submitted {new Date(asm.submittedAt).toLocaleDateString()}</span>
+                                                                <span className="sd-meta-chip"> Submitted {new Date(asm.submittedAt).toLocaleDateString()}</span>
                                                             )}
                                                         </div>
                                                     </div>
                                                     {done ? (
                                                         <button className="sd-btn-start" disabled style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', cursor: 'default' }}>
-                                                            Submitted ✓
+                                                            Submitted 
                                                         </button>
                                                     ) : (
                                                         <button className="sd-btn-start" onClick={() => setActiveCadModal(asm)}>
@@ -783,10 +783,10 @@ export default function StudentDashboard() {
                         {/* ── TECHNICAL INTERVIEW ── */}
                         {section === 'Technical Interview' && !loading && (
                             <>
-                                <div className="sd-page-title">🎙️ Technical Interview</div>
+                                <div className="sd-page-title"> Technical Interview</div>
                                 {interviews.length === 0 ? (
                                     <div className="sd-empty">
-                                        <div className="sd-empty-icon">🗣️</div>
+                                        <div className="sd-empty-icon"></div>
                                         <p>No technical interviews assigned yet.</p>
                                     </div>
                                 ) : (
@@ -799,19 +799,19 @@ export default function StudentDashboard() {
                                                         <div className="sd-exam-title">{interview.title}</div>
                                                         <div className="sd-exam-meta">
                                                             <span className="sd-meta-chip">Type: {interview.type || 'Auto'}</span>
-                                                            {interview.date && <span className="sd-meta-chip">📅 {interview.date} {interview.time}</span>}
+                                                            {interview.date && <span className="sd-meta-chip"> {interview.date} {interview.time}</span>}
                                                             {interview.type !== 'Manual' && <span className="sd-meta-chip">{interview.numQuestions} questions</span>}
                                                             <span className="sd-meta-chip">Roles: {Array.isArray(interview.roles) ? interview.roles.join(', ') : interview.roles}</span>
-                                                            {done && <span className="sd-badge sd-badge-ok">✓ Completed</span>}
+                                                            {done && <span className="sd-badge sd-badge-ok"> Completed</span>}
                                                         </div>
                                                     </div>
                                                     {interview.type === 'Manual' ? (
                                                         done
-                                                            ? <button className="sd-done-btn" disabled>Completed ✓</button>
-                                                            : <a href={interview.meetLink} target="_blank" rel="noreferrer" className="sd-btn-start" style={{ textDecoration: 'none', display: 'inline-block' }}>Join GMeet 📹</a>
+                                                            ? <button className="sd-done-btn" disabled>Completed </button>
+                                                            : <a href={interview.meetLink} target="_blank" rel="noreferrer" className="sd-btn-start" style={{ textDecoration: 'none', display: 'inline-block' }}>Join GMeet </a>
                                                     ) : (
                                                         done 
-                                                            ? <button className="sd-done-btn" disabled>Completed ✓</button>
+                                                            ? <button className="sd-done-btn" disabled>Completed </button>
                                                             : <button className="sd-btn-start" onClick={() => navigate(`/student/interview/${interview._id}`, { state: { roles: interview.roles } })}>Start Interview →</button>
                                                     )}
                                                 </div>
@@ -828,7 +828,7 @@ export default function StudentDashboard() {
                                 <div className="sd-page-title">My Results</div>
                                 {results.length === 0 ? (
                                     <div className="sd-empty">
-                                        <div className="sd-empty-icon">📊</div>
+                                        <div className="sd-empty-icon"></div>
                                         <p>No results yet. Complete an exam to see your scores here.</p>
                                     </div>
                                 ) : (
@@ -873,15 +873,15 @@ export default function StudentDashboard() {
                                         {studentName.charAt(0).toUpperCase()}
                                     </div>
                                     <div className="sd-profile-grid">
-                                        <ProfileRow label="Full Name"       value={profile?.name          || studentName}  />
-                                        <ProfileRow label="Email"           value={profile?.email         || studentEmail} />
-                                        <ProfileRow label="Roll No"         value={profile?.rollno}           />
-                                        <ProfileRow label="Gender"          value={profile?.gender}           />
-                                        <ProfileRow label="Age"             value={profile?.age}              />
-                                        <ProfileRow label="Phone"           value={profile?.phone_number}     />
-                                        <ProfileRow label="Department"      value={profile?.department}       />
-                                        <ProfileRow label="Year of Study"   value={profile?.year_of_study}    />
-                                        <ProfileRow label="College"         value={profile?.college}          />
+                                        <ProfileRow label="Full Name" value={profile?.name || studentName} />
+                                        <ProfileRow label="Email" value={profile?.email || studentEmail} />
+                                        <ProfileRow label="Roll No" value={profile?.rollno} />
+                                        <ProfileRow label="Gender" value={profile?.gender} />
+                                        <ProfileRow label="Age" value={profile?.age} />
+                                        <ProfileRow label="Phone" value={profile?.phone_number} />
+                                        <ProfileRow label="Department" value={profile?.department} />
+                                        <ProfileRow label="Year of Study" value={profile?.year_of_study} />
+                                        <ProfileRow label="College" value={profile?.college} />
                                     </div>
                                 </div>
                             </>
@@ -896,13 +896,13 @@ export default function StudentDashboard() {
                                                 {activeCadModal.cad_level}
                                             </span>
                                             <h3 style={{ fontSize: 20, fontWeight: 800, color: t.text, margin: 0 }}>
-                                                📐 {activeCadModal.title}
+                                                 {activeCadModal.title}
                                             </h3>
                                             <p style={{ fontSize: 13, color: t.textMuted, marginTop: 4 }}>
                                                 {activeCadModal.category || 'Civil Engineering Assessments'} • Duration: {activeCadModal.duration} Mins
                                             </p>
                                         </div>
-                                        <button className="sd-modal-close" onClick={() => setActiveCadModal(null)}>✕</button>
+                                        <button className="sd-modal-close" onClick={() => setActiveCadModal(null)}></button>
                                     </div>
 
                                     <div style={{ background: t.surfaceAlt, border: `1px solid ${t.border}`, borderRadius: 10, padding: 14, marginBottom: 20, fontSize: 13.5, color: t.text }}>
@@ -913,11 +913,11 @@ export default function StudentDashboard() {
                                     </div>
 
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(5,150,105,0.1)', border: '1px solid rgba(5,150,105,0.3)', borderRadius: 8, color: '#059669', fontSize: 13, fontWeight: 600, marginBottom: 20 }}>
-                                        <span>🔒 AI Proctoring & Monitoring System Initialized</span>
+                                        <span> AI Proctoring & Monitoring System Initialized</span>
                                     </div>
 
                                     <div style={{ border: `1px solid ${t.border}`, borderRadius: 14, padding: '24px 20px', textAlign: 'center', background: t.bg }}>
-                                        <div style={{ fontSize: 36, marginBottom: 10 }}>📐</div>
+                                        <div style={{ fontSize: 36, marginBottom: 10 }}></div>
                                         <h4 style={{ fontSize: 16, fontWeight: 700, color: t.text, margin: 0 }}>
                                             2D CAD Drafting Environment
                                         </h4>

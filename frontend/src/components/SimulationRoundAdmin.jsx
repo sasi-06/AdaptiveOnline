@@ -3,16 +3,16 @@
  * Standalone Admin Hub for Circuit Exam Management & Assignment.
  * 
  * Features:
- *   1. Assign Circuit Exam: Select circuit questions + target students (with dept filter).
- *   2. Circuit Question Bank: Create, edit, and configure circuit questions.
- *   3. Submissions & ML Results: View all student submissions, ML neural net scores, verdicts & feedback.
+ * 1. Assign Circuit Exam: Select circuit questions + target students (with dept filter).
+ * 2. Circuit Question Bank: Create, edit, and configure circuit questions.
+ * 3. Submissions & ML Results: View all student submissions, ML neural net scores, verdicts & feedback.
  */
 
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import EvaluationPanel from './circuit/EvaluationPanel';
-import CircuitBoard    from './circuit/CircuitBoard';
-import { COMP_DEFS }   from './circuit/constants';
+import CircuitBoard from './circuit/CircuitBoard';
+import { COMP_DEFS } from './circuit/constants';
 import {
     getCircuitQuestions,
     createCircuitQuestion,
@@ -32,27 +32,27 @@ const PALETTE_OPTIONS = [
 const BEHAVIOR_TYPES = ['gain_check','voltage_divider','rlc_analysis','led_circuit'];
 
 const DIFFICULTY_COLORS = { easy: '#22c55e', medium: '#f59e0b', hard: '#ef4444' };
-const VERDICT_COLORS    = { correct: '#22c55e', partially_correct: '#f59e0b', incorrect: '#ef4444' };
+const VERDICT_COLORS = { correct: '#22c55e', partially_correct: '#f59e0b', incorrect: '#ef4444' };
 
 export default function SimulationRoundAdmin({ examId, students = [], flash }) {
     const { theme: t } = useTheme();
-    const [tab,          setTab]          = useState('assign');  // 'assign' | 'questions' | 'submissions'
-    const [selectedSub,  setSelectedSub]  = useState(null);
-    const [modalTab,     setModalTab]     = useState('eval');     // 'eval' | 'netlist' | 'spec'
-    const [questions,    setQuestions]    = useState([]);
-    const [submissions,  setSubmissions]  = useState([]);
-    const [loading,      setLoading]      = useState(false);
-    const [showForm,     setShowForm]     = useState(false);
-    const [editQ,        setEditQ]        = useState(null);
-    const [msg,          setMsg]          = useState('');
+    const [tab, setTab] = useState('assign'); // 'assign' | 'questions' | 'submissions'
+    const [selectedSub, setSelectedSub] = useState(null);
+    const [modalTab, setModalTab] = useState('eval'); // 'eval' | 'netlist' | 'spec'
+    const [questions, setQuestions] = useState([]);
+    const [submissions, setSubmissions] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [showForm, setShowForm] = useState(false);
+    const [editQ, setEditQ] = useState(null);
+    const [msg, setMsg] = useState('');
 
     // ── Circuit Assignment States ──
     const [selectedQuestionId, setSelectedQuestionId] = useState('');
-    const [deptFilter,         setDeptFilter]         = useState('ALL');
+    const [deptFilter, setDeptFilter] = useState('ALL');
     const [selectedStudentIds, setSelectedStudentIds] = useState([]);
-    const [assigning,          setAssigning]          = useState(false);
-    const [retrainStatus,      setRetrainStatus]      = useState(null); // null | 'training' | 'done' | 'error'
-    const [modelStats,         setModelStats]         = useState(null);
+    const [assigning, setAssigning] = useState(false);
+    const [retrainStatus, setRetrainStatus] = useState(null); // null | 'training' | 'done' | 'error'
+    const [modelStats, setModelStats] = useState(null);
 
     // Load model stats on mount
     useEffect(() => {
@@ -157,7 +157,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
 
     // ── Question CRUD ──
     const openCreate = () => { setEditQ(null); setForm(emptyForm); setShowForm(true); };
-    const openEdit   = (q) => {
+    const openEdit = (q) => {
         setEditQ(q);
         setForm({
             title: q.title, description: q.description, topic: q.topic,
@@ -174,10 +174,10 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
             setLoading(true);
             if (editQ) {
                 await updateCircuitQuestion(editQ._id, form);
-                showMsg('Circuit Question updated ✓');
+                showMsg('Circuit Question updated ');
             } else {
                 await createCircuitQuestion(form);
-                showMsg('Circuit Question created ✓');
+                showMsg('Circuit Question created ');
             }
             setShowForm(false);
             loadQuestions();
@@ -190,7 +190,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
         if (!window.confirm('Delete this circuit question?')) return;
         try {
             await deleteCircuitQuestion(id);
-            showMsg('Circuit Question deleted ✓');
+            showMsg('Circuit Question deleted ');
             loadQuestions();
         } catch (err) {
             showMsg('Delete failed: ' + err.message, true);
@@ -212,27 +212,27 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
         <div>
             {/* Header with Navigation Tabs */}
             <div className="ad-page-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-                <span>⚡ Circuit Design Exam Manager</span>
+                <span> Circuit Design Exam Manager</span>
                 <div style={{ display: 'flex', gap: 10 }}>
                     <TabBtn active={tab === 'assign'} onClick={() => setTab('assign')}>
-                        📋 Assign Circuit Exam
+                         Assign Circuit Exam
                     </TabBtn>
                     <TabBtn active={tab === 'questions'} onClick={() => setTab('questions')}>
-                        ⚡ Question Bank ({questions.length})
+                         Question Bank ({questions.length})
                     </TabBtn>
                     <TabBtn active={tab === 'submissions'} onClick={() => { setTab('submissions'); loadAllSubmissions(); }}>
-                        📊 Submissions & Results ({submissions.length})
+                         Submissions & Results ({submissions.length})
                     </TabBtn>
                 </div>
             </div>
 
-            {msg && <div style={s.msg} onClick={() => setMsg('')}>{msg} ✕</div>}
+            {msg && <div style={s.msg} onClick={() => setMsg('')}>{msg} </div>}
 
             {/* ── TAB 1: ASSIGN CIRCUIT EXAM TO STUDENTS ──────────────── */}
             {tab === 'assign' && (
                 <div className="ad-card" style={{ padding: '24px' }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: t.text, marginBottom: 6 }}>
-                        🎯 Assign Circuit Exam to Students
+                         Assign Circuit Exam to Students
                     </div>
                     <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 20 }}>
                         Select a circuit design problem from the Question Bank, filter students by department, and assign the test.
@@ -260,7 +260,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                             </select>
                             {questions.length === 0 && (
                                 <div style={{ fontSize: 12, color: '#ef4444', marginTop: 4 }}>
-                                    ⚠️ No circuit questions found. Please create one in the Question Bank tab first.
+                                     No circuit questions found. Please create one in the Question Bank tab first.
                                 </div>
                             )}
                         </div>
@@ -368,7 +368,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                     display: 'flex', alignItems: 'center', gap: 8
                                 }}
                             >
-                                {assigning ? 'Assigning Circuit Exam…' : `⚡ Assign Circuit Exam to ${selectedStudentIds.length} Student(s)`}
+                                {assigning ? 'Assigning Circuit Exam…' : ` Assign Circuit Exam to ${selectedStudentIds.length} Student(s)`}
                             </button>
                         </div>
                     </form>
@@ -394,12 +394,12 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                             <span style={{ ...s.diffBadge, color: DIFFICULTY_COLORS[q.difficulty] }}>
                                                 {q.difficulty}
                                             </span>
-                                            <span style={s.topicTag}>📐 {q.topic}</span>
+                                            <span style={s.topicTag}> {q.topic}</span>
                                         </div>
                                     </div>
                                     <div style={{ display: 'flex', gap: 6 }}>
-                                        <IconBtn icon="✏️" title="Edit"   onClick={() => openEdit(q)} />
-                                        <IconBtn icon="🗑"  title="Delete" danger onClick={() => handleDelete(q._id)} />
+                                        <IconBtn icon="" title="Edit" onClick={() => openEdit(q)} />
+                                        <IconBtn icon="" title="Delete" danger onClick={() => handleDelete(q._id)} />
                                     </div>
                                 </div>
                                 <p style={s.qDesc}>{q.description?.slice(0, 120)}…</p>
@@ -426,13 +426,13 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                 <div className="ad-card" style={{ padding: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
                         <span style={{ fontSize: 14, fontWeight: 700, color: t.text }}>
-                            🧠 Student Submissions & ML Evaluation Analytics
+                             Student Submissions & ML Evaluation Analytics
                         </span>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                             {/* Model Stats Badge */}
                             {modelStats?.loaded && (
                                 <div style={{ fontSize: 11, color: t.textMuted, padding: '4px 10px', background: t.surfaceAlt || '#f1f5f9', borderRadius: 6, border: `1px solid ${t.border}` }}>
-                                    🤖 Model: R²={modelStats.r2} · MAE={modelStats.mae} · {modelStats.n_features || 25} features
+                                     Model: R²={modelStats.r2} · MAE={modelStats.mae} · {modelStats.n_features || 25} features
                                 </div>
                             )}
                             {/* Retrain Button */}
@@ -448,17 +448,17 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                         const data = await res.json();
                                         if (res.ok) {
                                             setRetrainStatus('done');
-                                            showMsg('✅ Model retrained successfully! Refresh to see updated stats.');
+                                            showMsg(' Model retrained successfully! Refresh to see updated stats.');
                                             // Reload model stats
                                             fetch((import.meta.env.VITE_ML_URL || 'http://127.0.0.1:8001') + '/circuit-model-stats')
                                                 .then(r => r.json()).then(d => setModelStats(d)).catch(() => {});
                                         } else {
                                             setRetrainStatus('error');
-                                            showMsg('❌ Retrain failed: ' + (data.detail || 'Unknown error'), true);
+                                            showMsg(' Retrain failed: ' + (data.detail || 'Unknown error'), true);
                                         }
                                     } catch (e) {
                                         setRetrainStatus('error');
-                                        showMsg('❌ ML service unreachable: ' + e.message, true);
+                                        showMsg(' ML service unreachable: ' + e.message, true);
                                     }
                                     setTimeout(() => setRetrainStatus(null), 5000);
                                 }}
@@ -475,13 +475,13 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                     fontWeight: 700
                                 }}
                             >
-                                {retrainStatus === 'training' ? '⏳ Training…' : retrainStatus === 'done' ? '✅ Retrained!' : '🔄 Retrain AI Model'}
+                                {retrainStatus === 'training' ? '⏳ Training…' : retrainStatus === 'done' ? ' Retrained!' : ' Retrain AI Model'}
                             </button>
                             <button
                                 onClick={loadAllSubmissions}
                                 style={{ padding: '5px 12px', fontSize: 12, background: t.surfaceAlt || 'rgba(255,255,255,0.05)', border: `1px solid ${t.border}`, color: t.text, borderRadius: 6, cursor: 'pointer' }}
                             >
-                                🔃 Refresh
+                                 Refresh
                             </button>
                         </div>
                     </div>
@@ -550,7 +550,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                                     gap: 4
                                                 }}
                                             >
-                                                👁️ View Evaluation
+                                                 View Evaluation
                                             </button>
                                         ) : (
                                             <span style={{ fontSize: 11, color: t.textMuted }}>No eval yet</span>
@@ -576,13 +576,13 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                         <div style={s.modalHeader}>
                             <div>
                                 <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: t.isDark ? '#f8fafc' : '#0f172a', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    {editQ ? '✏️ Edit Circuit Question' : '＋ New Circuit Question'}
+                                    {editQ ? ' Edit Circuit Question' : '＋ New Circuit Question'}
                                 </h3>
                                 <div style={{ fontSize: 12, color: t.isDark ? '#94a3b8' : '#64748b', marginTop: 3 }}>
                                     Configure simulation constraints, component palette & evaluation targets
                                 </div>
                             </div>
-                            <button style={s.closeBtn} onClick={() => setShowForm(false)}>✕</button>
+                            <button style={s.closeBtn} onClick={() => setShowForm(false)}></button>
                         </div>
 
                         <div style={s.modalBody}>
@@ -662,7 +662,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                                     border: isChecked ? 'none' : `1.5px solid ${t.isDark ? 'rgba(255,255,255,0.25)' : '#cbd5e1'}`,
                                                     color: '#fff', fontSize: 10, fontWeight: 900, flexShrink: 0
                                                 }}>
-                                                    {isChecked && '✓'}
+                                                    {isChecked && ''}
                                                 </div>
                                                 <span style={{ textTransform: 'capitalize', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                     {label}
@@ -684,7 +684,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                 gap: 12
                             }}>
                                 <div style={{ fontSize: 12, fontWeight: 800, color: t.isDark ? '#c4b5fd' : '#6d28d9', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    🎯 EVALUATION TARGET SPECIFICATIONS
+                                     EVALUATION TARGET SPECIFICATIONS
                                 </div>
 
                                 <Field label="Evaluation Type">
@@ -779,7 +779,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                         }}>
                             <div>
                                 <h3 style={{ margin: 0, fontSize: 16, color: t.text || '#0f172a', fontWeight: 700 }}>
-                                    🧠 AI Evaluation Report & Circuit Inspection — <span style={{ color: t.accent || '#6c63ff' }}>{selectedSub.student_id?.name || 'Student'}</span>
+                                     AI Evaluation Report & Circuit Inspection — <span style={{ color: t.accent || '#6c63ff' }}>{selectedSub.student_id?.name || 'Student'}</span>
                                 </h3>
                                 <div style={{ fontSize: 12, color: t.textMuted || '#64748b', marginTop: 4 }}>
                                     Question: <strong style={{ color: t.text || '#0f172a' }}>{selectedSub.question_id?.title || 'Circuit Test'}</strong> | Submitted: {selectedSub.submitted_at ? new Date(selectedSub.submitted_at).toLocaleString() : 'N/A'}
@@ -807,7 +807,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                         boxShadow: '0 3px 10px rgba(108,99,255,0.35)', display: 'flex', alignItems: 'center', gap: 6
                                     }}
                                 >
-                                    📄 Export PDF Report
+                                     Export PDF Report
                                 </button>
                                 <button
                                     onClick={() => {
@@ -821,14 +821,14 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                         color: t.text || '#0f172a', fontSize: 12, fontWeight: 600, fontFamily: 'Outfit, sans-serif'
                                     }}
                                 >
-                                    🖼️ Download PNG
+                                     Download PNG
                                 </button>
                                 <button style={{
                                     ...s.closeBtn,
                                     background: t.surfaceAlt || '#f1f5f9',
                                     border: `1px solid ${t.border || '#e2e8f0'}`,
                                     color: t.textMuted || '#64748b'
-                                }} onClick={() => setSelectedSub(null)}>✕</button>
+                                }} onClick={() => setSelectedSub(null)}></button>
                             </div>
                         </div>
 
@@ -836,7 +836,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                             {/* Left: Student's Drawn Circuit Canvas */}
                             <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', background: '#0d0f1a', borderRadius: 12, overflow: 'hidden', border: `1px solid ${t.border || '#e2e8f0'}` }}>
                                 <div style={{ padding: '10px 14px', background: t.surfaceAlt || '#f8fafc', fontSize: 12, fontWeight: 700, color: t.text || '#0f172a', borderBottom: `1px solid ${t.border || '#e2e8f0'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-                                    <span>📐 Submitted Circuit Design</span>
+                                    <span> Submitted Circuit Design</span>
                                     <span style={{ fontSize: 11, color: t.textMuted || '#64748b', fontWeight: 400 }}>Read-Only Mode</span>
                                 </div>
                                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, position: 'relative' }}>
@@ -861,7 +861,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                             color: modalTab === 'eval' ? '#ffffff' : (t.textMuted || '#64748b')
                                         }}
                                     >
-                                        📊 AI Evaluation
+                                         AI Evaluation
                                     </button>
                                     <button
                                         onClick={() => setModalTab('netlist')}
@@ -871,7 +871,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                             color: modalTab === 'netlist' ? '#ffffff' : (t.textMuted || '#64748b')
                                         }}
                                     >
-                                        📋 Netlist & BOM
+                                         Netlist & BOM
                                     </button>
                                     <button
                                         onClick={() => setModalTab('spec')}
@@ -881,7 +881,7 @@ export default function SimulationRoundAdmin({ examId, students = [], flash }) {
                                             color: modalTab === 'spec' ? '#ffffff' : (t.textMuted || '#64748b')
                                         }}
                                     >
-                                        🎯 Spec Verification
+                                         Spec Verification
                                     </button>
                                 </div>
 
@@ -927,8 +927,8 @@ function TabBtn({ active, onClick, children }) {
             borderRadius: 8,
             border: '1px solid',
             borderColor: active ? '#6c63ff' : 'rgba(255,255,255,0.1)',
-            background:  active ? 'rgba(108,99,255,0.2)' : 'rgba(255,255,255,0.03)',
-            color:       active ? '#a78bfa' : '#6b7280',
+            background: active ? 'rgba(108,99,255,0.2)' : 'rgba(255,255,255,0.03)',
+            color: active ? '#a78bfa' : '#6b7280',
             fontSize: 13, fontWeight: 700,
             cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
             transition: 'all 0.15s'
@@ -1097,7 +1097,7 @@ function NetlistAuditTab({ submission, t }) {
 
     const nets = connections.map((conn, idx) => {
         const fromStr = `${conn.from?.comp_id}:${conn.from?.pin}`;
-        const toStr   = `${conn.to?.comp_id}:${conn.to?.pin}`;
+        const toStr = `${conn.to?.comp_id}:${conn.to?.pin}`;
         return { id: conn.id || `net-${idx+1}`, label: `Net #${idx+1}`, from: fromStr, to: toStr };
     });
 
@@ -1108,7 +1108,7 @@ function NetlistAuditTab({ submission, t }) {
             {/* Bill of Materials */}
             <div style={{ background: t?.surfaceAlt || '#f8fafc', borderRadius: 10, padding: 14, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: t?.text || '#0f172a', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
-                    <span>📦 Bill of Materials (Component Inventory)</span>
+                    <span> Bill of Materials (Component Inventory)</span>
                     <span style={{ fontSize: 11, color: t?.accent || '#6c63ff', fontWeight: 600 }}>{components.length} Placed</span>
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
@@ -1142,7 +1142,7 @@ function NetlistAuditTab({ submission, t }) {
             {/* Electrical Netlist */}
             <div style={{ background: t?.surfaceAlt || '#f8fafc', borderRadius: 10, padding: 14, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: t?.text || '#0f172a', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
-                    <span>⚡ Wiring Netlist ({nets.length} Wires)</span>
+                    <span> Wiring Netlist ({nets.length} Wires)</span>
                     <span style={{ fontSize: 11, color: '#16a34a', fontWeight: 600 }}>Active Nets</span>
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
@@ -1159,7 +1159,7 @@ function NetlistAuditTab({ submission, t }) {
                             <tr key={net.id} style={{ borderBottom: `1px solid ${t?.border || '#f1f5f9'}` }}>
                                 <td style={{ padding: '8px', fontWeight: 700, color: t?.accent || '#6c63ff' }}>{net.label}</td>
                                 <td style={{ padding: '8px', color: t?.text || '#0f172a' }}><code style={{ color: isDark ? '#a78bfa' : '#6d28d9' }}>{net.from}</code></td>
-                                <td style={{ padding: '8px', color: t?.accent || '#6c63ff' }}>➔</td>
+                                <td style={{ padding: '8px', color: t?.accent || '#6c63ff' }}></td>
                                 <td style={{ padding: '8px', color: t?.text || '#0f172a' }}><code style={{ color: isDark ? '#38bdf8' : '#0284c7' }}>{net.to}</code></td>
                             </tr>
                         ))}
@@ -1200,7 +1200,7 @@ function SpecVerificationTab({ submission, t }) {
             {/* Target vs Measured Spec Grid */}
             <div style={{ background: t?.surfaceAlt || '#f8fafc', borderRadius: 10, padding: 14, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: t?.text || '#0f172a', marginBottom: 12 }}>
-                    🎯 Specification Comparison
+                     Specification Comparison
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                     <div style={{ background: isDark ? 'rgba(108,99,255,0.12)' : '#f3e8ff', padding: 10, borderRadius: 8, textAlign: 'center', border: `1px solid ${isDark ? 'rgba(108,99,255,0.25)' : '#e9d5ff'}` }}>
@@ -1218,7 +1218,7 @@ function SpecVerificationTab({ submission, t }) {
                     <div style={{ background: isPass ? (isDark ? 'rgba(34,197,94,0.12)' : '#dcfce7') : (isDark ? 'rgba(239,68,68,0.12)' : '#fee2e2'), padding: 10, borderRadius: 8, textAlign: 'center', border: `1px solid ${isPass ? (isDark ? 'rgba(34,197,94,0.3)' : '#86efac') : (isDark ? 'rgba(239,68,68,0.3)' : '#fca5a5')}` }}>
                         <div style={{ fontSize: 11, color: t?.textMuted || '#64748b', fontWeight: 600 }}>Tolerance Outcome</div>
                         <div style={{ fontSize: 14, fontWeight: 800, color: isPass ? (isDark ? '#4ade80' : '#15803d') : (isDark ? '#f87171' : '#b91c1c'), marginTop: 4 }}>
-                            {isPass ? '🟢 PASS' : '🔴 FAIL'} ({errorFrac !== null ? `${errorFrac.toFixed(2)}% err` : 'Out of tol'})
+                            {isPass ? ' PASS' : ' FAIL'} ({errorFrac !== null ? `${errorFrac.toFixed(2)}% err` : 'Out of tol'})
                         </div>
                     </div>
                 </div>
@@ -1227,35 +1227,35 @@ function SpecVerificationTab({ submission, t }) {
             {/* DRC Checklist */}
             <div style={{ background: t?.surfaceAlt || '#f8fafc', borderRadius: 10, padding: 14, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: t?.text || '#0f172a', marginBottom: 10 }}>
-                    🛡️ Design Rule Checks (DRC Checklist) & SPICE Compliance
+                     Design Rule Checks (DRC Checklist) & SPICE Compliance
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: t?.surface || '#ffffff', borderRadius: 6, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
-                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}>⚡ 0V Ground Reference Symbol</span>
+                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}> 0V Ground Reference Symbol</span>
                         <span style={{ fontWeight: 700, color: hasGnd ? (isDark ? '#4ade80' : '#15803d') : (isDark ? '#f87171' : '#dc2626') }}>
-                            {hasGnd ? '🟢 Present' : '🔴 Missing'}
+                            {hasGnd ? ' Present' : ' Missing'}
                         </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: t?.surface || '#ffffff', borderRadius: 6, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
-                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}>💥 Short Circuit Prevention</span>
+                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}> Short Circuit Prevention</span>
                         <span style={{ fontWeight: 700, color: issues.some(i => i?.type === 'short_circuit') ? (isDark ? '#f87171' : '#dc2626') : (isDark ? '#4ade80' : '#15803d') }}>
-                            {issues.some(i => i?.type === 'short_circuit') ? '🔴 Short Circuit Detected' : '🟢 0 Shorts'}
+                            {issues.some(i => i?.type === 'short_circuit') ? ' Short Circuit Detected' : ' 0 Shorts'}
                         </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: t?.surface || '#ffffff', borderRadius: 6, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
-                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}>📍 Floating Pin Audit</span>
+                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}> Floating Pin Audit</span>
                         <span style={{ fontWeight: 700, color: issues.some(i => i?.type === 'floating_pin') ? (isDark ? '#fbbf24' : '#d97706') : (isDark ? '#4ade80' : '#15803d') }}>
-                            {issues.some(i => i?.type === 'floating_pin') ? '⚠️ Floating Pins Found' : '🟢 Fully Wired'}
+                            {issues.some(i => i?.type === 'floating_pin') ? ' Floating Pins Found' : ' Fully Wired'}
                         </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: t?.surface || '#ffffff', borderRadius: 6, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
-                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}>🔥 Thermal Safety Margin (&lt;250mW Limit)</span>
+                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}> Thermal Safety Margin (&lt;250mW Limit)</span>
                         <span style={{ fontWeight: 700, color: sim.thermal_warnings?.length > 0 ? (isDark ? '#f87171' : '#dc2626') : (isDark ? '#4ade80' : '#15803d') }}>
-                            {sim.thermal_warnings?.length > 0 ? `⚠️ ${sim.thermal_warnings.length} Overload` : '🟢 Thermal Safe'}
+                            {sim.thermal_warnings?.length > 0 ? ` ${sim.thermal_warnings.length} Overload` : ' Thermal Safe'}
                         </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: t?.surface || '#ffffff', borderRadius: 6, border: `1px solid ${t?.border || '#e2e8f0'}` }}>
-                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}>📊 EE Overall Grade</span>
+                        <span style={{ color: t?.text || '#1e293b', fontWeight: 500 }}> EE Overall Grade</span>
                         <span style={{ fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: '#6c63ff', color: '#fff' }}>
                             Grade {sim.ee_grade || (isPass ? 'A+' : 'C')}
                         </span>

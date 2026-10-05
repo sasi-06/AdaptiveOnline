@@ -87,7 +87,7 @@ export default function BehaviorTimeline({ logs }) {
                                 {log.snapshot && (
                                     <div className="tl-snapshot-proof" style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                         <div style={{ fontSize: '11.5px', fontWeight: 700, color: t.textSub, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            📸 Visual Proof Snapshot:
+                                             Visual Proof Snapshot:
                                         </div>
                                         <img 
                                             src={log.snapshot} 

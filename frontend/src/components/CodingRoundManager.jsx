@@ -25,10 +25,10 @@ export default function CodingRoundManager({ theme: t, students, flash }) {
         starterCode: {
             python: '# Write your solution here\n',
             javascript: '// Write your solution here\n',
-            java: 'public class Main {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}\n',
-            cpp: '#include <iostream>\nusing namespace std;\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
-            verilog: '// Verilog HDL Module\nmodule hardware_module(\n    input wire clk,\n    input wire reset,\n    output reg [3:0] out\n);\nendmodule\n',
-            c_embedded: '// Embedded C Source\n#include <stdint.h>\nint main(void) {\n    return 0;\n}\n'
+            java: 'public class Main {\n public static void main(String[] args) {\n // Write your solution here\n }\n}\n',
+            cpp: '#include <iostream>\nusing namespace std;\nint main() {\n // Write your solution here\n return 0;\n}\n',
+            verilog: '// Verilog HDL Module\nmodule hardware_module(\n input wire clk,\n input wire reset,\n output reg [3:0] out\n);\nendmodule\n',
+            c_embedded: '// Embedded C Source\n#include <stdint.h>\nint main(void) {\n return 0;\n}\n'
         },
         examples: [{ input: '', output: '', explanation: '' }],
         testCases: [{ input: '', expectedOutput: '', isHidden: false }]
@@ -91,8 +91,8 @@ export default function CodingRoundManager({ theme: t, students, flash }) {
                 languagesSupported: ['python', 'javascript', 'java', 'cpp'],
                 starterCode: {
                     python: '# Write your solution here\n', javascript: '// Write your solution here\n',
-                    java: 'public class Main {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}\n',
-                    cpp: '#include <iostream>\nusing namespace std;\nint main() {\n    // Write your solution here\n    return 0;\n}\n'
+                    java: 'public class Main {\n public static void main(String[] args) {\n // Write your solution here\n }\n}\n',
+                    cpp: '#include <iostream>\nusing namespace std;\nint main() {\n // Write your solution here\n return 0;\n}\n'
                 },
                 examples: [{ input: '', output: '', explanation: '' }],
                 testCases: [{ input: '', expectedOutput: '', isHidden: false }]
@@ -247,24 +247,24 @@ export default function CodingRoundManager({ theme: t, students, flash }) {
                     {/* Department & Domain Type Selectors */}
                     <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
                         <div style={{ flex: '1 1 200px' }}>
-                            <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: t.textSub, marginBottom: '6px' }}>🎯 Target Department Domain</div>
+                            <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: t.textSub, marginBottom: '6px' }}> Target Department Domain</div>
                             <select className="ad-select" value={qForm.department || 'ECE'} onChange={e=>setQForm({...qForm, department: e.target.value})} style={{ padding: '12px 16px', fontSize: '14px', width: '100%', fontWeight: 700 }}>
-                                <option value="ECE">⚡ ECE — Electronics & Communication</option>
-                                <option value="EEE">🔌 EEE — Electrical & Electronics</option>
-                                <option value="CSE">💻 CSE — Computer Science</option>
-                                <option value="IT">🌐 IT — Information Technology</option>
-                                <option value="General">📘 General — All Departments</option>
+                                <option value="ECE"> ECE — Electronics & Communication</option>
+                                <option value="EEE"> EEE — Electrical & Electronics</option>
+                                <option value="CSE"> CSE — Computer Science</option>
+                                <option value="IT"> IT — Information Technology</option>
+                                <option value="General"> General — All Departments</option>
                             </select>
                         </div>
                         <div style={{ flex: '1 1 200px' }}>
-                            <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: t.textSub, marginBottom: '6px' }}>🧠 Question Domain Type</div>
+                            <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: t.textSub, marginBottom: '6px' }}> Question Domain Type</div>
                             <select className="ad-select" value={qForm.domain_type || 'embedded_c'} onChange={e=>setQForm({...qForm, domain_type: e.target.value})} style={{ padding: '12px 16px', fontSize: '14px', width: '100%', fontWeight: 700 }}>
-                                <option value="embedded_c">🔌 Embedded C Microcontroller (ECE/EEE)</option>
-                                <option value="verilog">⚡ Verilog HDL Digital Logic (ECE)</option>
-                                <option value="dsp">📡 Digital Signal Processing (ECE)</option>
-                                <option value="control_systems">⚙️ Control Systems & Power (EEE)</option>
-                                <option value="hardware_image_analysis">📷 Hardware Image Analysis (ECE)</option>
-                                <option value="software">💻 General Software Algorithm (CSE/IT)</option>
+                                <option value="embedded_c"> Embedded C Microcontroller (ECE/EEE)</option>
+                                <option value="verilog"> Verilog HDL Digital Logic (ECE)</option>
+                                <option value="dsp"> Digital Signal Processing (ECE)</option>
+                                <option value="control_systems"> Control Systems & Power (EEE)</option>
+                                <option value="hardware_image_analysis"> Hardware Image Analysis (ECE)</option>
+                                <option value="software"> General Software Algorithm (CSE/IT)</option>
                             </select>
                         </div>
                     </div>
@@ -272,7 +272,7 @@ export default function CodingRoundManager({ theme: t, students, flash }) {
                     {/* Hardware Schematic / Image Input */}
                     <div>
                         <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: t.textSub, marginBottom: '6px' }}>
-                            📷 Hardware Schematic / PCB Image URL (ECE & EEE)
+                             Hardware Schematic / PCB Image URL (ECE & EEE)
                         </div>
                         <input 
                             className="ad-input" 
@@ -321,7 +321,7 @@ export default function CodingRoundManager({ theme: t, students, flash }) {
                                     }} style={{ fontFamily: 'monospace', fontSize: '12px' }} />
                                     <button type="button" className="ad-btn ad-btn-danger" onClick={() => {
                                         const newEx = [...qForm.examples]; newEx.splice(i, 1); setQForm({ ...qForm, examples: newEx });
-                                    }}>🗑</button>
+                                    }}></button>
                                 </div>
                             ))}
                         </div>

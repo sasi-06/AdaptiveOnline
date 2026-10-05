@@ -1,4 +1,11 @@
 const InterviewDefinition = require('../models/InterviewDefinition');
+const InterviewSession = require('../models/InterviewSession');
+const InterviewBehaviorLog = require('../models/InterviewBehaviorLog');
+const BehaviorLog = require('../models/BehaviorLog');
+const Alert = require('../models/Alert');
+const TelemetryLog = require('../models/TelemetryLog');
+const Result = require('../models/Result');
+const mongoose = require('mongoose');
 
 exports.createInterview = async (req, res) => {
     try {
@@ -33,8 +40,6 @@ exports.getInterviews = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-const mongoose = require('mongoose');
 
 exports.assignInterview = async (req, res) => {
     try {
@@ -75,7 +80,8 @@ exports.assignInterview = async (req, res) => {
 
 exports.deleteInterview = async (req, res) => {
     try {
-        const interview = await InterviewDefinition.findById(req.params.id);
+        const interviewId = req.params.id;
+        const interview = await InterviewDefinition.findById(interviewId);
         
         if (!interview) {
             return res.status(404).json({ message: 'Interview not found' });
@@ -85,15 +91,49 @@ exports.deleteInterview = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
+        const idListStr = [String(interviewId)];
+        const idListObj = mongoose.Types.ObjectId.isValid(interviewId) ? [new mongoose.Types.ObjectId(interviewId)] : [];
+        const idListAll = [...idListStr, ...idListObj];
+
+        // Find all InterviewSessions for this interview
+        const sessions = await InterviewSession.find({ interview: { $in: idListAll } }).select('_id');
+        const sessionIds = sessions.map(s => s._id);
+
+        // 1. Delete associated InterviewBehaviorLog documents
+        if (sessionIds.length > 0) {
+            await InterviewBehaviorLog.deleteMany({ session_id: { $in: sessionIds } });
+        }
+
+        // 2. Delete associated InterviewSessions (student sessions & AI reports)
+        await InterviewSession.deleteMany({ interview: { $in: idListAll } });
+
+        // 3. Delete associated proctoring behavior logs
+        await BehaviorLog.deleteMany({ exam_id: { $in: idListStr } });
+
+        // 4. Delete associated alerts
+        await Alert.deleteMany({ exam_id: { $in: idListStr } });
+
+        // 5. Delete associated telemetry logs
+        await TelemetryLog.deleteMany({
+            $or: [
+                { exam_id: { $in: idListStr } },
+                { assessment_id: { $in: idListStr } },
+                { assessmentId: { $in: idListStr } }
+            ]
+        });
+
+        // 6. Delete general results if any
+        await Result.deleteMany({ exam_id: { $in: idListStr } });
+
+        // 7. Delete the InterviewDefinition itself
         await interview.deleteOne();
-        res.status(200).json({ message: 'Interview removed' });
+
+        res.status(200).json({ message: 'Interview assessment and all corresponding student sessions, AI reports, and proctoring logs removed successfully' });
     } catch (error) {
-        console.error(error);
+        console.error('Error in deleteInterview:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-const InterviewSession = require('../models/InterviewSession');
 
 exports.getStudentInterviews = async (req, res) => {
     try {

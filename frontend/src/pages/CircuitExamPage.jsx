@@ -7,8 +7,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ComponentPalette from '../components/circuit/ComponentPalette';
-import CircuitBoard     from '../components/circuit/CircuitBoard';
-import EvaluationPanel  from '../components/circuit/EvaluationPanel';
+import CircuitBoard from '../components/circuit/CircuitBoard';
+import EvaluationPanel from '../components/circuit/EvaluationPanel';
 import {
     getCircuitQuestion,
     saveCircuitDraft,
@@ -21,23 +21,23 @@ export default function CircuitExamPage() {
     const navigate = useNavigate();
 
     const studentId = localStorage.getItem('studentId');
-    const userRole  = localStorage.getItem('role');
-    const isAdmin   = userRole === 'admin';
+    const userRole = localStorage.getItem('role');
+    const isAdmin = userRole === 'admin';
 
-    const [question,     setQuestion]     = useState(null);
-    const [submission,   setSubmission]   = useState(null);
-    const [components,   setComponents]   = useState([]);
-    const [connections,  setConnections]  = useState([]);
-    const [evaluation,   setEvaluation]   = useState(null);
-    const [submitting,   setSubmitting]   = useState(false);
-    const [saving,       setSaving]       = useState(false);
-    const [saveMsg,      setSaveMsg]      = useState('');
-    const [loading,      setLoading]      = useState(true);
-    const [error,        setError]        = useState('');
+    const [question, setQuestion] = useState(null);
+    const [submission, setSubmission] = useState(null);
+    const [components, setComponents] = useState([]);
+    const [connections, setConnections] = useState([]);
+    const [evaluation, setEvaluation] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [saveMsg, setSaveMsg] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [highlightedComps, setHighlightedComps] = useState([]);
-    const [hintOpen,     setHintOpen]     = useState(false);
+    const [hintOpen, setHintOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(document.fullscreenElement !== null);
-    const [alertMsg,     setAlertMsg]     = useState('');
+    const [alertMsg, setAlertMsg] = useState('');
 
     // ── Fullscreen enforcement ──────────────────────────────────────────────
     const enterFullscreen = useCallback(() => {
@@ -55,7 +55,7 @@ export default function CircuitExamPage() {
             const inFs = !!document.fullscreenElement;
             setIsFullscreen(inFs);
             if (!inFs && !isAdmin) {
-                setAlertMsg('🚨 You exited fullscreen mode! Please return to fullscreen immediately.');
+                setAlertMsg(' You exited fullscreen mode! Please return to fullscreen immediately.');
             }
         };
 
@@ -110,16 +110,16 @@ export default function CircuitExamPage() {
         try {
             setSaving(true);
             const res = await saveCircuitDraft({
-                student_id:  studentId,
+                student_id: studentId,
                 question_id: questionId,
-                exam_id:     examId,
-                components:  comps,
+                exam_id: examId,
+                components: comps,
                 connections: conns
             });
             setSubmission(res.data);
             setComponents(comps);
             setConnections(conns);
-            setSaveMsg('Draft saved ✓');
+            setSaveMsg('Draft saved ');
             setTimeout(() => setSaveMsg(''), 2500);
         } catch (err) {
             setSaveMsg('Save failed: ' + (err.response?.data?.message || err.message));
@@ -136,10 +136,10 @@ export default function CircuitExamPage() {
             // First save the current state
             let sub = submission;
             const saveRes = await saveCircuitDraft({
-                student_id:  studentId,
+                student_id: studentId,
                 question_id: questionId,
-                exam_id:     examId,
-                components:  comps,
+                exam_id: examId,
+                components: comps,
                 connections: conns
             });
             sub = saveRes.data;
@@ -167,10 +167,10 @@ export default function CircuitExamPage() {
     const diffColor = { easy: '#22c55e', medium: '#f59e0b', hard: '#ef4444' };
 
     if (loading) return <FullPageCenter><Spinner /><p style={{ color: '#6b7280', marginTop: 16 }}>Loading question…</p></FullPageCenter>;
-    if (error)   return <FullPageCenter><p style={{ color: '#ef4444' }}>{error}</p></FullPageCenter>;
+    if (error) return <FullPageCenter><p style={{ color: '#ef4444' }}>{error}</p></FullPageCenter>;
     if (!question) return null;
 
-    const isSubmitted  = submission?.status === 'submitted' || submission?.status === 'evaluated';
+    const isSubmitted = submission?.status === 'submitted' || submission?.status === 'evaluated';
     const maxInstances = question.max_instances instanceof Object ? question.max_instances : {};
     const placedCounts = {};
     for (const c of components) placedCounts[c.type] = (placedCounts[c.type] || 0) + 1;
@@ -181,8 +181,8 @@ export default function CircuitExamPage() {
             {!isAdmin && !isSubmitted && !isFullscreen && (
                 <div style={styles.fullscreenOverlay}>
                     <div style={styles.fsCard}>
-                        <div style={{ fontSize: 44, marginBottom: 16 }}>🖥️</div>
-                        <h2 style={styles.fsTitle}>🚨 Fullscreen Mode Required</h2>
+                        <div style={{ fontSize: 44, marginBottom: 16 }}></div>
+                        <h2 style={styles.fsTitle}> Fullscreen Mode Required</h2>
                         <p style={styles.fsDesc}>
                             To ensure exam integrity, you must be in fullscreen mode to attempt the circuit simulation exam.
                         </p>
@@ -205,7 +205,7 @@ export default function CircuitExamPage() {
                                 onClick={enterFullscreen}
                                 title="Toggle Fullscreen Mode"
                             >
-                                {isFullscreen ? '🖥️ Fullscreen' : '⚠️ Go Fullscreen'}
+                                {isFullscreen ? ' Fullscreen' : ' Go Fullscreen'}
                             </button>
                         )}
                         <div style={{ ...styles.diffBadge, background: (diffColor[question.difficulty] || '#94a3b8') + '22', color: diffColor[question.difficulty] || '#94a3b8' }}>
@@ -217,7 +217,7 @@ export default function CircuitExamPage() {
                 {alertMsg && <div style={styles.alertBox}>{alertMsg}</div>}
 
                 <div style={styles.qTitle}>{question.title}</div>
-                <div style={styles.qTopic}>📐 {question.topic}</div>
+                <div style={styles.qTopic}> {question.topic}</div>
 
                 <div style={styles.qDesc}>{question.description}</div>
 
@@ -225,7 +225,7 @@ export default function CircuitExamPage() {
                 {question.hint_text && (
                     <div style={styles.hintBox}>
                         <button style={styles.hintToggle} onClick={() => setHintOpen(!hintOpen)}>
-                            💡 Hint {hintOpen ? '▲' : '▼'}
+                             Hint {hintOpen ? '▲' : '▼'}
                         </button>
                         {hintOpen && <p style={styles.hintText}>{question.hint_text}</p>}
                     </div>
@@ -234,7 +234,7 @@ export default function CircuitExamPage() {
                 {/* Expected behavior */}
                 {question.expected_behavior && (
                     <div style={styles.expBox}>
-                        <div style={styles.expTitle}>🎯 Objective</div>
+                        <div style={styles.expTitle}> Objective</div>
                         <div style={styles.expText}>
                             {question.expected_behavior.formula && (
                                 <div style={styles.formula}>{question.expected_behavior.formula}</div>
@@ -257,7 +257,7 @@ export default function CircuitExamPage() {
                 {isSubmitted && (
                     <div style={styles.submittedBadge}>
                         {submission.status === 'evaluated'
-                            ? (isAdmin ? '✅ Evaluated' : '✅ Submitted successfully')
+                            ? (isAdmin ? ' Evaluated' : ' Submitted successfully')
                             : '⏳ Submitted'}
                     </div>
                 )}

@@ -82,7 +82,7 @@ export default function QuestionCard({ question, index, total, selected, onSelec
                     <div className="qc-badges">
                         <span className={`qc-badge qc-badge-${question.difficulty}`}>{question.difficulty}</span>
                         <span className="qc-badge qc-badge-topic">{question.topic}</span>
-                        {isReplaced && <span className="qc-badge qc-badge-adapted">⚡ Adapted</span>}
+                        {isReplaced && <span className="qc-badge qc-badge-adapted"> Adapted</span>}
                     </div>
                 </div>
 

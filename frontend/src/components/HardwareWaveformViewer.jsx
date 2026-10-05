@@ -102,7 +102,7 @@ export default function HardwareWaveformViewer({ title = "Digital Timing Diagram
         <div className="waveform-container">
             <style>{css}</style>
             <div className="waveform-header">
-                <span>⚡ ECE Verilog Hardware Logic Simulator — {title}</span>
+                <span> ECE Verilog Hardware Logic Simulator — {title}</span>
                 <span style={{ fontSize: '11px', color: t.textMuted }}>Cycle 0 → 12</span>
             </div>
             {displaySignals.map((sig, idx) => (

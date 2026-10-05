@@ -13,17 +13,17 @@ export default function Home() {
   }, []);
 
   const features = [
-    { icon: '⚡', title: 'Adaptive AI Engine', desc: "Questions dynamically adjust to each student's skill level in real time." },
-    { icon: '📊', title: 'Deep Analytics', desc: 'Instant performance insights for both students and administrators.' },
-    { icon: '🔒', title: 'Secure & Proctored', desc: 'End-to-end encrypted sessions with role-based access control.' },
-    { icon: '🎯', title: 'Precision Scoring', desc: 'Fair, unbiased evaluation powered by intelligent grading algorithms.' },
+    { icon: '', title: 'Adaptive AI Engine', desc: "Questions dynamically adjust to each student's skill level in real time." },
+    { icon: '', title: 'Deep Analytics', desc: 'Instant performance insights for both students and administrators.' },
+    { icon: '', title: 'Secure & Proctored', desc: 'End-to-end encrypted sessions with role-based access control.' },
+    { icon: '', title: 'Precision Scoring', desc: 'Fair, unbiased evaluation powered by intelligent grading algorithms.' },
   ];
 
   const stats = [
     { value: '10K+', label: 'Students' },
     { value: '500+', label: 'Exams Created' },
     { value: '99.9%', label: 'Uptime' },
-    { value: '4.9★', label: 'Rating' },
+    { value: '4.9', label: 'Rating' },
   ];
 
   // Derive nav background from theme bg with transparency

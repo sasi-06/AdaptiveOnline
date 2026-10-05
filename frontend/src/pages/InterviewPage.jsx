@@ -96,12 +96,12 @@ export default function InterviewPage() {
         // Init BehaviorTracker
         behaviorTrackerRef.current = new BehaviorTracker((violation) => {
             if (violation.type === 'tab') {
-                setAlertMsg('⚠️ Tab switch detected! Please stay on the interview page. This violation has been logged.');
+                setAlertMsg(' Tab switch detected! Please stay on the interview page. This violation has been logged.');
                 setTimeout(() => setAlertMsg(''), 4000);
                 handleBehaviorViolation(violation);
             } else if (violation.type === 'fullscreen') {
                 setIsFullscreen(false);
-                setAlertMsg('🚨 You exited fullscreen mode! Please return to fullscreen immediately.');
+                setAlertMsg(' You exited fullscreen mode! Please return to fullscreen immediately.');
                 setTimeout(() => setAlertMsg(''), 4000);
                 handleBehaviorViolation(violation);
             }
@@ -308,7 +308,7 @@ export default function InterviewPage() {
 
             // CORRECT USER VALIDATION: Require minimum meaningful answer
             if (wordCount < 3) {
-                setAlertMsg('⚠️ Please speak your answer or type an explanation before submitting.');
+                setAlertMsg(' Please speak your answer or type an explanation before submitting.');
                 setTimeout(() => setAlertMsg(''), 4000);
                 return;
             }
@@ -387,7 +387,7 @@ export default function InterviewPage() {
 
             if (anomaly) {
                 handleBehaviorViolation({ type: anomaly });
-                setAlertMsg(`🚨 ${anomaly} Detected!`);
+                setAlertMsg(` ${anomaly} Detected!`);
                 setTimeout(() => setAlertMsg(''), 4000);
             }
         }
@@ -398,7 +398,7 @@ export default function InterviewPage() {
 
         if (step >= 6 && step < 10 && metrics.multipleVoicesDetected) {
             handleBehaviorViolation({ type: 'Multiple Voices Detected' });
-            setAlertMsg('🚨 Multiple voices detected! Please ensure you are alone.');
+            setAlertMsg(' Multiple voices detected! Please ensure you are alone.');
             setTimeout(() => setAlertMsg(''), 4000);
         }
     };
@@ -500,7 +500,7 @@ export default function InterviewPage() {
             {step >= 4 && !isFullscreen && step < 10 && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>
                     <div style={{ background: t.surface, padding: '40px', borderRadius: '20px', textAlign: 'center', maxWidth: '400px', border: `1px solid ${t.border}`, boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
-                        <h2 style={{ marginBottom: '12px', fontFamily: 'Outfit, sans-serif', color: '#ef4444' }}>🚨 Fullscreen Mode Required</h2>
+                        <h2 style={{ marginBottom: '12px', fontFamily: 'Outfit, sans-serif', color: '#ef4444' }}> Fullscreen Mode Required</h2>
                         <p style={{ marginBottom: '24px', color: t.textMuted, lineHeight: '1.6' }}>To maintain interview integrity, you must remain in fullscreen mode. Returning to windowed mode flags a proctoring anomaly.</p>
                         <button style={{ ...styles.btn, background: t.accent }} onClick={() => {
                             const docElm = document.documentElement;
@@ -547,7 +547,7 @@ export default function InterviewPage() {
                                     onClick={() => speakQuestion(currentQuestion)}
                                     title="Replay audio of current question"
                                 >
-                                    🔊 Replay Question
+                                     Replay Question
                                 </button>
                                 <button style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }} onClick={() => finishInterview()}>
                                     End Early
@@ -570,7 +570,7 @@ export default function InterviewPage() {
                                         </span>
                                     ) : (
                                         <span style={{ color: t.textMuted, fontSize: '12px' }}>
-                                            🎙️ Spoken Transcript (Editable)
+                                             Spoken Transcript (Editable)
                                         </span>
                                     )}
                                 </div>
@@ -614,14 +614,14 @@ export default function InterviewPage() {
                                         style={{ ...styles.btn, marginTop: 0, background: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}
                                         onClick={startSpeechRecognition}
                                     >
-                                        <span style={{ fontSize: '18px' }}>🎙️</span> Start Speaking
+                                        <span style={{ fontSize: '18px' }}></span> Start Speaking
                                     </button>
                                 ) : (
                                     <button
                                         style={{ ...styles.btn, marginTop: 0, background: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}
                                         onClick={stopSpeechRecognition}
                                     >
-                                        <span style={{ fontSize: '18px' }}>⏹️</span> Stop Speaking
+                                        <span style={{ fontSize: '18px' }}>⏹</span> Stop Speaking
                                     </button>
                                 )}
                             </div>
@@ -659,7 +659,7 @@ export default function InterviewPage() {
             {/* Step 10: End Report */}
             {step === 10 && (
                 <div style={{ ...styles.card, maxWidth: '900px' }}>
-                    <h2 style={styles.title}>Interview Completed 🎉</h2>
+                    <h2 style={styles.title}>Interview Completed </h2>
                     <p style={{ textAlign: 'center', marginBottom: '24px', fontSize: '16px' }}>Your technical responses and integrity metrics have been evaluated.</p>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
@@ -699,7 +699,7 @@ export default function InterviewPage() {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '300px' }}>
                                     {finalReport.cheatingClips.map((clip, idx) => (
                                         <div key={idx} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column' }}>
-                                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ef4444', marginBottom: '4px' }}>🚨 {clip.reason}</div>
+                                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ef4444', marginBottom: '4px' }}> {clip.reason}</div>
                                             <div style={{ fontSize: '12px', color: t.textMuted, marginBottom: '8px' }}>{new Date(clip.timestamp || Date.now()).toLocaleTimeString()}</div>
                                             {clip.videoUrl && clip.videoUrl.startsWith('data:image') ? (
                                                 <img src={clip.videoUrl} alt="Violation Evidence" style={{ maxWidth: '160px', borderRadius: '6px', border: `1px solid ${t.border}` }} />
@@ -713,7 +713,7 @@ export default function InterviewPage() {
                                 </div>
                             ) : (
                                 <div style={{ padding: '20px', textAlign: 'center', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>✅</div>
+                                    <div style={{ fontSize: '24px', marginBottom: '8px' }}></div>
                                     <div style={{ fontWeight: 'bold' }}>Clean Proctoring Session</div>
                                     <div style={{ fontSize: '13px', marginTop: '4px' }}>No severe integrity anomalies were detected.</div>
                                 </div>
