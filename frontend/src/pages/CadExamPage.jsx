@@ -17,6 +17,7 @@ import AudioMonitor from '../components/AudioMonitor';
 import BehaviorTracker from '../components/BehaviorTracker';
 import { useTheme } from '../context/ThemeContext';
 import ThemeSwitcher from '../components/ThemeSwitcher';
+import { createCadActivityEvent } from '../components/cad/utils/cadActivityLogger';
 
 export default function CadExamPage() {
     const { assessmentId } = useParams();
@@ -36,6 +37,7 @@ export default function CadExamPage() {
 
     // Drawings & Layers state per question ID: { [qId]: { objects: [...], layers: [...], currentLayerId: '...' } }
     const [questionDrawings, setQuestionDrawings] = useState({});
+    const [questionEvents, setQuestionEvents] = useState({}); // { [qId]: [...] }
     const [activeObjects, setActiveObjects] = useState([]);
     const [activeLayers, setActiveLayers] = useState(DEFAULT_LAYERS);
     const [activeCurrentLayerId, setActiveCurrentLayerId] = useState('layer_walls');
@@ -289,8 +291,9 @@ export default function CadExamPage() {
                     setShowSuccessScreen(true);
                 }
 
-                // Load existing drawings map
+                // Load existing drawings map & activity events
                 const initialDrawings = {};
+                const initialEvents = {};
                 subsList.forEach(sub => {
                     const qId = sub.question_id?._id || sub.question_id;
                     if (qId && sub.drawing_data) {
@@ -305,8 +308,12 @@ export default function CadExamPage() {
                             };
                         }
                     }
+                    if (qId && Array.isArray(sub.activity_events)) {
+                        initialEvents[qId] = sub.activity_events;
+                    }
                 });
                 setQuestionDrawings(initialDrawings);
+                setQuestionEvents(initialEvents);
 
                 // Set initial active objects for question 0
                 if (qList.length > 0) {
@@ -323,6 +330,40 @@ export default function CadExamPage() {
             }
         })();
     }, [assessmentId, studentId]);
+
+    // ── Activity Event Logger Callback ──────────────────────────────────
+    const handleLogActivityEvent = useCallback((eventData) => {
+        if (!currentQ || !studentId || !assessmentId) return;
+
+        const qId = currentQ._id;
+        setQuestionEvents(prev => {
+            const existing = prev[qId] || [];
+            const newEvent = createCadActivityEvent(
+                eventData.actionType,
+                eventData.geometryIds,
+                eventData.parameters,
+                eventData.customSummary,
+                {
+                    studentId,
+                    assessmentId,
+                    questionId: qId,
+                    sequenceNumber: existing.length + 1
+                }
+            );
+            const updated = [...existing, newEvent];
+
+            // Background sync with backend draft persistence
+            saveCadDraft({
+                student_id: studentId,
+                assessment_id: assessmentId,
+                question_id: qId,
+                drawing_data: { objects: activeObjects, layers: activeLayers, currentLayerId: activeCurrentLayerId, viewport: {} },
+                activity_events: updated
+            }).catch(err => console.warn('Activity event persistence sync warning:', err));
+
+            return { ...prev, [qId]: updated };
+        });
+    }, [currentQ, studentId, assessmentId, activeObjects, activeLayers, activeCurrentLayerId]);
 
     // ── Timer Countdown ─────────────────────────────────────────────────
     useEffect(() => {
@@ -354,19 +395,21 @@ export default function CadExamPage() {
             const objs = drawingDataToSave?.objects !== undefined ? drawingDataToSave.objects : (Array.isArray(drawingDataToSave) ? drawingDataToSave : activeObjects);
             const lyrs = drawingDataToSave?.layers || activeLayers;
             const curL = drawingDataToSave?.currentLayerId || activeCurrentLayerId;
+            const eventsToSave = questionEvents[qIdToSave] || [];
 
             await saveCadDraft({
                 student_id: studentId,
                 assessment_id: assessmentId,
                 question_id: qIdToSave,
-                drawing_data: { objects: objs, layers: lyrs, currentLayerId: curL, viewport: {} }
+                drawing_data: { objects: objs, layers: lyrs, currentLayerId: curL, viewport: {} },
+                activity_events: eventsToSave
             });
             setSaveStatus('Saved ✓');
         } catch (err) {
             console.error('Autosave error:', err);
             setSaveStatus('Save failed ⚠️');
         }
-    }, [studentId, assessmentId, activeObjects, activeLayers, activeCurrentLayerId]);
+    }, [studentId, assessmentId, activeObjects, activeLayers, activeCurrentLayerId, questionEvents]);
 
     // Periodic Autosave every 15 seconds
     useEffect(() => {
@@ -735,6 +778,7 @@ export default function CadExamPage() {
                         onCoordsChange={handleCoordsChange}
                         onViewportChange={handleViewportChange}
                         onHistoryChange={handleHistoryChange}
+                        onLogActivityEvent={handleLogActivityEvent}
                     />
 
                     {/* CAD Status Bar */}

@@ -260,7 +260,7 @@ const deleteCadQuestion = async (req, res) => {
 // @desc Save / Upsert CAD Draft
 const saveCadDraft = async (req, res) => {
     try {
-        let { student_id, assessment_id, question_id, drawing_data, preview_image, time_spent } = req.body;
+        let { student_id, assessment_id, question_id, drawing_data, preview_image, time_spent, activity_events } = req.body;
         if (!student_id && (req.student?._id || req.user?.id)) {
             student_id = req.student?._id || req.user?.id;
         }
@@ -281,20 +281,75 @@ const saveCadDraft = async (req, res) => {
 
         const statusToSet = (existing && existing.status === 'submitted') ? 'submitted' : 'draft';
 
+        const updateFields = {
+            drawing_data: drawing_data || { objects: [], layers: [], viewport: {} },
+            preview_image: preview_image || '',
+            time_spent: Number(time_spent) || 0,
+            status: statusToSet
+        };
+
+        if (Array.isArray(activity_events)) {
+            updateFields.activity_events = activity_events;
+        }
+
         const submission = await CadSubmission.findOneAndUpdate(
             { student_id: stId, assessment_id: asmId, question_id: qId },
-            {
-                $set: {
-                    drawing_data: drawing_data || { objects: [], layers: [], viewport: {} },
-                    preview_image: preview_image || '',
-                    time_spent: Number(time_spent) || 0,
-                    status: statusToSet
-                }
-            },
+            { $set: updateFields },
             { new: true, upsert: true, runValidators: true }
         );
 
         res.json(submission);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// @desc Save or append Activity Events for CAD Question
+const saveActivityEvents = async (req, res) => {
+    try {
+        let { student_id, assessment_id, question_id, activity_events } = req.body;
+        if (!student_id && (req.student?._id || req.user?.id)) {
+            student_id = req.student?._id || req.user?.id;
+        }
+        if (!student_id || !assessment_id || !question_id) {
+            return res.status(400).json({ message: 'student_id, assessment_id, and question_id are required' });
+        }
+
+        const stId = mongoose.Types.ObjectId.isValid(student_id) ? new mongoose.Types.ObjectId(student_id) : student_id;
+        const asmId = mongoose.Types.ObjectId.isValid(assessment_id) ? new mongoose.Types.ObjectId(assessment_id) : assessment_id;
+        const qId = mongoose.Types.ObjectId.isValid(question_id) ? new mongoose.Types.ObjectId(question_id) : question_id;
+
+        const submission = await CadSubmission.findOneAndUpdate(
+            { student_id: stId, assessment_id: asmId, question_id: qId },
+            { $set: { activity_events: Array.isArray(activity_events) ? activity_events : [] } },
+            { new: true, upsert: true }
+        );
+
+        res.json({ message: 'Activity events persisted successfully', count: submission.activity_events?.length || 0, submission });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// @desc Get Activity History for a specific CAD Question Attempt
+const getCadActivityHistory = async (req, res) => {
+    try {
+        const { studentId, assessmentId, questionId } = req.params;
+        const stId = mongoose.Types.ObjectId.isValid(studentId) ? new mongoose.Types.ObjectId(studentId) : studentId;
+        const asmId = mongoose.Types.ObjectId.isValid(assessmentId) ? new mongoose.Types.ObjectId(assessmentId) : assessmentId;
+        const qId = mongoose.Types.ObjectId.isValid(questionId) ? new mongoose.Types.ObjectId(questionId) : questionId;
+
+        const submission = await CadSubmission.findOne({
+            student_id: { $in: [studentId, stId] },
+            assessment_id: { $in: [assessmentId, asmId] },
+            question_id: { $in: [questionId, qId] }
+        });
+
+        if (!submission) {
+            return res.json([]);
+        }
+
+        res.json(submission.activity_events || []);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -462,6 +517,7 @@ const getCadSubmissionsForAdmin = async (req, res) => {
                     question: sub.question_id,
                     drawing_data: sub.drawing_data,
                     preview_image: sub.preview_image,
+                    activity_events: sub.activity_events || [],
                     time_spent: sub.time_spent,
                     status: sub.status,
                     updatedAt: sub.updatedAt
@@ -493,6 +549,8 @@ module.exports = {
     getCadDraft,
     getStudentCadSubmissions,
     submitCadAssessment,
-    getCadSubmissionsForAdmin
+    getCadSubmissionsForAdmin,
+    saveActivityEvents,
+    getCadActivityHistory
 };
 

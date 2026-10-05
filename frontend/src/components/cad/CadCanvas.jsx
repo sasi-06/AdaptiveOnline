@@ -424,10 +424,17 @@ export default function CadCanvas({
     angleIncrement = 45,
     onCoordsChange,
     onViewportChange,
-    onHistoryChange
+    onHistoryChange,
+    onLogActivityEvent
 }) {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
+
+    const logCommit = useCallback((actionType, geometryIds = [], parameters = {}, customSummary = '') => {
+        if (onLogActivityEvent) {
+            onLogActivityEvent({ actionType, geometryIds, parameters, customSummary });
+        }
+    }, [onLogActivityEvent]);
 
     // Layers State
     const [layers, setLayers] = useState(initialLayers || DEFAULT_LAYERS);
@@ -617,6 +624,21 @@ export default function CadCanvas({
         const prevLayers = previous.layers || layers;
         const prevCurrent = previous.currentLayerId || currentLayerId;
 
+        // Determine what action was reverted
+        let revertedAction = 'State change';
+        let targetSummary = '';
+        const prevCount = prevObjs.length;
+        const currCount = objects.length;
+        if (prevCount > currCount) {
+            const restoredObj = prevObjs.find(po => !objects.some(o => o.id === po.id));
+            revertedAction = 'DELETE';
+            targetSummary = restoredObj ? `Restored: ${restoredObj.type} ${restoredObj.id}` : 'Restored object';
+        } else if (prevCount < currCount) {
+            const removedObj = objects.find(o => !prevObjs.some(po => po.id === o.id));
+            revertedAction = removedObj ? removedObj.type : 'Creation';
+            targetSummary = removedObj ? `Reverted: ${removedObj.type} ${removedObj.id}` : 'Reverted creation';
+        }
+
         onChangeObjects(prevObjs);
         setLayers(prevLayers);
         setCurrentLayerId(prevCurrent);
@@ -625,12 +647,14 @@ export default function CadCanvas({
             onDrawingStateChange({ objects: prevObjs, layers: prevLayers, currentLayerId: prevCurrent });
         }
 
+        logCommit('UNDO', [], { revertedAction, targetSummary });
+
         setSelectedIds([]);
         setToolPoints([]);
         setShowDeleteSourceModal(false);
         setPendingMirrorData(null);
         setTargetOffsetObjId(null);
-    }, [undoStack, objects, layers, currentLayerId, onChangeObjects, onDrawingStateChange]);
+    }, [undoStack, objects, layers, currentLayerId, onChangeObjects, onDrawingStateChange, logCommit]);
 
     const handleRedo = useCallback(() => {
         if (redoStack.length === 0) return;
@@ -642,6 +666,18 @@ export default function CadCanvas({
         const nextLayers = next.layers || layers;
         const nextCurrent = next.currentLayerId || currentLayerId;
 
+        let restoredAction = 'State change';
+        let targetSummary = '';
+        if (nextObjs.length < objects.length) {
+            const reDeleted = objects.find(o => !nextObjs.some(no => no.id === o.id));
+            restoredAction = 'DELETE';
+            targetSummary = reDeleted ? `Re-deleted: ${reDeleted.type} ${reDeleted.id}` : 'Re-deleted object';
+        } else if (nextObjs.length > objects.length) {
+            const reCreated = nextObjs.find(no => !objects.some(o => o.id === no.id));
+            restoredAction = reCreated ? reCreated.type : 'Creation';
+            targetSummary = reCreated ? `Restored: ${reCreated.type} ${reCreated.id}` : 'Restored object';
+        }
+
         onChangeObjects(nextObjs);
         setLayers(nextLayers);
         setCurrentLayerId(nextCurrent);
@@ -650,12 +686,14 @@ export default function CadCanvas({
             onDrawingStateChange({ objects: nextObjs, layers: nextLayers, currentLayerId: nextCurrent });
         }
 
+        logCommit('REDO', [], { restoredAction, targetSummary });
+
         setSelectedIds([]);
         setToolPoints([]);
         setShowDeleteSourceModal(false);
         setPendingMirrorData(null);
         setTargetOffsetObjId(null);
-    }, [redoStack, objects, layers, currentLayerId, onChangeObjects, onDrawingStateChange]);
+    }, [redoStack, objects, layers, currentLayerId, onChangeObjects, onDrawingStateChange, logCommit]);
 
     // MIRROR Confirmation Handler
     const handleConfirmMirror = useCallback((deleteSource = false) => {
@@ -672,12 +710,13 @@ export default function CadCanvas({
         }
 
         commitObjects(newObjects);
+        logCommit('MIRROR', mirroredObjs.map(m => m.id), { deleteSource, affectedCount: targetIds.length });
         setSelectedIds(mirroredObjs.map(m => m.id));
         setToolPoints([]);
         setPendingMirrorData(null);
         setShowDeleteSourceModal(false);
         onSelectTool('select');
-    }, [pendingMirrorData, objects, commitObjects, onSelectTool]);
+    }, [pendingMirrorData, objects, commitObjects, onSelectTool, logCommit]);
 
     // ── Layer Management Handlers ─────────────────────────────────────
     const handleCreateLayer = (name, color) => {
@@ -1956,6 +1995,7 @@ export default function CadCanvas({
                     color: '#38bdf8'
                 };
                 commitObjects([...objects, newLine]);
+                logCommit('LINE', [newLine.id], { start: newLine.start, end: newLine.end, length: distance(newLine.start, newLine.end) });
                 setToolPoints([targetW]);
             }
         } else if (activeTool === 'circle') {
@@ -1974,6 +2014,7 @@ export default function CadCanvas({
                         color: '#38bdf8'
                     };
                     commitObjects([...objects, newCircle]);
+                    logCommit('CIRCLE', [newCircle.id], { center: newCircle.center, radius: newCircle.radius });
                 }
                 setToolPoints([]);
             }
@@ -1998,6 +2039,7 @@ export default function CadCanvas({
                         color: '#38bdf8'
                     };
                     commitObjects([...objects, newRect]);
+                    logCommit('RECTANGLE', [newRect.id], { x: newRect.x, y: newRect.y, width: newRect.width, height: newRect.height });
                 }
                 setToolPoints([]);
             }
@@ -2020,6 +2062,7 @@ export default function CadCanvas({
                         color: '#38bdf8'
                     };
                     commitObjects([...objects, newArc]);
+                    logCommit('ARC', [newArc.id], { center: newArc.center, radius: newArc.radius, startAngle: newArc.startAngle, endAngle: newArc.endAngle });
                 }
                 setToolPoints([]);
             }
@@ -2041,6 +2084,7 @@ export default function CadCanvas({
                     color: layerColor
                 };
                 commitObjects([...objects, newHatch]);
+                logCommit('HATCH', [newHatch.id], { pattern: newHatch.pattern, angle: newHatch.angle, scale: newHatch.scale });
                 setHatchStatusMsg('');
             } else {
                 const msg = res.error || 'Boundary is not closed.';
@@ -2075,6 +2119,7 @@ export default function CadCanvas({
                 });
 
                 commitObjects(updated);
+                logCommit('MOVE', targets, { basePoint: baseP, dx, dy, affectedCount: targets.length });
                 setToolPoints([]);
                 onSelectTool('select');
             }
@@ -2106,6 +2151,7 @@ export default function CadCanvas({
                 });
 
                 commitObjects([...objects, ...copies]);
+                logCommit('COPY', copies.map(c => c.id), { sourceCount: targets.length, createdCount: copies.length, dx, dy });
             }
         } else if (activeTool === 'rotate') {
             if (toolPoints.length === 0) {
@@ -2138,6 +2184,7 @@ export default function CadCanvas({
                 });
 
                 commitObjects(updated);
+                logCommit('ROTATE', targets, { basePoint: baseP, angle: rad, affectedCount: targets.length });
                 setToolPoints([]);
                 onSelectTool('select');
             }
@@ -2175,7 +2222,7 @@ export default function CadCanvas({
                     setTimeout(() => setOffsetErrorMsg(''), 3500);
                 } else if (offRes.result) {
                     commitObjects([...objects, offRes.result]);
-                    // Remain in offset mode so user can click to place more offset copies!
+                    logCommit('OFFSET', [offRes.result.id], { sourceId: targetObj.id, distance: offsetDistance });
                 }
             }
         } else if (activeTool === 'trim') {
@@ -2193,6 +2240,7 @@ export default function CadCanvas({
                 } else if (trimRes.resultObjects) {
                     const remainingOthers = objects.filter(o => o.id !== hit.id);
                     commitObjects([...remainingOthers, ...trimRes.resultObjects]);
+                    logCommit('TRIM', [hit.id], { trimmedId: hit.id });
                 }
             }
         } else if (activeTool === 'extend') {
@@ -2210,6 +2258,7 @@ export default function CadCanvas({
                 } else if (extRes.result) {
                     const updated = objects.map(o => o.id === hit.id ? extRes.result : o);
                     commitObjects(updated);
+                    logCommit('EXTEND', [hit.id], { extendedId: hit.id });
                 }
             }
         } else if (activeTool === 'fillet') {
@@ -2228,6 +2277,7 @@ export default function CadCanvas({
                         const idsToRemove = [firstFilletSelection.obj.id, hit.id];
                         const remaining = objects.filter(o => !idsToRemove.includes(o.id));
                         commitObjects([...remaining, ...fRes.resultObjects]);
+                        logCommit('FILLET', fRes.resultObjects.map(o => o.id), { radius: filletRadius, trimmedIds: idsToRemove });
                         setFirstFilletSelection(null);
                     }
                 }
@@ -2248,13 +2298,16 @@ export default function CadCanvas({
                         const idsToRemove = [firstChamferSelection.obj.id, hit.id];
                         const remaining = objects.filter(o => !idsToRemove.includes(o.id));
                         commitObjects([...remaining, ...cRes.resultObjects]);
+                        logCommit('CHAMFER', cRes.resultObjects.map(o => o.id), { dist1: chamferDist1, dist2: chamferDist2, trimmedIds: idsToRemove });
                         setFirstChamferSelection(null);
                     }
                 }
             }
         } else if (activeTool === 'delete') {
             if (selectedIds.length > 0) {
+                const deletedObjs = objects.filter(o => selectedIds.includes(o.id));
                 commitObjects(objects.filter(o => !selectedIds.includes(o.id)));
+                logCommit('DELETE', selectedIds, { deletedCount: selectedIds.length, types: deletedObjs.map(o => o.type) });
                 setSelectedIds([]);
                 onSelectTool('select');
             } else {
@@ -2262,6 +2315,7 @@ export default function CadCanvas({
                 const hit = objects.find(obj => hitTestObject(obj, targetW, worldTolerance).hit);
                 if (hit) {
                     commitObjects(objects.filter(o => o.id !== hit.id));
+                    logCommit('DELETE', [hit.id], { deletedCount: 1, types: [hit.type] });
                     onSelectTool('select');
                 }
             }
@@ -2289,6 +2343,7 @@ export default function CadCanvas({
                     color: '#38bdf8'
                 };
                 commitObjects([...objects, newDim]);
+                logCommit('DIMENSION', [newDim.id], { dimType: 'Linear', value: Math.hypot(p2.x - p1.x, p2.y - p1.y) });
                 setToolPoints([]);
                 onSelectTool('select');
             }
@@ -2319,6 +2374,7 @@ export default function CadCanvas({
                     color: '#38bdf8'
                 };
                 commitObjects([...objects, newDim]);
+                logCommit('DIMENSION', [newDim.id], { dimType: 'Aligned', value: L });
                 setToolPoints([]);
                 onSelectTool('select');
             }
@@ -2373,6 +2429,7 @@ export default function CadCanvas({
                     color: '#38bdf8'
                 };
                 commitObjects([...objects, newDim]);
+                logCommit('DIMENSION', [newDim.id], { dimType: 'Angular', value: Math.abs(endAngle - startAngle) * (180 / Math.PI) });
                 setFirstAngularSelection(null);
                 setToolPoints([]);
                 onSelectTool('select');
@@ -2397,6 +2454,7 @@ export default function CadCanvas({
                     color: '#38bdf8'
                 };
                 commitObjects([...objects, newDim]);
+                logCommit('DIMENSION', [newDim.id], { dimType: 'Radius', value: targetRadiusCircle.radius });
                 setTargetRadiusCircle(null);
                 onSelectTool('select');
             }
@@ -2420,6 +2478,7 @@ export default function CadCanvas({
                     color: '#38bdf8'
                 };
                 commitObjects([...objects, newDim]);
+                logCommit('DIMENSION', [newDim.id], { dimType: 'Diameter', value: targetDiameterCircle.radius * 2 });
                 setTargetDiameterCircle(null);
                 onSelectTool('select');
             }
@@ -2449,6 +2508,7 @@ export default function CadCanvas({
                     dx,
                     dy
                 });
+                logCommit('DISTANCE', [], { distance: dist, dx, dy });
                 setToolPoints([]);
             }
         } else if (activeTool === 'measure_angle') {
@@ -2467,6 +2527,7 @@ export default function CadCanvas({
                         vertex: firstMeasureAngleLine.end,
                         p2: clickedLine.start
                     });
+                    logCommit('ANGLE', [firstMeasureAngleLine.id, clickedLine.id], { angle: deg });
                     setFirstMeasureAngleLine(null);
                 }
             } else {
@@ -2483,6 +2544,7 @@ export default function CadCanvas({
                         vertex: toolPoints[1],
                         p2: targetW
                     });
+                    logCommit('ANGLE', [], { angle: deg });
                     setToolPoints([]);
                 }
             }
@@ -2497,6 +2559,7 @@ export default function CadCanvas({
                     geomType: hitGeom.type,
                     geometryId: hitGeom.id
                 });
+                logCommit('RADIUS', [hitGeom.id], { radius: hitGeom.radius });
                 setMeasureStatusMsg('');
             } else {
                 setMeasureStatusMsg('Please select a circle or arc.');
@@ -2512,6 +2575,7 @@ export default function CadCanvas({
                     perimeter: calc.perimeter,
                     boundary: res.boundary
                 });
+                logCommit('AREA', [], { area: calc.area, perimeter: calc.perimeter });
                 setMeasureStatusMsg('');
             } else {
                 const msg = res.error ? `Cannot measure area: ${res.error.toLowerCase()}` : 'Cannot measure area: boundary is not closed.';
@@ -2568,6 +2632,7 @@ export default function CadCanvas({
                 color: '#38bdf8'
             };
             commitObjects([...objects, newPoly]);
+            logCommit('POLYLINE', [newPoly.id], { vertexCount: newPoly.points.length });
             setToolPoints([]);
         } else if ((activeTool === 'copy' || activeTool === 'mirror') && toolPoints.length > 0) {
             setToolPoints([]);
@@ -2622,6 +2687,7 @@ export default function CadCanvas({
                 rotation: rVal
             } : o);
             commitObjects(updated);
+            logCommit('TEXT', [editingTextObj.id], { content: textVal, height: hVal, rotation: rVal });
         } else if (textModalPos) {
             const newTextObj = {
                 id: 'text_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
@@ -2634,6 +2700,7 @@ export default function CadCanvas({
                 color: '#38bdf8'
             };
             commitObjects([...objects, newTextObj]);
+            logCommit('TEXT', [newTextObj.id], { content: textVal, height: hVal, rotation: rVal });
         }
 
         setShowTextModal(false);
@@ -2687,7 +2754,9 @@ export default function CadCanvas({
                 }
             } else if (e.key === 'Delete' || e.key === 'Backspace') {
                 if (!showNumInput && !showDeleteSourceModal && selectedIds.length > 0) {
+                    const deletedObjs = objects.filter(o => selectedIds.includes(o.id));
                     commitObjects(objects.filter(o => !selectedIds.includes(o.id)));
+                    logCommit('DELETE', selectedIds, { deletedCount: selectedIds.length, types: deletedObjs.map(o => o.type) });
                     setSelectedIds([]);
                 }
             } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
@@ -2711,6 +2780,7 @@ export default function CadCanvas({
                         color: '#38bdf8'
                     };
                     commitObjects([...objects, newPoly]);
+                    logCommit('POLYLINE', [newPoly.id], { vertexCount: newPoly.points.length });
                     setToolPoints([]);
                 } else if ((activeTool === 'copy' || activeTool === 'offset') && (toolPoints.length > 0 || targetOffsetObjId)) {
                     setToolPoints([]);

@@ -10,6 +10,18 @@ const CadSubmissionSchema = new mongoose.Schema({
         viewport: { type: Object, default: {} }
     },
     preview_image: { type: String, default: '' },
+    activity_events: [{
+        eventId: { type: String },
+        studentId: { type: String },
+        assessmentId: { type: String },
+        questionId: { type: String },
+        actionType: { type: String },
+        timestamp: { type: Date, default: Date.now },
+        sequenceNumber: { type: Number },
+        geometryIds: [{ type: String }],
+        parameters: { type: mongoose.Schema.Types.Mixed, default: {} },
+        resultSummary: { type: String, default: '' }
+    }],
     status: { type: String, enum: ['draft', 'submitted'], default: 'draft' },
     time_spent: { type: Number, default: 0 },
     submitted_at: { type: Date }

@@ -19,7 +19,9 @@ const {
     getCadDraft,
     getStudentCadSubmissions,
     submitCadAssessment,
-    getCadSubmissionsForAdmin
+    getCadSubmissionsForAdmin,
+    saveActivityEvents,
+    getCadActivityHistory
 } = require('../controllers/cadAssessmentController');
 
 // Multer storage for CAD reference drawing image/photo uploads
@@ -66,6 +68,10 @@ router.get('/submissions/student/:studentId/assessment/:assessmentId', protect, 
 router.get('/assessments/submissions/student/:studentId/assessment/:assessmentId', protect, getStudentCadSubmissions);
 router.post('/submissions/submit', protect, submitCadAssessment);
 router.post('/assessments/submissions/submit', protect, submitCadAssessment);
+
+// CAD Activity Event Routes
+router.post('/activity/events', protect, saveActivityEvents);
+router.get('/activity/history/:studentId/:assessmentId/:questionId', protect, getCadActivityHistory);
 
 // Admin Results Routes
 router.get('/assessments/:assessmentId/all-submissions', protect, adminOnly, getCadSubmissionsForAdmin);

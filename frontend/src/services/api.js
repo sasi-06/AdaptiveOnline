@@ -154,3 +154,8 @@ export const getStudentCadSubmissions = (studentId, assessmentId) => axios.get(`
 export const submitCadAssessment = (data) => axios.post(`${BASE}/cad/assessments/submissions/submit`, data, authHeaders());
 export const getCadSubmissionsForAdmin = (assessmentId) => axios.get(`${BASE}/cad/assessments/${assessmentId}/all-submissions`, authHeaders());
 
+// ── CAD ACTIVITY EVENTS ───────────────────────────────────────────────────
+export const saveCadActivityEvents = (data) => axios.post(`${BASE}/cad/assessments/activity/events`, data, authHeaders());
+export const getCadActivityHistory = (studentId, assessmentId, questionId) => axios.get(`${BASE}/cad/assessments/activity/history/${studentId}/${assessmentId}/${questionId}`, authHeaders());
+
+

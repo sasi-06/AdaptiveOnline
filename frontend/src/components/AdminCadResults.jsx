@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getCadAssessments, getCadSubmissionsForAdmin, getBehaviorLogs } from '../services/api';
 import BehaviorTimeline from './BehaviorTimeline';
+import AdminCadActivityReview from './cad/AdminCadActivityReview';
 
 export default function AdminCadResults({ theme: t, students = [], flash, openTimeline, initialAssessmentId = 'ALL' }) {
     const [assessments, setAssessments] = useState([]);
@@ -11,8 +12,9 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
     const [deptFilter, setDeptFilter] = useState('ALL');
     const [statusFilter, setStatusFilter] = useState('ALL');
 
-    // Modal & Proctoring Evidence State
+    // Modal & Activity History State
     const [viewingStudentResult, setViewingStudentResult] = useState(null);
+    const [activityReviewItem, setActivityReviewItem] = useState(null);
     const [modalTab, setModalTab] = useState('drawings'); // 'drawings' | 'proctoring'
     const [studentLogs, setStudentLogs] = useState([]);
     const [logsLoading, setLogsLoading] = useState(false);
@@ -289,6 +291,15 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                                             <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                                                 <button
                                                     className="ad-btn ad-btn-primary ad-btn-sm"
+                                                    onClick={() => setActivityReviewItem(res)}
+                                                    style={{ background: 'linear-gradient(135deg, #0284c7, #38bdf8)', color: '#000', fontWeight: 800 }}
+                                                    title="View chronological CAD activity events, timestamps, and final drawing review"
+                                                >
+                                                    📜 Activity History & CAD Review
+                                                </button>
+
+                                                <button
+                                                    className="ad-btn ad-btn-secondary ad-btn-sm"
                                                     onClick={() => {
                                                         setViewingStudentResult(res);
                                                         setModalTab('drawings');
@@ -345,25 +356,35 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                         </div>
 
                         {/* Modal Navigation Tabs */}
-                        <div style={{ display: 'flex', gap: 10, borderBottom: `1px solid ${t.border}`, paddingBottom: 12, marginBottom: 20 }}>
-                            <button
-                                className={`ad-btn ${modalTab === 'drawings' ? 'ad-btn-primary' : 'ad-btn-ghost'} ad-btn-sm`}
-                                onClick={() => setModalTab('drawings')}
-                            >
-                                📐 2D CAD Drawings ({viewingStudentResult.drawings?.length || 0})
-                            </button>
+                        <div style={{ display: 'flex', gap: 10, borderBottom: `1px solid ${t.border}`, paddingBottom: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', gap: 10 }}>
+                                <button
+                                    className={`ad-btn ${modalTab === 'drawings' ? 'ad-btn-primary' : 'ad-btn-ghost'} ad-btn-sm`}
+                                    onClick={() => setModalTab('drawings')}
+                                >
+                                    📐 2D CAD Drawings ({viewingStudentResult.drawings?.length || 0})
+                                </button>
+
+                                <button
+                                    className={`ad-btn ${modalTab === 'proctoring' ? 'ad-btn-primary' : 'ad-btn-ghost'} ad-btn-sm`}
+                                    onClick={() => setModalTab('proctoring')}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                                >
+                                    📸 Visual Proctoring & Photo Evidence
+                                    {snapshotLogs.length > 0 && (
+                                        <span style={{ background: '#ef4444', color: '#fff', fontSize: 11, fontWeight: 800, padding: '1px 7px', borderRadius: 10 }}>
+                                            {snapshotLogs.length} Photos
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
 
                             <button
-                                className={`ad-btn ${modalTab === 'proctoring' ? 'ad-btn-primary' : 'ad-btn-ghost'} ad-btn-sm`}
-                                onClick={() => setModalTab('proctoring')}
-                                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                                className="ad-btn ad-btn-primary ad-btn-sm"
+                                onClick={() => setActivityReviewItem(viewingStudentResult)}
+                                style={{ background: 'linear-gradient(135deg, #0284c7, #38bdf8)', color: '#000', fontWeight: 800 }}
                             >
-                                📸 Visual Proctoring & Photo Evidence
-                                {snapshotLogs.length > 0 && (
-                                    <span style={{ background: '#ef4444', color: '#fff', fontSize: 11, fontWeight: 800, padding: '1px 7px', borderRadius: 10 }}>
-                                        {snapshotLogs.length} Photos
-                                    </span>
-                                )}
+                                📜 Open Interactive Activity Review Screen
                             </button>
                         </div>
 
@@ -693,6 +714,17 @@ export default function AdminCadResults({ theme: t, students = [], flash, openTi
                         />
                     </div>
                 </div>
+            )}
+
+            {/* INTERACTIVE CAD ACTIVITY HISTORY & REVIEW SCREEN */}
+            {activityReviewItem && (
+                <AdminCadActivityReview
+                    studentData={activityReviewItem.student || {}}
+                    assessmentData={activityReviewItem.assessment || {}}
+                    drawings={activityReviewItem.drawings || []}
+                    onClose={() => setActivityReviewItem(null)}
+                    theme={t}
+                />
             )}
         </div>
     );
