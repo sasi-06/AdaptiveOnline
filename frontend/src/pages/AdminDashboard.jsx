@@ -339,7 +339,7 @@ export default function AdminDashboard() {
 
         .ad-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
         .ad-topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 60px; background: ${t.surface}; border-bottom: 1px solid ${t.border}; position: sticky; top: 0; z-index: 30; }
-        .ad-topbar-title { font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: ${t.text}; }
+        .ad-topbar-title { font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: ${t.text}; display: flex; align-items: center; gap: 16px; }
         .ad-topbar-user { display: flex; align-items: center; gap: 8px; padding: 5px 14px; background: ${t.surfaceAlt}; border: 1px solid ${t.border}; border-radius: 100px; font-size: 13px; color: ${t.textMuted}; }
         .ad-user-dot { width: 7px; height: 7px; border-radius: 50%; background: ${t.accent}; box-shadow: 0 0 6px ${t.accentGlow}; }
         .ad-content { padding: 32px; flex: 1; }
@@ -548,7 +548,15 @@ export default function AdminDashboard() {
 
                 <div className="ad-main">
                     <div className="ad-topbar">
-                        <div className="ad-topbar-title">{section}</div>
+                        <div className="ad-topbar-title">
+                            {section}
+                            <button 
+                                onClick={() => navigate(`/live-interview/${Math.random().toString(36).substring(7)}`)}
+                                style={{ background: t.accent, color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                            >
+                                🎥 Start Live Interview
+                            </button>
+                        </div>
                         <div className="ad-topbar-user"><span className="ad-user-dot" />{adminName}</div>
                     </div>
 

@@ -279,14 +279,8 @@ function selectCandidateQuestion(session) {
     const askedQuestions = (session.qa_pairs || []).map(p => p.question.toLowerCase().trim());
     const primaryDomain = determineCandidateDomain(role, skills);
 
-    // Build candidate pool: Primary domain + related general domains (database, backend, frontend)
+    // Build candidate pool strictly from primary domain first
     let candidatePool = [...(DOMAIN_QUESTIONS[primaryDomain] || [])];
-    if (primaryDomain !== 'database') {
-        candidatePool = candidatePool.concat(DOMAIN_QUESTIONS.database || []);
-    }
-    if (primaryDomain !== 'backend' && primaryDomain !== 'frontend') {
-        candidatePool = candidatePool.concat(DOMAIN_QUESTIONS.backend || []);
-    }
 
     // Filter out already asked questions
     let available = candidatePool.filter(item => !askedQuestions.includes(item.q.toLowerCase().trim()));
@@ -552,7 +546,7 @@ exports.generateQuestion = async (req, res) => {
 
         // Try Gemini LLM first if API key configured
         const apiKey = process.env.GEMINI_API_KEY;
-        if (apiKey && apiKey.length > 10 && !apiKey.startsWith('AQ.')) {
+        if (apiKey && apiKey.length > 10) {
             try {
                 let historyPrompt = "";
                 if (previousQuestionsCount > 0) {
@@ -643,11 +637,55 @@ exports.submitAnswer = async (req, res) => {
         const currentPair = session.qa_pairs[currentPairIndex];
 
         // Perform real evaluation
-        const evalResult = evaluateCandidateAnswer(
+        let evalResult = evaluateCandidateAnswer(
             currentPair.question,
             currentPair.expectedAnswer || '',
             transcript || ''
         );
+
+        // Try Gemini LLM for enhanced validation with internet knowledge reference
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (apiKey && apiKey.length > 10 && transcript && transcript.length > 5 && !/^(i don't know|no idea|skip|pass|not sure|i do not know)\.?$/i.test(transcript.trim())) {
+            try {
+                const prompt = `You are an expert technical interviewer evaluating an answer.
+Question: "${currentPair.question}"
+Candidate's Answer: "${transcript}"
+
+Task:
+1. Search your knowledge base to compare the candidate's answer with information from reputable technical websites like GeeksforGeeks (GFG), W3Schools, MDN, or StackOverflow to find the correct answer.
+2. Determine if the candidate's answer matches the correct answer.
+3. If the answer is correct or mostly correct, identify a reference website (like GeeksforGeeks, W3Schools, etc.) that contains this answer.
+4. Provide a score from 0 to 100 based on accuracy.
+5. Provide feedback. If the answer is correct, you MUST mention the reference website (e.g., "Correct! This matches the concepts explained on GeeksforGeeks..."). If incorrect, explain why and provide the correct answer based on these sources.
+
+Return ONLY valid JSON in the following format:
+{
+    "score": <number>,
+    "feedback": "<string>"
+}`;
+
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                const response = await axios.post(url, {
+                    contents: [{ parts: [{ text: prompt }] }]
+                }, { timeout: 8000 });
+
+                const text = response.data.candidates[0].content.parts[0].text.trim();
+                let jsonText = text;
+                if (jsonText.includes('\`\`\`json')) {
+                    jsonText = jsonText.split('\`\`\`json')[1].split('\`\`\`')[0].trim();
+                } else if (jsonText.includes('\`\`\`')) {
+                    jsonText = jsonText.split('\`\`\`')[1].split('\`\`\`')[0].trim();
+                }
+
+                const parsed = JSON.parse(jsonText);
+                if (typeof parsed.score === 'number' && typeof parsed.feedback === 'string') {
+                    evalResult.score = parsed.score;
+                    evalResult.feedback = parsed.feedback;
+                }
+            } catch (llmErr) {
+                console.warn('Gemini LLM evaluation failed, falling back to basic evaluation:', llmErr.message);
+            }
+        }
 
         session.qa_pairs[currentPairIndex].answer = transcript || '';
         session.qa_pairs[currentPairIndex].score = evalResult.score;

@@ -11,6 +11,7 @@ import CodingAssessment from './pages/CodingAssessment';
 import InterviewPage from './pages/InterviewPage';
 import CircuitExamPage from './pages/CircuitExamPage';
 import CadExamPage from './pages/CadExamPage';
+import LiveInterview from './pages/LiveInterview';
 import RightClickGuard from './components/RightClickGuard';
 
 // ─────────────────────────────────────────────
@@ -105,6 +106,13 @@ export default function App() {
                 <Route path="/admin/exam/:examId" element={
                     <PrivateRoute role="admin">
                         <ExamConfig />
+                    </PrivateRoute>
+                } />
+
+                {/* ── Live Video Interview (Both Admin and Student) ── */}
+                <Route path="/live-interview/:roomId" element={
+                    <PrivateRoute>
+                        <LiveInterview />
                     </PrivateRoute>
                 } />
 

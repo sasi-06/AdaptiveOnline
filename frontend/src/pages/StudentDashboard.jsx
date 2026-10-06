@@ -431,7 +431,18 @@ export default function StudentDashboard() {
 
                 <div className="sd-main">
                     <div className="sd-topbar">
-                        <div className="sd-topbar-title">{section}</div>
+                        <div className="sd-topbar-title">
+                            {section}
+                            <button 
+                                onClick={() => {
+                                    const roomId = prompt("Enter the Live Interview Room ID provided by the admin:");
+                                    if (roomId) navigate(`/live-interview/${roomId}`);
+                                }}
+                                style={{ marginLeft: '16px', background: t.accent, color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                            >
+                                🎥 Join Live Interview
+                            </button>
+                        </div>
                         <div className="sd-topbar-user">
                             <span className="sd-user-dot" />
                             {studentName}
